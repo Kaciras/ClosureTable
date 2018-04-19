@@ -2,6 +2,16 @@
 
 基于ClosureTable的数据库无限级分类存储实现。
 
+![ClosureTable示例](https://blog.kaciras.net/image/AE18CD3D37C00AEC5977B531F8559915EDCF1232E3AF2E3047A5D61CF3E15393.png)
+
+ClosureTable以一张表存储节点之间的关系、其中包含了任何两个有关系（祖先与子代）节点的关联信息。其包含3个字段：
+                                                     
+* `ancestor` 祖先：祖先节点的id
+* `descendant` 子代：子代节点的id
+* `distance` 距离：子代到祖先中间隔了几代
+
+ClosureTable能够很好地解决树结构的查询需求。
+
 基本用法：
 
 ```java
