@@ -31,7 +31,7 @@ final class CategoryStoreTest {
 	private static final String DB_USER = "用户名";
 	private static final String DB_PASSWORD = "密码";
 
-	private static CategoryStore categoryStore;
+	private static Repository repository;
 	private static SqlSession session;
 
 	@BeforeAll
@@ -52,7 +52,10 @@ final class CategoryStoreTest {
 		
 		SqlSessionFactory sessionFactory = new DefaultSqlSessionFactory(config);
 		session = sessionFactory.openSession();
-		categoryStore = new ClosureTableCategoryStore(session.getMapper(CategoryMapper.class));
+
+		CategoryMapper mapper = session.getMapper(CategoryMapper.class);
+		repository = new Repository(mapper);
+		Category.categoryMapper = mapper;
 
 		/*
 		 * 测试数据如下:
@@ -100,187 +103,172 @@ final class CategoryStoreTest {
 	@Test
 	void testAddAndGet() {
 		/* 分类为null时抛异常 */
-		assertThatThrownBy(() -> categoryStore.add(null, 0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(null, 0)).isInstanceOf(IllegalArgumentException.class);
 
 		/* 分类中有属性为null时抛异常 */
 		Category c0 = new Category();
-		assertThatThrownBy(() -> categoryStore.add(c0, 0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(c0, 0)).isInstanceOf(IllegalArgumentException.class);
 
 		c0.setName("Name");
 		c0.setCover("Cover");
 		c0.setDescription("Desc");
 
 		/* parent指定的分类不存在时抛异常 */
-		assertThatThrownBy(() -> categoryStore.add(c0, 567)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(c0, 567)).isInstanceOf(IllegalArgumentException.class);
 
 		/* 设置属性后正常添加，返回id */
 		assertThat(c0.getId()).isEqualTo(0);
-		categoryStore.add(c0, 0);
+		repository.add(c0, 0);
 		assertThat(c0.getId()).isNotEqualTo(0);
 
 		/* get方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.get(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.get(0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(-123)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(0)).isInstanceOf(IllegalArgumentException.class);
 
 		/* 指定分类不存在时抛异常 */
-		assertThat(categoryStore.get(123)).isNull();
+		assertThat(repository.get(123)).isNull();
 
 		/* get出来的对象与原对象属性相同 */
-		Category got = categoryStore.get(c0.getId());
+		Category got = repository.get(c0.getId());
 		assertThat(got).isEqualToComparingFieldByField(c0);
 	}
 
 	@Test
 	void testGetParent() {
-		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.getParent(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getParent(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getParent(1)).isInstanceOf(IllegalArgumentException.class);
-
-		assertThat(categoryStore.getParent(exceptData(2).getId())).isEqualToComparingFieldByField(exceptData(1));
-		assertThat(categoryStore.getParent(exceptData(4).getId())).isEqualToComparingFieldByField(exceptData(2));
-		assertThatThrownBy(() -> categoryStore.getParent(exceptData(1).getId())).isInstanceOf(IllegalArgumentException.class);
+		assertThat(repository.get(2).getParent()).isEqualToComparingFieldByField(exceptData(1));
+		assertThat(repository.get(4).getParent()).isEqualToComparingFieldByField(exceptData(2));
+		assertThat(repository.get(1).getParent()).isNull();
 	}
 
 	@Test
 	void testGetAncestor() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.getAncestor(1, -123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getAncestor(1, 0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(4).getAncestor(-5)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(4).getAncestor(0)).isInstanceOf(IllegalArgumentException.class);
 
-		assertThat(categoryStore.getAncestor(exceptData(4).getId(), 2)).isEqualToComparingFieldByField(exceptData(1));
-		assertThat(categoryStore.getAncestor(exceptData(1).getId(), 2)).isNull();
+		assertThat(repository.get(4).getAncestor(2)).isEqualToComparingFieldByField(exceptData(1));
+		assertThat(repository.get(1).getAncestor(2)).isNull();
 	}
 
 	@Test
 	void testGetPath() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.getPath(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getPath(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getPath(-123, 1)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getPath(0, 1)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(7).getPath(-5)).isInstanceOf(IllegalArgumentException.class);
 
-		/* 测试getPath(int)结果的正确性 */
-		assertThat(categoryStore.getPath(exceptData(5).getId()))
-				.usingFieldByFieldElementComparator().containsExactly(exceptData(1), exceptData(2), exceptData(5));
+		/* 测试Category.getPath() */
+		assertThat(repository.get(5).getPath())
+				.usingFieldByFieldElementComparator()
+				.containsExactly(exceptData(1), exceptData(2), exceptData(5));
 
-		/* 测试getPath(int, int)结果的正确性 */
-		assertThat(categoryStore.getPath(exceptData(7).getId(), exceptData(2).getId()))
+		/* 测试Category.getPath(int) */
+		assertThat(repository.get(7).getPath(2))
 				.usingFieldByFieldElementComparator()
 				.containsExactly(exceptData(5), exceptData(7));
 
 		/* 结果不存在时返回空列表 */
-		assertThat(categoryStore.getPath(12345)).isEmpty();
-		assertThat(categoryStore.getPath(exceptData(6).getId(), 12345)).isEmpty();
-		assertThat(categoryStore.getPath(exceptData(6).getId(), exceptData(6).getId())).isEmpty();
+		assertThat(repository.get(5).getPath(123456)).isEmpty();
 	}
 
 	@Test
-	void testGetSubCategories() {
+	void testfindByAncestor() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.getSubCategories(-123)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.findChildren(-123)).isInstanceOf(IllegalArgumentException.class);
 
-		assertThat(categoryStore.getSubCategories(666)).isEmpty();
+		assertThat(repository.findChildren(666)).isEmpty();
 
 		/* 测试getSubCategories(int)结果的正确性 */
-		assertThat(categoryStore.getSubCategories(exceptData(2).getId()))
+		assertThat(repository.findChildren(exceptData(2).getId()))
 				.usingFieldByFieldElementComparator().containsExactly(exceptData(3), exceptData(4), exceptData(5));
 
 		/* 测试getSubCategories(int, int)结果的正确性 */
-		assertThat(categoryStore.getSubCategories(exceptData(2).getId(), 3))
+		assertThat(repository.findChildren(exceptData(2).getId(), 3))
 				.usingFieldByFieldElementComparator().containsExactly(exceptData(8), exceptData(9), exceptData(10));
 	}
 
 	@Test
 	void testGetCount() {
-		assertThatThrownBy(() -> categoryStore.getCount(-1)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.getCount(-1)).isInstanceOf(IllegalArgumentException.class);
 
-		assertThat(categoryStore.getCount()).isEqualTo(13);
-		assertThat(categoryStore.getCount(5)).isEqualTo(3);
+		assertThat(repository.getCount()).isEqualTo(13);
+		assertThat(repository.getCount(5)).isEqualTo(3);
 	}
 
 	@Test
 	void testGetLevel() {
-		assertThatThrownBy(() -> categoryStore.getLevel(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getLevel(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.getLevel(123)).isInstanceOf(IllegalArgumentException.class);
-
-		assertThat(categoryStore.getLevel(exceptData(9).getId())).isEqualTo(5);
-		assertThat(categoryStore.getLevel(exceptData(11).getId())).isEqualTo(1);
+		assertThat(repository.get(9).getLevel()).isEqualTo(5);
+		assertThat(repository.get(11).getLevel()).isEqualTo(1);
 	}
 
 	@Test
 	void testMove() {
-		assertThatThrownBy(() -> categoryStore.move(-123, 45)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.move(123, -45)).isInstanceOf(IllegalArgumentException.class);
-
-		assertThatThrownBy(() -> categoryStore.move(exceptData(2).getId(), exceptData(2).getId()))
+		assertThatThrownBy(() -> repository.get(2).moveTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.move(123, exceptData(7).getId()))
+		assertThatThrownBy(() -> repository.get(2).moveTo(2))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.move(exceptData(2).getId(), 45))
+		assertThatThrownBy(() -> repository.get(2).moveTo(123))
 				.isInstanceOf(IllegalArgumentException.class);
 
-		categoryStore.move(exceptData(2).getId(), exceptData(7).getId());
+		repository.get(2).moveTo(7);
 
-		assertThat(categoryStore.getSubCategories(1))
+		assertThat(repository.findChildren(1))
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(3), exceptData(4), exceptData(5));
-		assertThat(categoryStore.getParent(2)).isEqualToComparingFieldByField(exceptData(7));
+
+		assertThat(repository.get(2).getParent()).isEqualToComparingFieldByField(exceptData(7));
 	}
 
 	@Test
 	void testMoveTree() {
-		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.moveTree(-123, 45)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.moveTree(123, -45)).isInstanceOf(IllegalArgumentException.class);
-
-		/* 方法参数错误时抛异常2 */
-		assertThatThrownBy(() -> categoryStore.moveTree(exceptData(2).getId(), exceptData(2).getId()))
+		assertThatThrownBy(() -> repository.get(2).moveTreeTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.moveTree(123, exceptData(7).getId()))
+		assertThatThrownBy(() -> repository.get(2).moveTreeTo(2))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.moveTree(exceptData(2).getId(), 45))
+		assertThatThrownBy(() -> repository.get(2).moveTreeTo(123))
 				.isInstanceOf(IllegalArgumentException.class);
 
-		categoryStore.moveTree(exceptData(2).getId(), exceptData(7).getId());
+
+		repository.get(2).moveTreeTo(7);
 
 		/* 测试结果的正确性 */
-		assertThat(categoryStore.getSubCategories(exceptData(1).getId()))
-				.usingFieldByFieldElementComparator().containsExactlyInAnyOrder(exceptData(7));
-		assertThat(categoryStore.getSubCategories(exceptData(2).getId()))
-				.usingFieldByFieldElementComparator().containsExactlyInAnyOrder(exceptData(3), exceptData(4), exceptData(5));
-		assertThat(categoryStore.getParent(2)).isEqualToComparingFieldByField(exceptData(7));
+		assertThat(repository.findChildren(exceptData(1).getId()))
+				.usingFieldByFieldElementComparator()
+				.containsExactlyInAnyOrder(exceptData(7));
+		assertThat(repository.findChildren(exceptData(2).getId()))
+				.usingFieldByFieldElementComparator()
+				.containsExactlyInAnyOrder(exceptData(3), exceptData(4), exceptData(5));
+		assertThat(repository.get(2).getParent())
+				.isEqualToComparingFieldByField(exceptData(7));
 	}
 
 	@Test
 	void testDelete() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> categoryStore.delete(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.delete(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.delete(45)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.delete(-123)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.delete(0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.delete(45)).isInstanceOf(IllegalArgumentException.class);
 
-		categoryStore.delete(exceptData(1).getId());
+		repository.delete(exceptData(1).getId());
 
 		/* 测试结果的正确性 */
-		assertThat(categoryStore.getSubCategories(0))
+		assertThat(repository.findChildren(0))
 				.usingFieldByFieldElementComparator().containsExactlyInAnyOrder(exceptData(2), exceptData(11));
-		assertThat(categoryStore.getPath(exceptData(7).getId()))
-				.usingFieldByFieldElementComparator().containsExactly(exceptData(2), exceptData(5), exceptData(7));
+		assertThat(repository.get(7).getPath())
+				.usingFieldByFieldElementComparator()
+				.containsExactly(exceptData(2), exceptData(5), exceptData(7));
 	}
 
 	@Test
 	void testDeleteTree() {
-		assertThatThrownBy(() -> categoryStore.deleteTree(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.deleteTree(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> categoryStore.deleteTree(45)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.deleteTree(-123)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.deleteTree(0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.deleteTree(45)).isInstanceOf(IllegalArgumentException.class);
 
-		categoryStore.deleteTree(5);
+		repository.deleteTree(5);
 
-		assertThat(categoryStore.get(7)).isNull();
-		assertThat(categoryStore.get(8)).isNull();
+		assertThat(repository.get(7)).isNull();
+		assertThat(repository.get(8)).isNull();
 
-		assertThat(categoryStore.getSubCategories(2))
+		assertThat(repository.findChildren(2))
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(3), exceptData(4));
 	}
@@ -293,11 +281,11 @@ final class CategoryStoreTest {
 		categoryDTO.setCover("NewCover");
 
 		/* 不能更新顶级分类 */
-		assertThatThrownBy(() -> categoryStore.update(categoryDTO)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.update(categoryDTO)).isInstanceOf(IllegalArgumentException.class);
 
 		categoryDTO.setId(1);
-		categoryStore.update(categoryDTO);
+		repository.update(categoryDTO);
 
-		assertThat(categoryStore.get(exceptData(1).getId())).isEqualToComparingFieldByField(categoryDTO);
+		assertThat(repository.get(exceptData(1).getId())).isEqualToComparingFieldByField(categoryDTO);
 	}
 }

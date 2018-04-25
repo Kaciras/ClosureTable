@@ -29,8 +29,6 @@ INSERT INTO `Category` (`id`, `name`, `cover`, `description`) VALUES
 
 /*!40000 ALTER TABLE `CategoryTree` DISABLE KEYS */;
 INSERT INTO `CategoryTree` (`ancestor`, `descendant`, `distance`) VALUES
-  (0, 0, 0);
-INSERT INTO `CategoryTree` (`ancestor`, `descendant`, `distance`) VALUES
   (0, 1, 1);
 INSERT INTO `CategoryTree` (`ancestor`, `descendant`, `distance`) VALUES
   (1, 1, 0);
