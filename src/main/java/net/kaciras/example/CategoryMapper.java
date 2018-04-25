@@ -43,13 +43,24 @@ public interface CategoryMapper {
 	int selectCountByLayer(int level);
 
 	/**
+	 * 查询某个节点的子树中所有的节点，不包括参数所指定的节点
+	 *
+	 * @param id 节点id
+	 * @return 子节点
+	 */
+	@Select("SELECT B.* FROM CategoryTree AS A " +
+			"JOIN Category AS B ON A.descendant=B.id " +
+			"WHERE ancestor=#{id} AND distance>0")
+	List<Category> selectDescendant(int id);
+
+	/**
 	 * 查询某个节点的子树中所有的节点的id，不包括参数所指定的节点
 	 *
 	 * @param id 节点id
 	 * @return 子节点id
 	 */
 	@Select("SELECT descendant FROM CategoryTree WHERE ancestor=#{id} AND distance>0")
-	int[] selectDescendant(int id);
+	int[] selectDescendantId(int id);
 
 	/**
 	 * 查询某个节点的第n级子节点
