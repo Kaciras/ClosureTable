@@ -14,6 +14,10 @@ import java.util.List;
 @Data
 public class Category {
 
+	/*
+	 * 在使用前需要将CategoryMapper注入此类。
+	 * 如果用Spring，可以依靠@Configurable来完成
+	 */
 	static CategoryMapper categoryMapper;
 
 	/** 分类id，数据库生成 */
@@ -89,7 +93,7 @@ public class Category {
 	 *       1                                     1
 	 *       |                                   / | \
 	 *       2                                  3  4  5
-	 *     / | \             move(2,7)               / \
+	 *     / | \             moveTo(2,7)             / \
 	 *    3  4  5         --------------->          6   7
 	 *         / \                                 /  / | \
 	 *       6    7                               8  9  10 2
@@ -99,7 +103,7 @@ public class Category {
 	 * @param target 目标分类的id
 	 * @throws IllegalArgumentException 如果target所表示的分类不存在、或此分类的id==target
 	 */
-	public void move(int target) {
+	public void moveTo(int target) {
 		if(id == target) {
 			throw new IllegalArgumentException("不能移动到自己下面");
 		}
@@ -122,7 +126,7 @@ public class Category {
 	 *       1                                     1
 	 *       |                                     |
 	 *       2                                     7
-	 *     / | \           moveTree(2,7)         / | \
+	 *     / | \           moveTreeTo(2,7)         / | \
 	 *    3  4  5         --------------->      9  10  2
 	 *         / \                                   / | \
 	 *       6    7                                 3  4  5
@@ -134,7 +138,7 @@ public class Category {
 	 * @param target 目标分类的id
 	 * @throws IllegalArgumentException 如果id或target所表示的分类不存在、或id==target
 	 */
-	public void moveTree(int target) {
+	public void moveTreeTo(int target) {
 		Utils.checkNotNegative(target, "target");
 		if(target > 0 && categoryMapper.contains(target) == null) {
 			throw new IllegalArgumentException("指定的上级分类不存在");

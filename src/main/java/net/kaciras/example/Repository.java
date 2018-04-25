@@ -65,8 +65,8 @@ public class Repository {
 	 * @return 直属子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
 	 * @throws IllegalArgumentException 如果id小于0
 	 */
-	public List<Category> getSubCategories(int id) {
-		return getSubCategories(id, 1);
+	public List<Category> findChildren(int id) {
+		return findChildren(id, 1);
 	}
 
 	/**
@@ -77,13 +77,13 @@ public class Repository {
 	 * @return 子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
 	 * @throws IllegalArgumentException 如果id小于0，或n不是正数
 	 */
-	public List<Category> getSubCategories(int id, int n) {
+	public List<Category> findChildren(int id, int n) {
 		Utils.checkNotNegative(id, "id");
 		Utils.checkPositive(n, "n");
 		return categoryMapper.selectSubLayer(id, n);
 	}
 
-	public List<Category> getDescendant(int ancestor) {
+	public List<Category> findByAncestor(int ancestor) {
 		Utils.checkNotNegative(ancestor, "ancestor");
 		return categoryMapper.selectDescendant(ancestor);
 	}
@@ -115,7 +115,7 @@ public class Repository {
 
 	/**
 	 * 该方法仅更新分类的属性，不修改继承关系，若要移动节点请使用
-	 * <code>move</code>和<code>moveTree</code>
+	 * <code>moveTo</code>和<code>moveTreeTo</code>
 	 *
 	 * @param category 新的分类信息对象
 	 */
