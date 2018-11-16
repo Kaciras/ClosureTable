@@ -80,8 +80,8 @@ final class CategoryStoreTest {
 	@AfterAll
 	static void close() throws SQLException {
 		Statement statement = session.getConnection().createStatement();
-		statement.execute("DROP TABLE Category");
-		statement.execute("DROP TABLE CategoryTree");
+		statement.execute("DROP TABLE category");
+		statement.execute("DROP TABLE category_tree");
 		session.commit(true);
 		session.close();
 	}
