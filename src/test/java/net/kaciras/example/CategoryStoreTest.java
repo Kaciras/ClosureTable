@@ -153,20 +153,20 @@ final class CategoryStoreTest {
 	@Test
 	void testGetPath() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> repository.get(7).getPath(-5)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.get(7).getPathTo(-5)).isInstanceOf(IllegalArgumentException.class);
 
 		/* 测试Category.getPath() */
 		assertThat(repository.get(5).getPath())
 				.usingFieldByFieldElementComparator()
 				.containsExactly(exceptData(1), exceptData(2), exceptData(5));
 
-		/* 测试Category.getPath(int) */
-		assertThat(repository.get(7).getPath(2))
+		/* 测试Category.getPathTo(int) */
+		assertThat(repository.get(7).getPathTo(2))
 				.usingFieldByFieldElementComparator()
 				.containsExactly(exceptData(5), exceptData(7));
 
 		/* 结果不存在时返回空列表 */
-		assertThat(repository.get(5).getPath(123456)).isEmpty();
+		assertThat(repository.get(5).getPathTo(123456)).isEmpty();
 	}
 
 	@Test

@@ -71,7 +71,7 @@ public class Category {
 	 * @return 分类实体列表，越靠上的分类在列表中的位置越靠前。
 	 * @throws IllegalArgumentException 如果ancestor小于0。
 	 */
-	public List<Category> getPath(int ancestor) {
+	public List<Category> getPathTo(int ancestor) {
 		Utils.checkPositive(ancestor, "ancestor");
 		return categoryMapper.selectPathToAncestor(id, ancestor);
 	}
