@@ -34,26 +34,28 @@ public class Repository {
 	 * @return 分类的实体对象
 	 * @throws IllegalArgumentException 如果id不是正数
 	 */
-	public Category get(int id) {
+	public Category findById(int id) {
 		Utils.checkPositive(id, "id");
 		return categoryMapper.selectAttributes(id);
 	}
 
 	/**
-	 * 获取所有分类的数量
+	 * 获取所有分类的数量。
+	 *
 	 * @return 数量
 	 */
-	public int getCount() {
+	public int count() {
 		return categoryMapper.selectCount();
 	}
 
 	/**
-	 * 获取某一级分类的数量
+	 * 获取某一级分类的数量。
+	 *
 	 * @param layer 层级（从1开始）
 	 * @return 数量
 	 * @throws IllegalArgumentException 如果layer不是正数
 	 */
-	public int getCount(int layer) {
+	public int countOfLayer(int layer) {
 		Utils.checkPositive(layer, "layer");
 		return categoryMapper.selectCountByLayer(layer);
 	}
@@ -81,11 +83,6 @@ public class Repository {
 		Utils.checkNotNegative(id, "id");
 		Utils.checkPositive(n, "n");
 		return categoryMapper.selectSubLayer(id, n);
-	}
-
-	public List<Category> findByAncestor(int ancestor) {
-		Utils.checkNotNegative(ancestor, "ancestor");
-		return categoryMapper.selectDescendant(ancestor);
 	}
 
 	/**
@@ -142,7 +139,7 @@ public class Repository {
 		if (parent == null) {
 			parent = 0;
 		}
-		get(id).moveSubTree(parent);
+		findById(id).moveSubTree(parent);
 		deleteBoth(id);
 	}
 
