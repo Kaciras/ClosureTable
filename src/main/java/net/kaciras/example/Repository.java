@@ -61,31 +61,6 @@ public class Repository {
 	}
 
 	/**
-	 * 获取指定id的分类下的直属子分类，id为0表示获取所有一级分类。
-	 *
-	 * @param id 指定分类的id
-	 * @return 直属子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
-	 * @throws IllegalArgumentException 如果id小于0
-	 */
-	public List<Category> findChildren(int id) {
-		return findChildren(id, 1);
-	}
-
-	/**
-	 * 获取指定id的分类下的第n级子分类，id参数可以为0。
-	 *
-	 * @param id 指定分类的id
-	 * @param n 向下级数，1表示直属子分类
-	 * @return 子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
-	 * @throws IllegalArgumentException 如果id小于0，或n不是正数
-	 */
-	public List<Category> findChildren(int id, int n) {
-		Utils.checkNotNegative(id, "id");
-		Utils.checkPositive(n, "n");
-		return categoryMapper.selectSubLayer(id, n);
-	}
-
-	/**
 	 * 新增一个分类，其ID属性将自动生成或计算，并返回。
 	 * 新增分类的继承关系由parent属性指定，parent为0表示该分类为一级分类。
 	 *

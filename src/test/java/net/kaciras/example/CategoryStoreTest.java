@@ -91,7 +91,13 @@ final class CategoryStoreTest {
 	void afterEach() {
 		session.rollback(true);
 	}
-	
+
+	/**
+	 * 生成一个指定ID的分类对象，其属性与测试数据一致，作为断言时的预期对象。
+	 *
+	 * @param id 分类ID
+	 * @return 分类对象
+	 */
 	private static Category exceptData(int id) {
 		Category category = new Category();
 		category.setId(id);
@@ -171,18 +177,13 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testfindByAncestor() {
-		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> repository.findChildren(-123)).isInstanceOf(IllegalArgumentException.class);
-
-		assertThat(repository.findChildren(666)).isEmpty();
-
-		/* 测试getSubCategories(int)结果的正确性 */
-		assertThat(repository.findChildren(exceptData(2).getId()))
+	void testGetChildren() {
+		/* 测试 getChildren() 结果的正确性 */
+		assertThat(repository.findById(2).getChildren())
 				.usingFieldByFieldElementComparator().containsExactly(exceptData(3), exceptData(4), exceptData(5));
 
-		/* 测试getSubCategories(int, int)结果的正确性 */
-		assertThat(repository.findChildren(exceptData(2).getId(), 3))
+		/* 测试 getChildren(int) 结果的正确性 */
+		assertThat(repository.findById(2).getChildren(3))
 				.usingFieldByFieldElementComparator().containsExactly(exceptData(8), exceptData(9), exceptData(10));
 	}
 
@@ -211,7 +212,7 @@ final class CategoryStoreTest {
 
 		repository.findById(2).moveTo(7);
 
-		assertThat(repository.findChildren(1))
+		assertThat(repository.findById(1).getChildren())
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(3), exceptData(4), exceptData(5));
 
@@ -231,10 +232,10 @@ final class CategoryStoreTest {
 		repository.findById(2).moveTreeTo(7);
 
 		/* 测试结果的正确性 */
-		assertThat(repository.findChildren(exceptData(1).getId()))
+		assertThat(repository.findById(1).getChildren())
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(7));
-		assertThat(repository.findChildren(exceptData(2).getId()))
+		assertThat(repository.findById(2).getChildren())
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(3), exceptData(4), exceptData(5));
 		assertThat(repository.findById(2).getParent())
@@ -251,7 +252,7 @@ final class CategoryStoreTest {
 		repository.delete(exceptData(1).getId());
 
 		/* 测试结果的正确性 */
-		assertThat(repository.findChildren(0))
+		assertThat(repository.findById(0).getChildren())
 				.usingFieldByFieldElementComparator().containsExactlyInAnyOrder(exceptData(2), exceptData(11));
 		assertThat(repository.findById(7).getPath())
 				.usingFieldByFieldElementComparator()
@@ -269,7 +270,7 @@ final class CategoryStoreTest {
 		assertThat(repository.findById(7)).isNull();
 		assertThat(repository.findById(8)).isNull();
 
-		assertThat(repository.findChildren(2))
+		assertThat(repository.findById(2).getChildren())
 				.usingFieldByFieldElementComparator()
 				.containsExactlyInAnyOrder(exceptData(3), exceptData(4));
 	}

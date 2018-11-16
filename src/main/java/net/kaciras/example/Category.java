@@ -15,7 +15,7 @@ import java.util.List;
 public class Category {
 
 	/*
-	 * 在使用前需要将CategoryMapper注入此类。
+	 * 使用充血模型，在调用方法前需要将CategoryMapper注入此类。
 	 * 如果用Spring，可以依靠@Configurable来完成
 	 */
 	static CategoryMapper categoryMapper;
@@ -51,6 +51,29 @@ public class Category {
 		Utils.checkPositive(n, "distant");
 		Integer parent = categoryMapper.selectAncestor(id, n);
 		return parent == null ? null : categoryMapper.selectAttributes(parent);
+	}
+
+	/**
+	 * 分类的下的直属子分类。
+	 *
+	 * @return 直属子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
+	 * @throws IllegalArgumentException 如果id小于0
+	 */
+	public List<Category> getChildren() {
+		return getChildren(1);
+	}
+
+	/**
+	 * 分类的下的第n级子分类。
+	 *
+	 * @param n 向下级数，1表示直属子分类
+	 * @return 子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
+	 * @throws IllegalArgumentException 如果id小于0，或n不是正数
+	 */
+	public List<Category> getChildren(int n) {
+		Utils.checkNotNegative(id, "id");
+		Utils.checkPositive(n, "n");
+		return categoryMapper.selectSubLayer(id, n);
 	}
 
 	/**
