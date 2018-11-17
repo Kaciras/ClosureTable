@@ -1,14 +1,6 @@
 package net.kaciras.example;
 
-import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,23 +28,7 @@ final class CategoryStoreTest {
 
 	@BeforeAll
 	static void init() throws Exception {
-		UnpooledDataSource dataSource = MyConfig.createDataSource();
-//		UnpooledDataSource dataSource = new UnpooledDataSource();
-//		dataSource.setDriver(DB_DRIVER);
-//		dataSource.setUrl(DB_URL);
-//		dataSource.setUsername(DB_USER);
-//		dataSource.setPassword(DB_PASSWORD);
-		dataSource.setAutoCommit(false);
-
-		TransactionFactory transactionFactory = new JdbcTransactionFactory();
-		Environment environment = new Environment("test", transactionFactory, dataSource);
-		
-		Configuration config = new Configuration();
-		config.addMapper(CategoryMapper.class);
-		config.setEnvironment(environment);
-		
-		SqlSessionFactory sessionFactory = new DefaultSqlSessionFactory(config);
-		session = sessionFactory.openSession();
+		session = Utils.createSqlSession(DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD);
 
 		CategoryMapper mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);
@@ -74,8 +50,8 @@ final class CategoryStoreTest {
 		 *       /    /  \
 		 *      8    9    10
 		 */
-		Utils.executeScript(dataSource.getConnection(), "table.sql");
-		Utils.executeScript(dataSource.getConnection(), "data.sql");
+		Utils.executeScript(session.getConnection(), "table.sql");
+		Utils.executeScript(session.getConnection(), "data.sql");
 	}
 	
 	@AfterAll

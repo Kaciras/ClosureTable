@@ -1,7 +1,16 @@
 package net.kaciras.example;
 
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
+import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -32,6 +41,28 @@ final class Utils {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
 		return obj;
+	}
+
+	public static SqlSession createSqlSession(String driver, String url, String user, String password) {
+		UnpooledDataSource dataSource = new UnpooledDataSource();
+		dataSource.setDriver(driver);
+		dataSource.setUrl(url);
+		dataSource.setUsername(user);
+		dataSource.setPassword(password);
+		dataSource.setAutoCommit(false);
+		return createSqlSession(dataSource);
+	}
+
+	public static SqlSession createSqlSession(DataSource dataSource) {
+		TransactionFactory transactionFactory = new JdbcTransactionFactory();
+		Environment environment = new Environment("test", transactionFactory, dataSource);
+
+		Configuration config = new Configuration();
+		config.addMapper(CategoryMapper.class);
+		config.setEnvironment(environment);
+
+		SqlSessionFactory sessionFactory = new DefaultSqlSessionFactory(config);
+		return sessionFactory.openSession();
 	}
 
 	/**
