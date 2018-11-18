@@ -77,7 +77,7 @@ public class Category {
 	}
 
 	/**
-	 * 获取由顶级分类（不含）到此分类(含)路径上的所有分类的实体对象。
+	 * 获取由顶级分类到此分类(含)路径上的所有的分类对象。
 	 * 如果指定的分类不存在，则返回空列表。
 	 *
 	 * @return 分类实体列表，越靠上的分类在列表中的位置越靠前
@@ -92,20 +92,20 @@ public class Category {
 	 *
 	 * @param ancestor 上级分类的id，若为0则表示获取到一级分类（含）的列表。
 	 * @return 分类实体列表，越靠上的分类在列表中的位置越靠前。
-	 * @throws IllegalArgumentException 如果ancestor小于0。
+	 * @throws IllegalArgumentException 如果ancestor小于1。
 	 */
-	public List<Category> getPathTo(int ancestor) {
+	public List<Category> getPathRelativeTo(int ancestor) {
 		Utils.checkPositive(ancestor, "ancestor");
 		return categoryMapper.selectPathToAncestor(id, ancestor);
 	}
 
 	/**
-	 * 查询分类是哪一级的。
+	 * 查询分类是哪一级的，根分类级别是0。
 	 *
 	 * @return 级别
 	 */
 	int getLevel() {
-		return Utils.notNull(categoryMapper.selectDistance(0, id));
+		return categoryMapper.selectDistance(0, id);
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class Category {
 	 *       1                                    1
 	 *       |                                  / | \
 	 *       2                                 3  4  5
-	 *     / | \        (id=2).moveTo(7)            / \
+	 *     / | \         (id=2).moveTo(7)           / \
 	 *    3  4  5       ----------------->         6   7
 	 *         / \                                /  / | \
 	 *       6    7                              8  9  10 2

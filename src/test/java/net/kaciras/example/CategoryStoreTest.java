@@ -1,6 +1,7 @@
 package net.kaciras.example;
 
 import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ final class CategoryStoreTest {
 		Utils.executeScript(session.getConnection(), "table.sql");
 		Utils.executeScript(session.getConnection(), "data.sql");
 	}
-	
+
 	@AfterAll
 	static void close() throws SQLException {
 		Statement statement = session.getConnection().createStatement();
@@ -99,16 +100,15 @@ final class CategoryStoreTest {
 		/* parent指定的分类不存在时抛异常 */
 		assertThatThrownBy(() -> repository.add(c0, 567)).isInstanceOf(IllegalArgumentException.class);
 
-		/* 设置属性后正常添加，返回id */
+		/* 设置属性后正常添加，并设置对象的id */
 		assertThat(c0.getId()).isEqualTo(0);
 		repository.add(c0, 0);
 		assertThat(c0.getId()).isNotEqualTo(0);
 
 		/* get方法参数错误时抛异常 */
 		assertThatThrownBy(() -> repository.findById(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> repository.findById(0)).isInstanceOf(IllegalArgumentException.class);
 
-		/* 指定分类不存在时抛异常 */
+		/* 指定分类不存在返回null */
 		assertThat(repository.findById(123)).isNull();
 
 		/* get出来的对象与原对象属性相同 */
@@ -120,7 +120,7 @@ final class CategoryStoreTest {
 	void testGetParent() {
 		assertThat(repository.findById(2).getParent()).isEqualToComparingFieldByField(exceptData(1));
 		assertThat(repository.findById(4).getParent()).isEqualToComparingFieldByField(exceptData(2));
-		assertThat(repository.findById(1).getParent()).isNull();
+		assertThat(repository.findById(0).getParent()).isNull();
 	}
 
 	@Test
@@ -136,20 +136,21 @@ final class CategoryStoreTest {
 	@Test
 	void testGetPath() {
 		/* 方法参数错误时抛异常 */
-		assertThatThrownBy(() -> repository.findById(7).getPathTo(-5)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.findById(7).getPathRelativeTo(-5))
+				.isInstanceOf(IllegalArgumentException.class);
 
-		/* 测试Category.getPath() */
+		/* 测试 Category.getPath() */
 		assertThat(repository.findById(5).getPath())
 				.usingFieldByFieldElementComparator()
 				.containsExactly(exceptData(1), exceptData(2), exceptData(5));
 
-		/* 测试Category.getPathTo(int) */
-		assertThat(repository.findById(7).getPathTo(2))
+		/* 测试Category.getPathRelativeTo(int) */
+		assertThat(repository.findById(7).getPathRelativeTo(2))
 				.usingFieldByFieldElementComparator()
 				.containsExactly(exceptData(5), exceptData(7));
 
 		/* 结果不存在时返回空列表 */
-		assertThat(repository.findById(5).getPathTo(123456)).isEmpty();
+		assertThat(repository.findById(5).getPathRelativeTo(12)).isEmpty();
 	}
 
 	@Test
@@ -167,7 +168,7 @@ final class CategoryStoreTest {
 	void testCount() {
 		assertThatThrownBy(() -> repository.countOfLayer(-1)).isInstanceOf(IllegalArgumentException.class);
 
-		assertThat(repository.count()).isEqualTo(13);
+		assertThat(repository.count()).isEqualTo(14);
 		assertThat(repository.countOfLayer(5)).isEqualTo(3);
 	}
 
@@ -254,11 +255,12 @@ final class CategoryStoreTest {
 	@Test
 	void testUpdate() {
 		Category categoryDTO = new Category();
+		categoryDTO.setId(999);
 		categoryDTO.setName("NewName");
 		categoryDTO.setDescription("NewDesc");
 		categoryDTO.setCover("NewCover");
 
-		/* 不能更新顶级分类 */
+		/* 不能更新不存在的分类 */
 		assertThatThrownBy(() -> repository.update(categoryDTO)).isInstanceOf(IllegalArgumentException.class);
 
 		categoryDTO.setId(1);
