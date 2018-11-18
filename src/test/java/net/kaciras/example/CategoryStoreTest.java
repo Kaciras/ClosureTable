@@ -205,10 +205,14 @@ final class CategoryStoreTest {
 	void testMove() {
 		assertThatThrownBy(() -> repository.findById(2).moveTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> repository.findById(2).moveTo(2))
-				.isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.findById(2).moveTo(123))
 				.isInstanceOf(IllegalArgumentException.class);
+
+		/* 不能移动到自己下面，根分类也不能够移动 */
+		assertThatThrownBy(() -> repository.findById(2).moveTo(2))
+				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.findById(0).moveTo(2))
+				.isInstanceOf(UnsupportedOperationException.class);
 
 		repository.findById(2).moveTo(7);
 
@@ -239,11 +243,14 @@ final class CategoryStoreTest {
 	void testMoveTree() {
 		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(2))
-				.isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(123))
 				.isInstanceOf(IllegalArgumentException.class);
 
+		/* 不能移动到自己下面，根分类也不能够移动 */
+		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(2))
+				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.findById(0).moveTreeTo(2))
+				.isInstanceOf(UnsupportedOperationException.class);
 
 		repository.findById(2).moveTreeTo(7);
 

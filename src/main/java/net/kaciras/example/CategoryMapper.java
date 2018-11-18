@@ -18,6 +18,7 @@ public interface CategoryMapper {
 	\* - - - - - - - - - - - - - - - - - - - - - */
 
 	@Select("SELECT * FROM category WHERE id=#{id}")
+	@TypeDiscriminator(column = "id", javaType = int.class, cases = @Case(value = "0", type = RootCategory.class))
 	Category selectAttributes(int id);
 
 	@Select("SELECT COUNT(*) FROM category")
