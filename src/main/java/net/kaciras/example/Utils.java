@@ -1,5 +1,6 @@
 package net.kaciras.example;
 
+import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
@@ -50,7 +51,7 @@ final class Utils {
 		dataSource.setUsername(user);
 		dataSource.setPassword(password);
 		dataSource.setAutoCommit(false);
-		return createSqlSession(dataSource);
+		return createSqlSession(new PooledDataSource(dataSource));
 	}
 
 	public static SqlSession createSqlSession(DataSource dataSource) {
