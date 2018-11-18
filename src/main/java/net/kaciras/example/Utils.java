@@ -59,6 +59,7 @@ final class Utils {
 		Environment environment = new Environment("test", transactionFactory, dataSource);
 
 		Configuration config = new Configuration();
+		config.setCacheEnabled(false);
 		config.addMapper(CategoryMapper.class);
 		config.setEnvironment(environment);
 
@@ -67,7 +68,7 @@ final class Utils {
 	}
 
 	/**
-	 * 运行SQL脚本文件
+	 * 运行SQL脚本文件。
 	 *
 	 * @param connection 数据库连接
 	 * @param url 文件路径（ClassPath）
@@ -75,12 +76,12 @@ final class Utils {
 	 */
 	public static void executeScript(Connection connection, String url) throws Exception {
 		InputStream stream = Utils.class.getClassLoader().getResourceAsStream(url);
+		ScriptRunner scriptRunner = new ScriptRunner(connection);
+		scriptRunner.setLogWriter(null);
+
 		try(Reader r = new InputStreamReader(stream)) {
-			ScriptRunner scriptRunner = new ScriptRunner(connection);
-			scriptRunner.setLogWriter(null);
 			scriptRunner.runScript(r);
 			connection.commit();
-			scriptRunner.closeConnection();
 		}
 	}
 
