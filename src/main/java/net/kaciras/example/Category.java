@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 /**
- * 分类实体对象
+ * 分类对象
  *
  * @author kaciras
  */
@@ -25,12 +25,6 @@ public class Category {
 
 	/** 分类名 */
 	private String name;
-
-	/** 自定义字段，封面 */
-	private String cover;
-
-	/** 自定义字段，描述 */
-	private String description;
 
 	/**
 	 * 获取分类的父分类。
@@ -169,6 +163,8 @@ public class Category {
 
 		/* 移动分移到自己子树下和无关节点下两种情况 */
 		Integer distance = categoryMapper.selectDistance(id, target);
+
+		// noinspection StatementWithEmptyBody
 		if (distance == null) {
 			// 移动到父节点或其他无关系节点，不需要做额外动作
 		} else if (distance == 0) {

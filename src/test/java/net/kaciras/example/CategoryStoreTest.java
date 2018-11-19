@@ -80,8 +80,6 @@ final class CategoryStoreTest {
 		Category category = new Category();
 		category.setId(id);
 		category.setName("Name_" + id);
-		category.setDescription("Desc_" + id);
-		category.setCover("Cover_" + id);
 		return category;
 	}
 
@@ -97,8 +95,6 @@ final class CategoryStoreTest {
 				.isInstanceOf(IllegalArgumentException.class);
 
 		c0.setName("Name");
-		c0.setCover("Cover");
-		c0.setDescription("Desc");
 
 		/* parent指定的分类不存在时抛异常 */
 		assertThatThrownBy(() -> repository.add(c0, 567))
@@ -305,8 +301,6 @@ final class CategoryStoreTest {
 		Category categoryDTO = new Category();
 		categoryDTO.setId(999);
 		categoryDTO.setName("NewName");
-		categoryDTO.setDescription("NewDesc");
-		categoryDTO.setCover("NewCover");
 
 		/* 不能更新不存在的分类 */
 		assertThatThrownBy(() -> repository.update(categoryDTO))

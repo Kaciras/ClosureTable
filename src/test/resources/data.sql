@@ -1,30 +1,17 @@
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (1, 'Name_1', 'Cover_1', 'Desc_1');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (2, 'Name_2', 'Cover_2', 'Desc_2');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (3, 'Name_3', 'Cover_3', 'Desc_3');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (4, 'Name_4', 'Cover_4', 'Desc_4');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (5, 'Name_5', 'Cover_5', 'Desc_5');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (6, 'Name_6', 'Cover_6', 'Desc_6');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (7, 'Name_7', 'Cover_7', 'Desc_7');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (8, 'Name_8', 'Cover_8', 'Desc_8');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (9, 'Name_9', 'Cover_9', 'Desc_9');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (10, 'Name_10', 'Cover_10', 'Desc_10');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (11, 'Name_11', 'Cover_11', 'Desc_11');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (12, 'Name_12', 'Cover_12', 'Desc_12');
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES
-  (13, 'Name_13', 'Cover_13', 'Desc_13');
+INSERT INTO `category` (`id`, `name`) VALUES (1, 'Name_1');
+INSERT INTO `category` (`id`, `name`) VALUES (2, 'Name_2');
+INSERT INTO `category` (`id`, `name`) VALUES (3, 'Name_3');
+INSERT INTO `category` (`id`, `name`) VALUES (4, 'Name_4');
+INSERT INTO `category` (`id`, `name`) VALUES (5, 'Name_5');
+INSERT INTO `category` (`id`, `name`) VALUES (6, 'Name_6');
+INSERT INTO `category` (`id`, `name`) VALUES (7, 'Name_7');
+INSERT INTO `category` (`id`, `name`) VALUES (8, 'Name_8');
+INSERT INTO `category` (`id`, `name`) VALUES (9, 'Name_9');
+INSERT INTO `category` (`id`, `name`) VALUES (10, 'Name_10');
+INSERT INTO `category` (`id`, `name`) VALUES (11, 'Name_11');
+INSERT INTO `category` (`id`, `name`) VALUES (12, 'Name_12');
+INSERT INTO `category` (`id`, `name`) VALUES (13, 'Name_13');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `category_tree` DISABLE KEYS */;

@@ -7,8 +7,6 @@
 CREATE TABLE IF NOT EXISTS `category` (
 	`id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` TINYTEXT NOT NULL,
-	`cover` VARCHAR(60) NOT NULL,
-	`description` TEXT NOT NULL,
 	PRIMARY KEY (`id`)
 )
 COLLATE='utf8mb4_general_ci'
@@ -24,7 +22,7 @@ ENGINE=InnoDB;
 
 /* 插入顶级分类 */
 INSERT INTO `category_tree` (ancestor,descendant,distance) VALUES (0, 0, 0);
-INSERT INTO `category` (`id`, `name`, `cover`, `description`) VALUES (0, 'root', '', 'root of the category tree');
+INSERT INTO `category` (`id`, `name`) VALUES (0, 'root');
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

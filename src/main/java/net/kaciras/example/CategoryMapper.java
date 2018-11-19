@@ -24,10 +24,10 @@ public interface CategoryMapper {
 	@Select("SELECT COUNT(*) FROM category")
 	int selectCount();
 
-	@Update("UPDATE category SET name=#{name},cover=#{cover},description=#{description} WHERE id=#{id}")
+	@Update("UPDATE category SET `name`=#{name} WHERE id=#{id}")
 	int update(Category category);
 
-	@Insert("INSERT INTO category(name, cover, description) VALUES(#{name},#{cover},#{description})")
+	@Insert("INSERT INTO category(name) VALUES(#{name})")
 	@Options(useGeneratedKeys=true, keyColumn="id")
 	void insert(Category entity);
 
@@ -93,7 +93,7 @@ public interface CategoryMapper {
 	 * @param id 节点ID
 	 * @return 路径列表。如果节点不存在，则返回空列表
 	 */
-	@Select("SELECT id,name,cover,description FROM category_tree AS A " +
+	@Select("SELECT B.* FROM category_tree AS A " +
 			"JOIN category AS B ON A.ancestor=B.id " +
 			"WHERE descendant=#{id} AND ancestor>0 ORDER BY distance DESC")
 	List<Category> selectPathToRoot(int id);

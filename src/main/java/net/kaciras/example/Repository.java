@@ -10,8 +10,8 @@ import org.apache.ibatis.exceptions.PersistenceException;
  * 每个分类都可以拥有若干子分类，但最多只能属于一个父分类，没有父分类的称为
  * 顶级分类。分类的从属关系可以看做一棵多叉数。
  * <p>
- * 除了相互之间的关系外，分类拥有ID、名称、简介、封面四个属性。其中ID为int，
- * 由数据库自动生成。
+ * 除了相互之间的关系外，分类拥有ID、名称这两个属性。其中ID为int，
+ * 由数据库自动生成，你也可以添加其它属性。
  * <p>
  * 分类树有一个根节点，其ID为0，且不可修改ID、移动和删除。
  *
@@ -140,7 +140,7 @@ public class Repository {
 	 * @param id 分类id
 	 */
 	private void deleteBoth(int id) {
-		categoryMapper.delete(id);
+		Utils.checkEffective(categoryMapper.delete(id));
 		categoryMapper.deletePath(id);
 	}
 }
