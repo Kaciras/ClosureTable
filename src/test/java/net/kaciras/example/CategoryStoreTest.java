@@ -169,7 +169,8 @@ final class CategoryStoreTest {
 		assertThatThrownBy(() -> repository.countOfLayer(-1))
 				.isInstanceOf(IllegalArgumentException.class);
 
-		assertThat(repository.count()).isEqualTo(14);
+		/* 树中有13个分类，不包括ID为0的根分类 */
+		assertThat(repository.count()).isEqualTo(13);
 		assertThat(repository.countOfLayer(5)).isEqualTo(3);
 	}
 
