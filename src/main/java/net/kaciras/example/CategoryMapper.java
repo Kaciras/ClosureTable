@@ -35,7 +35,7 @@ public interface CategoryMapper {
 	int delete(int id);
 
 	/**
-	 * 查询某一层的节点的数量，层级使用统计记录数的方式，仅适用于单父节点（树）情况
+	 * 查询某一层的节点的数量。
 	 *
 	 * @param level 层级
 	 * @return 节点数量
@@ -73,7 +73,7 @@ public interface CategoryMapper {
 	@Select("SELECT B.* FROM category_tree AS A " +
 			"JOIN category AS B ON A.descendant=B.id " +
 			"WHERE A.ancestor=#{ancestor} AND A.distance=#{n}")
-	List<Category> selectSubLayer(@Param("ancestor") int ancestor, @Param("n") int n);
+	List<Category> selectSubLayer(int ancestor, int n);
 
 	/**
 	 * 查询某个节点的第N级父节点。如果id指定的节点不存在、操作错误或是数据库被外部修改，
@@ -84,7 +84,7 @@ public interface CategoryMapper {
 	 * @return 父节点id，如果不存在则返回null
 	 */
 	@Select("SELECT ancestor FROM category_tree WHERE descendant=#{id} AND distance=#{n}")
-	Integer selectAncestor(@Param("id") int id, @Param("n") int n);
+	Integer selectAncestor(int id, int n);
 
 	/**
 	 * 查询由id指定节点(含)到根节点(不含)的路径
@@ -110,7 +110,7 @@ public interface CategoryMapper {
 			"WHERE descendant=#{id} AND " +
 			"distance<(SELECT distance FROM category_tree WHERE descendant=#{id} AND ancestor=#{ancestor}) " +
 			"ORDER BY distance DESC")
-	List<Category> selectPathToAncestor(@Param("id") int id, @Param("ancestor") int ancestor);
+	List<Category> selectPathToAncestor(int id, int ancestor);
 
 	/**
 	 * 查找某节点下的所有直属子节点的id
@@ -130,7 +130,7 @@ public interface CategoryMapper {
 	 * @return 距离（0表示到自己的距离）,如果ancestor并不是其祖先节点则返回null
 	 */
 	@Select("SELECT distance FROM category_tree WHERE descendant=#{id} AND ancestor=#{ancestor}")
-	Integer selectDistance(@Param("ancestor") int ancestor, @Param("id") int id);
+	Integer selectDistance(int ancestor, int id);
 
 	/**
 	 * 复制父节点的路径结构,并修改descendant和distance
@@ -140,7 +140,7 @@ public interface CategoryMapper {
 	 */
 	@Insert("INSERT INTO category_tree(ancestor,descendant,distance) " +
 			"(SELECT ancestor,#{id},distance+1 FROM category_tree WHERE descendant=#{parent})")
-	void insertPath(@Param("id") int id, @Param("parent") int parent);
+	void insertPath(int id, int parent);
 
 	/**
 	 * 在关系表中插入对自身的连接

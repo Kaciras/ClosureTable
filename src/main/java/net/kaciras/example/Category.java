@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 分类对象
+ * 分类对象，该类使用充血模型，除了属性之外还包含了一些方法。
  *
  * @author kaciras
  */
@@ -17,8 +17,8 @@ import java.util.List;
 public class Category {
 
 	/*
-	 * 使用充血模型，在调用方法前需要将CategoryMapper注入此类。
-	 * 如果用Spring，可以依靠@Configurable来完成
+	 * 一些方法需要依赖CategoryMapper，在调用方法前需要将其注入此类。
+	 * 如果用Spring则可以依靠@Configurable来完成，否则需要手动设置一下。
 	 */
 	static CategoryMapper categoryMapper;
 

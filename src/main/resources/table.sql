@@ -4,6 +4,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+/* 分类属性表，保存了分类的ID和名称，你可以在这个表中添加更多的属性 */
 CREATE TABLE IF NOT EXISTS `category` (
 	`id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` TINYTEXT NOT NULL,
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `category` (
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB;
 
+/* 分类树表，存储了分类之间的关系 */
 CREATE TABLE IF NOT EXISTS `category_tree` (
 	`ancestor` SMALLINT(5) UNSIGNED NOT NULL,
 	`descendant` SMALLINT(5) UNSIGNED NOT NULL,
@@ -20,7 +22,7 @@ PRIMARY KEY (descendant, ancestor, distance))
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB;
 
-/* 插入顶级分类 */
+/* 插入根分类 */
 INSERT INTO `category_tree` (ancestor,descendant,distance) VALUES (0, 0, 0);
 INSERT INTO `category` (`id`, `name`) VALUES (0, 'root');
 
