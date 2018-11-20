@@ -6,9 +6,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -29,8 +26,7 @@ final class CategoryStoreTest {
 
 	@BeforeAll
 	static void init() throws Exception {
-		session = Utils.createSqlSession(MyConfig.createDataSource());
-//		session = Utils.createSqlSession(DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD);
+		session = Utils.createSqlSession(DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD);
 
 		CategoryMapper mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);
@@ -57,11 +53,8 @@ final class CategoryStoreTest {
 	}
 
 	@AfterAll
-	static void close() throws SQLException {
-		Statement statement = session.getConnection().createStatement();
-		statement.execute("DROP TABLE category");
-		statement.execute("DROP TABLE category_tree");
-		session.commit(true);
+	static void close() {
+		Utils.dropTables(session.getConnection());
 		session.close();
 	}
 

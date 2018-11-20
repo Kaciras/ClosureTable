@@ -15,7 +15,10 @@ import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 final class Utils {
 
@@ -35,13 +38,6 @@ final class Utils {
 
 	public static void checkNotNegative(int value, String valname) {
 		if (value < 0) throw new IllegalArgumentException("参数" + valname + "不能为负:" + value);
-	}
-
-	public static <T> T notNull(T obj) {
-		if(obj == null) {
-			throw new IllegalArgumentException("指定的分类不存在");
-		}
-		return obj;
 	}
 
 	public static SqlSession createSqlSession(String driver, String url, String user, String password) {
@@ -82,6 +78,40 @@ final class Utils {
 		try(Reader r = new InputStreamReader(stream)) {
 			scriptRunner.runScript(r);
 			connection.commit();
+		}
+	}
+
+	public static void dropTables(Connection connection) {
+		try {
+			Statement statement = connection.createStatement();
+			statement.execute("DROP TABLE category");
+			statement.execute("DROP TABLE category_tree");
+			statement.close();
+			connection.commit();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void disableIllegalAccessWarning() {
+		String[] javaVersionElements = System.getProperty("java.version").split("\\.");
+		if (Integer.parseInt(javaVersionElements[0]) == 1) {
+			return; // 1.8.x_xx or lower
+		}
+		try {
+			Field theUnsafe = Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe");
+			theUnsafe.setAccessible(true);
+			Object u = theUnsafe.get(null);
+
+			Class cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+			Field logger = cls.getDeclaredField("logger");
+
+			long offset = (long) u.getClass()
+					.getMethod("staticFieldOffset", Field.class).invoke(u, logger);
+
+			u.getClass().getMethod("putObjectVolatile", Object.class, long.class, Object.class)
+					.invoke(u, cls, offset, null);
+		} catch (Exception ignore) {
 		}
 	}
 

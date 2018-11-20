@@ -2,6 +2,7 @@ package net.kaciras.example;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(of = "id")
 @Data
+@NoArgsConstructor
 public class Category {
 
 	/*
@@ -25,6 +27,10 @@ public class Category {
 
 	/** 分类名 */
 	private String name;
+
+	public Category(String name) {
+		this.name = name;
+	}
 
 	/**
 	 * 获取分类的父分类。

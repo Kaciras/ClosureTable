@@ -35,12 +35,12 @@ public class Repository {
 	}
 
 	/**
-	 * 获取所有分类的数量，包括根分类。
+	 * 获取所有分类的数量。
 	 *
 	 * @return 数量
 	 */
 	public int count() {
-		return categoryMapper.selectCount();
+		return categoryMapper.selectCount() - 1;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Repository {
 	 * @param parent   上级分类id
 	 * @throws IllegalArgumentException 如果parent所指定的分类不存在、category为null或category中存在属性为null
 	 */
-	public void add(Category category, int parent) {
+	public int add(Category category, int parent) {
 		Utils.checkNotNegative(parent, "parent");
 		if (parent > 0 && categoryMapper.contains(parent) == null) {
 			throw new IllegalArgumentException("指定的上级分类不存在");
@@ -75,6 +75,7 @@ public class Repository {
 		} catch (PersistenceException ex) {
 			throw new IllegalArgumentException(ex);
 		}
+		return category.getId();
 	}
 
 	/**
