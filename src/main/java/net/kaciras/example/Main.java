@@ -1,10 +1,11 @@
 package net.kaciras.example;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.Scanner;
 
-public class Main {
+public final class Main {
 
 	private static SqlSession session;
 	private static Repository repository;
@@ -17,27 +18,29 @@ public class Main {
 			return;
 		}
 
-		session = Utils.createSqlSession("org.mariadb.jdbc.Driver", args[0], args[1], args[2]);
-		CategoryMapper mapper = session.getMapper(CategoryMapper.class);
-		repository = new Repository(mapper);
-		Category.categoryMapper = mapper; // 如果使用Spring，可以用@Configurable来注入此依赖。
-		Utils.executeScript(session.getConnection(), "table.sql");
+		try {
+			session = Utils.createSqlSession("org.mariadb.jdbc.Driver", args[0], args[1], args[2]);
+			CategoryMapper mapper = session.getMapper(CategoryMapper.class);
+			repository = new Repository(mapper);
+			Category.categoryMapper = mapper; // 如果使用Spring，可以用@Configurable来注入此依赖。
+			Utils.executeScript(session.getConnection(), "table.sql");
 
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				Utils.dropTables(session.getConnection());
+			}));
+			runDemo();
+		} catch (PersistenceException e) {
+			System.out.println("错误：无法连接数据库，请检查启动参数。");
+		}
+	}
+
+	private static void runDemo() {
 		System.out.println("基于ClosureTable的分类数据库存储演示。");
 		System.out.println("关键步骤中会在句子末尾显示一个问号，此时需要按按回车键确认后继续执行。");
 		System.out.println("期间可以打开数据库即时查看数据的变化。");
 		System.out.println();
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			Utils.dropTables(session.getConnection());
-		}));
-		runDemo();
-		System.out.println("演示到此结束，更多用法请见代码注释，以及单元测试。");
-	}
-
-	private static void runDemo() {
 		waitForAccept("首先创建几个分类：物品 -> 文具 -> 苹果 -> 2B铅笔，物品 -> 水果，文具 -> 尺子？");
-
 		int item = repository.add(new Category("物品"), 0);
 		int stationery = repository.add(new Category("文具"), item);
 		int apple = repository.add(new Category("苹果"), stationery);
@@ -85,6 +88,8 @@ public class Main {
 		System.out.println("它就是唯一的顶级分类" + repository.findById(0).getChildren());
 		System.out.println("当然为了保持分类树的单根，还有一个隐藏的根分类：" + repository.findById(0));
 		System.out.println();
+
+		waitForAccept("演示到此结束，更多用法请见代码注释，以及单元测试。按回车键后将清理数据库中的表。");
 	}
 
 	private static void waitForAccept(String text) {
