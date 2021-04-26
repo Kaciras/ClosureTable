@@ -1,4 +1,4 @@
-package net.kaciras.example;
+package kaciras;
 
 /**
  * 根分类，覆盖了分类的一些方法，防止这些操作被错误地用到顶级分类上。

@@ -1,4 +1,4 @@
-package net.kaciras.example;
+package kaciras;
 
 import org.apache.ibatis.annotations.*;
 

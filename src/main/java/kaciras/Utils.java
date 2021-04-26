@@ -1,4 +1,4 @@
-package net.kaciras.example;
+package kaciras;
 
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
@@ -112,6 +112,7 @@ final class Utils {
 			u.getClass().getMethod("putObjectVolatile", Object.class, long.class, Object.class)
 					.invoke(u, cls, offset, null);
 		} catch (Exception ignore) {
+			throw new UnsupportedClassVersionError("Can not desable illegal access warning");
 		}
 	}
 

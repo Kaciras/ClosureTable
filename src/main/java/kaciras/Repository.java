@@ -1,4 +1,4 @@
-package net.kaciras.example;
+package kaciras;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.exceptions.PersistenceException;
