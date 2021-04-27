@@ -11,21 +11,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 final class CategoryStoreTest {
 
-	/**
-	 * 如果你想运行，下面这4个字段需要修改。
-	 * 开发时使用的数据库是 Mariadb 10.5.9，由于使用了数据库方言，在其他数据库运行可能会失败。
-	 */
-	private static final String DB_DRIVER = "org.mariadb.jdbc.Driver";
-	private static final String DB_URL = "jdbc:mariadb://localhost:3306/test";
-	private static final String DB_USER = "用户名";
-	private static final String DB_PASSWORD = "密码";
-
 	private static Repository repository;
 	private static SqlSession session;
 
 	@BeforeAll
 	static void init() throws Exception {
-		session = Utils.createSqlSession(DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD);
+		session = Utils.createSqlSession();
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);

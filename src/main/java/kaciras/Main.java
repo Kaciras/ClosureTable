@@ -12,25 +12,21 @@ public final class Main {
 
 	public static void main(String[] args) throws Exception {
 		Utils.disableIllegalAccessWarning();
-		if (args.length != 3) {
-			System.err.println("请设置数据库连接参数，例如：");
-			System.err.println("\tjava -jar closure-table.jar jdbc:mariadb://localhost:3306/test root password");
-			return;
-		}
 
 		try {
-			session = Utils.createSqlSession("org.mariadb.jdbc.Driver", args[0], args[1], args[2]);
+			session = Utils.createSqlSession();
+
 			var mapper = session.getMapper(CategoryMapper.class);
 			repository = new Repository(mapper);
-			Category.categoryMapper = mapper; // 如果使用Spring，可以用@Configurable来注入此依赖。
-			Utils.executeScript(session.getConnection(), "schema.sql");
 
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				Utils.dropTables(session.getConnection());
-			}));
+			// 如果使用Spring，可以用@Configurable来注入此依赖。
+			Category.categoryMapper = mapper;
+
+			Utils.executeScript(session.getConnection(), "schema.sql");
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> Utils.dropTables(session.getConnection())));
 			runDemo();
 		} catch (PersistenceException e) {
-			System.out.println("错误：无法连接数据库，请检查启动参数。");
+			System.out.println("无法连接数据库，请检查配置文件。");
 		}
 	}
 

@@ -11,10 +11,14 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
 import javax.sql.DataSource;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public final class Utils {
 
@@ -36,6 +40,21 @@ public final class Utils {
 
 	public static void checkNotNegative(int value, String valname) {
 		if (value < 0) throw new IllegalArgumentException("参数" + valname + "不能为负:" + value);
+	}
+
+	public static SqlSession createSqlSession() throws IOException {
+		var configFile = Path.of("application.local.properties");
+		if (!Files.exists(configFile)) {
+			configFile = Path.of("application.properties");
+		}
+
+		var props = new Properties();
+		try (var stream = Files.newInputStream(configFile)) {
+			props.load(stream);
+		}
+
+		return Utils.createSqlSession(props.getProperty("DRIVER"), props.getProperty("URL"),
+				props.getProperty("USER"), props.getProperty("PASSWORD"));
 	}
 
 	public static SqlSession createSqlSession(String driver, String url, String user, String password) {
