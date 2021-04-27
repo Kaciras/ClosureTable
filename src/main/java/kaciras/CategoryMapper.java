@@ -28,7 +28,7 @@ public interface CategoryMapper {
 	int update(Category category);
 
 	@Insert("INSERT INTO category(name) VALUES(#{name})")
-	@Options(useGeneratedKeys=true, keyColumn="id")
+	@Options(useGeneratedKeys=true, keyProperty = "id", keyColumn="id")
 	void insert(Category entity);
 
 	@Delete("DELETE FROM category WHERE id=#{id}")
