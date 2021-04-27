@@ -13,8 +13,7 @@ final class CategoryStoreTest {
 
 	/**
 	 * 如果你想运行，下面这4个字段需要修改。
-	 * 开发时使用的数据库是Mysql(Mariadb 10.2.9)，由于使用了
-	 * 数据库方言，在其他数据库运行可能会失败。
+	 * 开发时使用的数据库是 Mariadb 10.5.9，由于使用了数据库方言，在其他数据库运行可能会失败。
 	 */
 	private static final String DB_DRIVER = "org.mariadb.jdbc.Driver";
 	private static final String DB_URL = "jdbc:mariadb://localhost:3306/test";
