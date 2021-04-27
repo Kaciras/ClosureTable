@@ -49,7 +49,7 @@ public class Category {
 	 */
 	public Category getAncestor(int n) {
 		Utils.checkPositive(n, "distant");
-		Integer parent = categoryMapper.selectAncestor(id, n);
+		var parent = categoryMapper.selectAncestor(id, n);
 		return parent == null ? null : categoryMapper.selectAttributes(parent);
 	}
 
@@ -168,7 +168,7 @@ public class Category {
 		}
 
 		/* 移动分移到自己子树下和无关节点下两种情况 */
-		Integer distance = categoryMapper.selectDistance(id, target);
+		var distance = categoryMapper.selectDistance(id, target);
 
 		// noinspection StatementWithEmptyBody
 		if (distance == null) {
@@ -211,7 +211,7 @@ public class Category {
 	 * @param parent 某节点id
 	 */
 	private void moveSubTree(int id, int parent) {
-		int[] subs = categoryMapper.selectSubId(id);
+		var subs = categoryMapper.selectSubId(id);
 		for (int sub : subs) {
 			moveNode(sub, parent);
 			moveSubTree(sub, sub);

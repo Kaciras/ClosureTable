@@ -28,7 +28,7 @@ final class CategoryStoreTest {
 	static void init() throws Exception {
 		session = Utils.createSqlSession(DB_DRIVER, DB_URL, DB_USER, DB_PASSWORD);
 
-		CategoryMapper mapper = session.getMapper(CategoryMapper.class);
+		var mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);
 		Category.categoryMapper = mapper;
 
@@ -48,7 +48,7 @@ final class CategoryStoreTest {
 		 *       /    /  \
 		 *      8    9    10
 		 */
-		Utils.executeScript(session.getConnection(), "table.sql");
+		Utils.executeScript(session.getConnection(), "schema.sql");
 		Utils.executeScript(session.getConnection(), "data.sql");
 	}
 
@@ -70,7 +70,7 @@ final class CategoryStoreTest {
 	 * @return 分类对象
 	 */
 	private static Category testCategory(int id) {
-		Category category = new Category();
+		var category = new Category();
 		category.setId(id);
 		category.setName("Name_" + id);
 		return category;
@@ -83,7 +83,7 @@ final class CategoryStoreTest {
 				.isInstanceOf(IllegalArgumentException.class);
 
 		/* 分类中有属性为null时抛异常 */
-		Category c0 = new Category();
+		var c0 = new Category();
 		assertThatThrownBy(() -> repository.add(c0, 0))
 				.isInstanceOf(IllegalArgumentException.class);
 
@@ -106,14 +106,14 @@ final class CategoryStoreTest {
 		assertThat(repository.findById(123)).isNull();
 
 		/* get出来的对象与原对象属性相同 */
-		Category got = repository.findById(c0.getId());
-		assertThat(got).isEqualToComparingFieldByField(c0);
+		var got = repository.findById(c0.getId());
+		assertThat(got).usingRecursiveComparison().isEqualTo(c0);
 	}
 
 	@Test
 	void testGetParent() {
-		assertThat(repository.findById(2).getParent()).isEqualToComparingFieldByField(testCategory(1));
-		assertThat(repository.findById(4).getParent()).isEqualToComparingFieldByField(testCategory(2));
+		assertThat(repository.findById(2).getParent()).usingRecursiveComparison().isEqualTo(testCategory(1));
+		assertThat(repository.findById(4).getParent()).usingRecursiveComparison().isEqualTo(testCategory(2));
 		assertThat(repository.findById(0).getParent()).isNull();
 	}
 
@@ -126,7 +126,7 @@ final class CategoryStoreTest {
 				.isInstanceOf(IllegalArgumentException.class);
 
 		assertThat(repository.findById(4).getAncestor(2))
-				.isEqualToComparingFieldByField(testCategory(1));
+				.usingRecursiveComparison().isEqualTo(testCategory(1));
 
 		assertThat(repository.findById(1).getAncestor(2)).isNull();
 	}
@@ -208,7 +208,7 @@ final class CategoryStoreTest {
 
 		/* 移动后具有新的父节点 */
 		assertThat(repository.findById(2).getParent())
-				.isEqualToComparingFieldByField(testCategory(7));
+				.usingRecursiveComparison().isEqualTo(testCategory(7));
 
 		/* 子树自动升级 */
 		assertThat(repository.findById(1).getChildren())
@@ -246,7 +246,7 @@ final class CategoryStoreTest {
 
 		/* 移动后具有新的父节点 */
 		assertThat(repository.findById(2).getParent())
-				.isEqualToComparingFieldByField(testCategory(7));
+				.usingRecursiveComparison().isEqualTo(testCategory(7));
 
 		/* 子树也随之移动 */
 		assertThat(repository.findById(1).getChildren())
@@ -292,7 +292,7 @@ final class CategoryStoreTest {
 
 	@Test
 	void testUpdate() {
-		Category categoryDTO = new Category();
+		var categoryDTO = new Category();
 		categoryDTO.setId(999);
 		categoryDTO.setName("NewName");
 
@@ -304,6 +304,6 @@ final class CategoryStoreTest {
 		repository.update(categoryDTO);
 
 		assertThat(repository.findById(testCategory(1).getId()))
-				.isEqualToComparingFieldByField(categoryDTO);
+				.usingRecursiveComparison().isEqualTo(categoryDTO);
 	}
 }

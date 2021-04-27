@@ -107,7 +107,7 @@ public class Repository {
 		if (categoryMapper.contains(id) == null) {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
-		Integer parent = categoryMapper.selectAncestor(id, 1);
+		var parent = categoryMapper.selectAncestor(id, 1);
 		if (parent == null) {
 			parent = 0;
 		}

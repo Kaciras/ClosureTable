@@ -20,10 +20,10 @@ public final class Main {
 
 		try {
 			session = Utils.createSqlSession("org.mariadb.jdbc.Driver", args[0], args[1], args[2]);
-			CategoryMapper mapper = session.getMapper(CategoryMapper.class);
+			var mapper = session.getMapper(CategoryMapper.class);
 			repository = new Repository(mapper);
 			Category.categoryMapper = mapper; // 如果使用Spring，可以用@Configurable来注入此依赖。
-			Utils.executeScript(session.getConnection(), "table.sql");
+			Utils.executeScript(session.getConnection(), "schema.sql");
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				Utils.dropTables(session.getConnection());
@@ -41,12 +41,12 @@ public final class Main {
 		System.out.println();
 
 		waitForAccept("首先创建几个分类：物品 -> 文具 -> 苹果 -> 2B铅笔，物品 -> 水果，文具 -> 尺子？");
-		int item = repository.add(new Category("物品"), 0);
-		int stationery = repository.add(new Category("文具"), item);
-		int apple = repository.add(new Category("苹果"), stationery);
-		int ruler = repository.add(new Category("尺子"), stationery);
-		int pencil = repository.add(new Category("2B铅笔"), apple);
-		int fruit = repository.add(new Category("水果"), item);
+		var item = repository.add(new Category("物品"), 0);
+		var stationery = repository.add(new Category("文具"), item);
+		var apple = repository.add(new Category("苹果"), stationery);
+		var ruler = repository.add(new Category("尺子"), stationery);
+		var pencil = repository.add(new Category("2B铅笔"), apple);
+		var fruit = repository.add(new Category("水果"), item);
 		session.commit();
 
 		System.out.println("现在数据库中有一个顶级分类：" + repository.findById(item));
@@ -63,8 +63,8 @@ public final class Main {
 		System.out.println();
 
 		waitForAccept("现在分类系统希望把事件也包含在内，所以新建一个`事物`分类，并将`物品`分类移动到其下面？");
-		int thing = repository.add(new Category("事物"), 0);
-		int itemLevelBefore = repository.findById(item).getLevel();
+		var thing = repository.add(new Category("事物"), 0);
+		var itemLevelBefore = repository.findById(item).getLevel();
 		repository.findById(item).moveTreeTo(thing);
 		session.commit();
 		System.out.println("这样一来，物品的级别由" + itemLevelBefore +
@@ -94,7 +94,7 @@ public final class Main {
 
 	private static void waitForAccept(String text) {
 		System.out.println(text);
-		Scanner sc = new Scanner(System.in);
+		var sc = new Scanner(System.in);
 		sc.nextLine();
 	}
 }
