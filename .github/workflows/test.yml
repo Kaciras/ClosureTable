@@ -1,0 +1,29 @@
+name: Test
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: test
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 16
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: mvn -B test
