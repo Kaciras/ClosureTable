@@ -1,0 +1,54 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    grid-template-rows: 1fr auto;
+    grid-gap: 15px;
+
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+
+    font-family: Arial, sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+    border: solid 1px #cfcfcf;
+    background-color: white;
+}
+
+th, td {
+    padding: .75rem;
+    vertical-align: top;
+    border-bottom: 1px solid #cfcfcf;
+}
+
+thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #cfcfcf;
+}
+
+tbody + tbody {
+    border-top: 2px solid #cfcfcf;
+}
+
+tbody > tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+#console {
+    padding: 10px;
+    border-radius: 5px;
+    background: #f7f7f7;
+}
+
+#sql {
+    padding: 10px;
+    border-radius: 5px;
+}

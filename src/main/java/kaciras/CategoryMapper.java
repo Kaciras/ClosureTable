@@ -14,7 +14,7 @@ import java.util.List;
 public interface CategoryMapper {
 
 	/* - - - - - - - - - - - - - - - - - - - - - *\
-	  下面几个没注释的是最基本的增删改查，不解释了
+	       下面几个没注释的是最基本的增删改查
 	\* - - - - - - - - - - - - - - - - - - - - - */
 
 	@Select("SELECT * FROM category WHERE id=#{id}")
@@ -44,7 +44,7 @@ public interface CategoryMapper {
 	int selectCountByLayer(int level);
 
 	/**
-	 * 查询某个节点的子树中所有的节点，不包括参数所指定的节点
+	 * 查询某个节点的子树中所有的节点，不包括参数所指定的节点。
 	 *
 	 * @param id 节点id
 	 * @return 子节点
@@ -55,7 +55,7 @@ public interface CategoryMapper {
 	List<Category> selectDescendant(int id);
 
 	/**
-	 * 查询某个节点的子树中所有的节点的id，不包括参数所指定的节点
+	 * 查询某个节点的子树中所有的节点的 id，不包括参数所指定的节点。
 	 *
 	 * @param id 节点id
 	 * @return 子节点id
@@ -64,7 +64,7 @@ public interface CategoryMapper {
 	int[] selectDescendantId(int id);
 
 	/**
-	 * 查询某个节点的第n级子节点
+	 * 查询某个节点的第 N 级子节点。
 	 *
 	 * @param ancestor 祖先节点ID
 	 * @param n 距离（0表示自己，1表示直属子节点）
@@ -76,18 +76,18 @@ public interface CategoryMapper {
 	List<Category> selectSubLayer(int ancestor, int n);
 
 	/**
-	 * 查询某个节点的第N级父节点。如果id指定的节点不存在、操作错误或是数据库被外部修改，
-	 * 则可能查询不到父节点，此时返回null。
+	 * 查询某个节点的第 N 级父节点。如果 id 指定的节点不存在、操作错误或是数据库被外部修改，
+	 * 则可能查询不到父节点，此时返回 null。
 	 *
 	 * @param id 节点id
 	 * @param n 祖先距离（0表示自己，1表示直属父节点）
-	 * @return 父节点id，如果不存在则返回null
+	 * @return 父节点id，如果不存在则返回 null
 	 */
 	@Select("SELECT ancestor FROM category_tree WHERE descendant=#{id} AND distance=#{n}")
 	Integer selectAncestor(int id, int n);
 
 	/**
-	 * 查询由id指定节点(含)到根节点(不含)的路径
+	 * 查询由 id 指定节点(含)到根节点(不含)的路径。
 	 * 比下面的<code>selectPathToAncestor</code>简单些。
 	 *
 	 * @param id 节点ID
@@ -99,7 +99,7 @@ public interface CategoryMapper {
 	List<Category> selectPathToRoot(int id);
 
 	/**
-	 * 查询由id指定节点(含)到指定上级节点(不含)的路径
+	 * 查询由 id 指定节点(含)到指定上级节点(不含)的路径。
 	 *
 	 * @param id 节点ID
 	 * @param ancestor 上级节点的ID
@@ -113,8 +113,8 @@ public interface CategoryMapper {
 	List<Category> selectPathToAncestor(int id, int ancestor);
 
 	/**
-	 * 查找某节点下的所有直属子节点的id
-	 * 该方法与上面的<code>selectSubLayer</code>不同，它只查询节点的id，效率高点
+	 * 查找某节点下的所有直属子节点的 id。
+	 * 该方法与上面的<code>selectSubLayer</code>不同，它只查询节点的 id，效率高点。
 	 *
 	 * @param parent 分类id
 	 * @return 子类id数组
@@ -123,7 +123,7 @@ public interface CategoryMapper {
 	int[] selectSubId(int parent);
 
 	/**
-	 * 查询某节点到它某个祖先节点的距离
+	 * 查询某节点到它某个祖先节点的距离。
 	 *
 	 * @param ancestor 父节点id
 	 * @param id 节点id
@@ -133,7 +133,7 @@ public interface CategoryMapper {
 	Integer selectDistance(int ancestor, int id);
 
 	/**
-	 * 复制父节点的路径结构,并修改descendant和distance
+	 * 复制父节点的路径结构,并修改 descendant 和 distance
 	 *
 	 * @param id 节点id
 	 * @param parent 父节点id
@@ -143,7 +143,7 @@ public interface CategoryMapper {
 	void insertPath(int id, int parent);
 
 	/**
-	 * 在关系表中插入对自身的连接
+	 * 在关系表中插入对自身的连接。
 	 *
 	 * @param id 节点id
 	 */
@@ -152,7 +152,7 @@ public interface CategoryMapper {
 
 	/**
 	 * 从树中删除某节点的路径。注意指定的节点可能存在子树，而子树的节点在该节点之上的路径并没有改变，
-	 * 所以使用该方法后还必须手动修改子节点的路径以确保树的正确性
+	 * 所以使用该方法后还必须手动修改子节点的路径以确保树的正确性。
 	 *
 	 * @param id 节点id
 	 */
@@ -160,10 +160,10 @@ public interface CategoryMapper {
 	void deletePath(int id);
 
 	/**
-	 * 判断分类是否存在
+	 * 判断分类是否存在。
 	 *
 	 * @param id 分类id
-	 * @return true表示存在，null或false表示不存在
+	 * @return true 表示存在，null 或 false 表示不存在
 	 */
 	@Select("SELECT 1 FROM category WHERE id=#{id}")
 	Boolean contains(int id);

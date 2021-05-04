@@ -42,6 +42,13 @@ public final class Utils {
 		if (value < 0) throw new IllegalArgumentException("参数" + valname + "不能为负:" + value);
 	}
 
+	/**
+	 * 读取运行目录下的配置文件，创建数据源。
+	 * 优先尝试 application.local.properties，没有该文件则使用 application.properties
+	 *
+	 * @return Mybatis 的数据源
+	 * @throws IOException 如果出现IO错误
+	 */
 	public static SqlSession createSqlSession() throws IOException {
 		var configFile = Path.of("application.local.properties");
 		if (!Files.exists(configFile)) {
@@ -53,16 +60,11 @@ public final class Utils {
 			props.load(stream);
 		}
 
-		return Utils.createSqlSession(props.getProperty("DRIVER"), props.getProperty("URL"),
-				props.getProperty("USER"), props.getProperty("PASSWORD"));
-	}
-
-	public static SqlSession createSqlSession(String driver, String url, String user, String password) {
 		var dataSource = new UnpooledDataSource();
-		dataSource.setDriver(driver);
-		dataSource.setUrl(url);
-		dataSource.setUsername(user);
-		dataSource.setPassword(password);
+		dataSource.setDriver(props.getProperty("DRIVER"));
+		dataSource.setUrl(props.getProperty("URL"));
+		dataSource.setUsername(props.getProperty("USER"));
+		dataSource.setPassword(props.getProperty("PASSWORD"));
 		dataSource.setAutoCommit(false);
 		return createSqlSession(new PooledDataSource(dataSource));
 	}
@@ -101,6 +103,9 @@ public final class Utils {
 		}
 	}
 
+	/**
+	 * 删除 category 和 category_tree 两张表。
+	 */
 	public static void dropTables(Connection connection) {
 		try {
 			var statement = connection.createStatement();
@@ -113,6 +118,9 @@ public final class Utils {
 		}
 	}
 
+	/**
+	 * 关闭烦人的 Illegal access 警告。
+	 */
 	public static void disableIllegalAccessWarning() {
 		var javaVersionElements = System.getProperty("java.version").split("\\.");
 		if (Integer.parseInt(javaVersionElements[0]) == 1) {
@@ -132,7 +140,7 @@ public final class Utils {
 			u.getClass().getMethod("putObjectVolatile", Object.class, long.class, Object.class)
 					.invoke(u, cls, offset, null);
 		} catch (Exception ignore) {
-			throw new UnsupportedClassVersionError("Can not desable illegal access warning");
+			throw new UnsupportedClassVersionError("Can not disable illegal access warning");
 		}
 	}
 }
