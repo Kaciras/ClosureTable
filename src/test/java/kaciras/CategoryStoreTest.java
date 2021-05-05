@@ -20,6 +20,8 @@ final class CategoryStoreTest {
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);
+
+		// 如果使用Spring，可以用@Configurable来注入此依赖。
 		Category.categoryMapper = mapper;
 
 		/*

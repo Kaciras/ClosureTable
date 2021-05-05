@@ -2,27 +2,21 @@ package kaciras;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.session.Configuration;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class HttpAPI implements HttpHandler {
+public final class HttpAPI implements UncheckedHttpHandler {
 
-	@RequiredArgsConstructor
 	private static final class ResultView {
-		public final String sql;
-		public final long time;
-		public final Object data;
+		public String sql;
+		public long time;
+		public Object data;
 	}
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -41,68 +35,43 @@ public final class HttpAPI implements HttpHandler {
 	}
 
 	@Override
-	public void handle(HttpExchange exchange) throws IOException {
-		var endpoint = exchange.getRequestURI().getPath();
-
-		if (endpoint.startsWith("/api")) {
-			invokeSQL(exchange);
-		} else {
-			sendFile(exchange, endpoint);
-		}
-
-		exchange.close();
-	}
-
-	private void sendFile(HttpExchange exchange, String name) throws IOException {
-		if ("/".equals(name)) {
-			name = "index.html";
-		}
-		var path = Path.of("web", name);
-
-		// probeContentType 对 .js 返回 text/plain？
-		var mime = Files.probeContentType(path);
-		if (name.endsWith(".js")) {
-			mime = "application/javascript";
-		}
-		exchange.getResponseHeaders().add("Content-Type", mime);
-
-		exchange.sendResponseHeaders(200, Files.size(path));
-		Files.copy(path, exchange.getResponseBody());
-	}
-
-	private void invokeSQL(HttpExchange exchange) throws IOException {
-		var endpoint = exchange.getRequestURI().getPath().substring(1);
+	public void handle(HttpExchange exchange) throws Exception {
+		var endpoint = exchange.getRequestURI().getPath().substring(5);
 		var method = methodTable.get(endpoint);
 
-		if (method == null) {
+		if (method != null) {
+			invokeSql(exchange, method);
+		} else {
 			exchange.sendResponseHeaders(404, 0);
-			exchange.close();
-			return;
 		}
+	}
+
+	private void invokeSql(HttpExchange exchange, Method method) throws Exception {
 		var body = objectMapper.readTree(exchange.getRequestBody());
 
 		var params = method.getParameters();
 		var args = new Object[params.length];
-
 		for (int i = 0; i < args.length; i++) {
 			args[i] = objectMapper.treeToValue(body.get(i), params[i].getType());
 		}
 
+		var result = new ResultView();
+		var start = System.currentTimeMillis();
+		result.data = method.invoke(sqlMapper, args);
+		result.time = System.currentTimeMillis() - start;
+		result.sql = getSql(method, args);
+
+		var json = objectMapper.writeValueAsBytes(result);
+		exchange.getResponseHeaders().add("Content-Type", "application/json");
+		exchange.sendResponseHeaders(200, json.length);
+		exchange.getResponseBody().write(json);
+	}
+
+	private String getSql(Method method, Object[] args) {
 		var pns = new ParamNameResolver(config, method);
-		var boundSql = config.getMappedStatement(endpoint).getBoundSql(pns.getNamedParams(args));
-
-		try {
-			var start = System.currentTimeMillis();
-			var data = method.invoke(sqlMapper, args);
-			var time = System.currentTimeMillis() - start;
-			var sql = "TODO";
-
-			var json = objectMapper.writeValueAsBytes(new ResultView(sql, time, data));
-			exchange.sendResponseHeaders(200, json.length);
-			exchange.getResponseBody().write(json);
-		} catch (ReflectiveOperationException e) {
-			e.printStackTrace();
-			exchange.sendResponseHeaders(500, 0);
-		}
+		var boundSql = config.getMappedStatement(method.getName()).getBoundSql(pns.getNamedParams(args));
+		var template = boundSql.getSql().replace("?", "%s");
+		var s = boundSql.getParameterMappings().stream().map(p -> p.getExpression()).toArray();
+		return String.format(template, s);
 	}
 }
