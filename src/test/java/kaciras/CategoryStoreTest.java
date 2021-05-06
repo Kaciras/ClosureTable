@@ -16,7 +16,7 @@ final class CategoryStoreTest {
 
 	@BeforeAll
 	static void init() throws Exception {
-		session = Utils.createSqlSession();
+		session = Utils.createSqlSession(Utils.getDaraSource());
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		repository = new Repository(mapper);
@@ -69,7 +69,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testAddAndGet() {
+	void addAndGet() {
 		/* 分类为null时抛异常 */
 		assertThatThrownBy(() -> repository.add(null, 0))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -103,14 +103,14 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testGetParent() {
+	void getParent() {
 		assertThat(repository.findById(2).getParent()).usingRecursiveComparison().isEqualTo(testCategory(1));
 		assertThat(repository.findById(4).getParent()).usingRecursiveComparison().isEqualTo(testCategory(2));
 		assertThat(repository.findById(0).getParent()).isNull();
 	}
 
 	@Test
-	void testGetAncestor() {
+	void getAncestor() {
 		/* 方法参数错误时抛异常 */
 		assertThatThrownBy(() -> repository.findById(4).getAncestor(-5))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -124,7 +124,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testGetPath() {
+	void getPath() {
 		/* 方法参数错误时抛异常 */
 		assertThatThrownBy(() -> repository.findById(7).getPathRelativeTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -144,7 +144,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testGetChildren() {
+	void getChildren() {
 		/* 测试 getChildren() 结果的正确性 */
 		assertThat(repository.findById(2).getChildren())
 				.usingFieldByFieldElementComparator()
@@ -157,17 +157,19 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testCount() {
-		assertThatThrownBy(() -> repository.countOfLayer(-1))
-				.isInstanceOf(IllegalArgumentException.class);
-
+	void count() {
 		/* 树中有13个分类，不包括ID为0的根分类 */
 		assertThat(repository.count()).isEqualTo(13);
+	}
+
+	@Test
+	void countOfLayer() {
+		assertThatThrownBy(() -> repository.countOfLayer(-1)).isInstanceOf(IllegalArgumentException.class);
 		assertThat(repository.countOfLayer(5)).isEqualTo(3);
 	}
 
 	@Test
-	void testGetLevel() {
+	void getLevel() {
 		assertThat(repository.findById(9).getLevel()).isEqualTo(5);
 		assertThat(repository.findById(11).getLevel()).isEqualTo(1);
 	}
@@ -184,7 +186,7 @@ final class CategoryStoreTest {
 	 *     8    9    10
 	 */
 	@Test
-	void testMove() {
+	void move() {
 		assertThatThrownBy(() -> repository.findById(2).moveTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.findById(2).moveTo(123))
@@ -222,7 +224,7 @@ final class CategoryStoreTest {
 	 *                                                   8
 	 */
 	@Test
-	void testMoveTree() {
+	void moveTree() {
 		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(-5))
 				.isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.findById(2).moveTreeTo(123))
@@ -250,7 +252,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testDelete() {
+	void delete() {
 		/* 方法参数错误时抛异常 */
 		assertThatThrownBy(() -> repository.delete(-123)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.delete(0)).isInstanceOf(IllegalArgumentException.class);
@@ -267,7 +269,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testDeleteTree() {
+	void deleteTree() {
 		assertThatThrownBy(() -> repository.deleteTree(-123)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.deleteTree(0)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.deleteTree(45)).isInstanceOf(IllegalArgumentException.class);
@@ -283,7 +285,7 @@ final class CategoryStoreTest {
 	}
 
 	@Test
-	void testUpdate() {
+	void update() {
 		var categoryDTO = new Category();
 		categoryDTO.setId(999);
 		categoryDTO.setName("NewName");
