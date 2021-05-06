@@ -18,11 +18,15 @@ Closure table 能够很好地解决树结构在关系数据库中的查询需求
 
 # 运行演示
 
-运行需要设置 MySQL 或 Mariadb 数据库连接，请先修改`application.properties`文件。
+运行需要配置 MySQL 或 Mariadb 数据库连接，请先修改`application.properties`文件。
+
+然后运行以下命令构建并启动：
 
 ```bash
 mvn package
-java -jar target/closure-table-1.0.jar
+java -jar target/closure-table-2.0.jar
 ```
+
+访问 [http://localhost:6666](http://localhost:6666) 查看演示页面。
 
 更多的用法及测试见 `CategoryStoreTest.java`

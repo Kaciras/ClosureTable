@@ -5,9 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>jar</packaging>
 
+	<groupId>kaciras</groupId>
+	<artifactId>closure-table</artifactId>
+	<version>2.0</version>
+
 	<!-- 似乎在 compiler-plugin 中设置 release 会导致 parameters 失效 -->
 	<properties>
-		<java.version>11</java.version>
+		<java.version>16</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>
@@ -73,10 +77,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<groupId>kaciras</groupId>
-	<artifactId>closure-table</artifactId>
-	<version>1.0</version>
 
 	<dependencies>
 		<dependency>
