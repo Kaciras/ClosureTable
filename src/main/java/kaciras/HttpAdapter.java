@@ -2,8 +2,6 @@ package kaciras;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import org.apache.ibatis.reflection.ParamNameResolver;
-import org.apache.ibatis.session.Configuration;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -11,26 +9,25 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class HttpAPI implements UncheckedHttpHandler {
+public final class HttpAdapter implements UncheckedHttpHandler {
 
 	private static final class ResultView {
-		public String sql;
+		public String[] sql;
 		public long time;
 		public Object data;
 	}
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private final Configuration config;
-	private final CategoryMapper sqlMapper;
-
+	private final TrackingDataSource dataSource;
+	private final Controller controller;
 	private final Map<String, Method> methodTable;
 
-	public HttpAPI(Configuration config, CategoryMapper sqlMapper) {
-		this.config = config;
-		this.sqlMapper = sqlMapper;
+	public HttpAdapter(TrackingDataSource dataSource, Controller controller) {
+		this.dataSource = dataSource;
+		this.controller = controller;
 
-		methodTable = Arrays.stream(CategoryMapper.class.getMethods())
+		methodTable = Arrays.stream(Controller.class.getDeclaredMethods())
 				.collect(Collectors.toMap(Method::getName, Function.identity()));
 	}
 
@@ -56,22 +53,16 @@ public final class HttpAPI implements UncheckedHttpHandler {
 		}
 
 		var result = new ResultView();
+		dataSource.reset();
+
 		var start = System.currentTimeMillis();
-		result.data = method.invoke(sqlMapper, args);
+		result.data = method.invoke(controller, args);
 		result.time = System.currentTimeMillis() - start;
-		result.sql = getSql(method, args);
+		result.sql = dataSource.getExecutedSql();
 
 		var json = objectMapper.writeValueAsBytes(result);
 		exchange.getResponseHeaders().add("Content-Type", "application/json");
 		exchange.sendResponseHeaders(200, json.length);
 		exchange.getResponseBody().write(json);
-	}
-
-	private String getSql(Method method, Object[] args) {
-		var pns = new ParamNameResolver(config, method);
-		var boundSql = config.getMappedStatement(method.getName()).getBoundSql(pns.getNamedParams(args));
-		var template = boundSql.getSql().replace("?", "%s");
-		var s = boundSql.getParameterMappings().stream().map(p -> p.getExpression()).toArray();
-		return String.format(template, s);
 	}
 }

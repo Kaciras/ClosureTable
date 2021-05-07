@@ -49,7 +49,7 @@ public final class Utils {
 	 * @return Mybatis 的数据源
 	 * @throws IOException 如果出现IO错误
 	 */
-	public static SqlSession createSqlSession() throws IOException {
+	public static DataSource getDaraSource() throws IOException {
 		var configFile = Path.of("application.local.properties");
 		if (!Files.exists(configFile)) {
 			configFile = Path.of("application.properties");
@@ -66,7 +66,7 @@ public final class Utils {
 		dataSource.setUsername(props.getProperty("USER"));
 		dataSource.setPassword(props.getProperty("PASSWORD"));
 		dataSource.setAutoCommit(false);
-		return createSqlSession(new PooledDataSource(dataSource));
+		return new PooledDataSource(dataSource);
 	}
 
 	public static SqlSession createSqlSession(DataSource dataSource) {

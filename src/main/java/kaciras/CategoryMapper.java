@@ -4,12 +4,6 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
-/**
- * 基于ClosureTable的数结构存储。
- *
- * 数据库使用Mysql(Mariadb 10.2.9)，如果你的不是mysql，insertPath()方法的语句可能需要修改
- * @author Kaciras
- */
 @Mapper
 public interface CategoryMapper {
 

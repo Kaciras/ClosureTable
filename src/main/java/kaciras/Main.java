@@ -3,7 +3,6 @@ package kaciras;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.apache.ibatis.session.SqlSession;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -15,14 +14,18 @@ public final class Main {
 	private static final String HOST_NAME = "localhost";
 	private static final int PORT = 6666;
 
-	private static SqlSession session;
-
 	public static void main(String[] args) throws Exception {
 		Utils.disableIllegalAccessWarning();
 
-		session = Utils.createSqlSession();
+		var dataSource = new TrackingDataSource(Utils.getDaraSource());
+		var session = Utils.createSqlSession(dataSource);
 		Utils.executeScript(session.getConnection(), "schema.sql");
-		var api = new HttpAPI(session.getConfiguration(), session.getMapper(CategoryMapper.class));
+		Utils.executeScript(session.getConnection(), "data.sql");
+
+		var mapper = session.getMapper(CategoryMapper.class);
+		Category.categoryMapper = mapper;
+		var controller = new Controller(new Repository(mapper));
+		var api = new HttpAdapter(dataSource, controller);
 
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
 		server.createContext("/api/", wrapHandler(api));
