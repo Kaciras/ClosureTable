@@ -1,5 +1,7 @@
 package kaciras;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 
@@ -17,7 +19,7 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 		public Object data;
 	}
 
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper;
 
 	private final TrackingDataSource dataSource;
 	private final Controller controller;
@@ -26,6 +28,10 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 	public HttpAdapter(TrackingDataSource dataSource, Controller controller) {
 		this.dataSource = dataSource;
 		this.controller = controller;
+
+		objectMapper = new ObjectMapper()
+				.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+				.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
 		methodTable = Arrays.stream(Controller.class.getDeclaredMethods())
 				.collect(Collectors.toMap(Method::getName, Function.identity()));

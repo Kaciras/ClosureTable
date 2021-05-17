@@ -5,6 +5,7 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
@@ -77,6 +78,15 @@ public final class Utils {
 		config.setCacheEnabled(false);
 		config.addMapper(CategoryMapper.class);
 		config.setEnvironment(environment);
+
+		/*
+		 * 禁用会话级缓存，让每次执行都查询数据库，解决无法获取 Statement 的问题。
+		 *
+		 * 【跟 Spring 的区别】
+		 * mybatis-spring 不需要这么设置，因为它有个自定义的 SqlSessionTemplate 代理了 Session 对象，
+		 * 在每次执行时都重新创建 Session。
+		 */
+		config.setLocalCacheScope(LocalCacheScope.STATEMENT);
 
 		return new DefaultSqlSessionFactory(config).openSession();
 	}

@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 public final class Main {
@@ -64,14 +65,21 @@ public final class Main {
 		}
 		var path = Path.of("web", name);
 
-		// probeContentType 对 .js 返回错误的 text/plain
-		var mime = Files.probeContentType(path);
-		if (name.endsWith(".js")) {
-			mime = "application/javascript";
-		}
-		exchange.getResponseHeaders().add("Content-Type", mime);
+		try {
+			// 先检查下文件是否存在，JS 的扩展名容易漏。
+			var size = Files.size(path);
 
-		exchange.sendResponseHeaders(200, Files.size(path));
-		Files.copy(path, exchange.getResponseBody());
+			// probeContentType 对 .js 返回错误的 text/plain
+			var mime = Files.probeContentType(path);
+			if (name.endsWith(".js")) {
+				mime = "application/javascript";
+			}
+			exchange.getResponseHeaders().add("Content-Type", mime);
+
+			exchange.sendResponseHeaders(200, size);
+			Files.copy(path, exchange.getResponseBody());
+		} catch (NoSuchFileException ex) {
+			exchange.sendResponseHeaders(404, 0);
+		}
 	}
 }
