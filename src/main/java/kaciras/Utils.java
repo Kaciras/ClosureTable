@@ -21,7 +21,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public final class Utils {
+final class Utils {
 
 	private Utils() {}
 
@@ -48,7 +48,7 @@ public final class Utils {
 	 * 优先尝试 application.local.properties，没有该文件则使用 application.properties
 	 *
 	 * @return Mybatis 的数据源
-	 * @throws IOException 如果出现IO错误
+	 * @throws IOException 如果读取文件失败
 	 */
 	public static DataSource getDaraSource() throws IOException {
 		var configFile = Path.of("application.local.properties");
@@ -66,7 +66,6 @@ public final class Utils {
 		dataSource.setUrl(props.getProperty("URL"));
 		dataSource.setUsername(props.getProperty("USER"));
 		dataSource.setPassword(props.getProperty("PASSWORD"));
-		dataSource.setAutoCommit(false);
 		return new PooledDataSource(dataSource);
 	}
 
@@ -129,7 +128,8 @@ public final class Utils {
 	}
 
 	/**
-	 * 关闭烦人的 Illegal access 警告。
+	 * 关闭烦人的 Illegal access 警告，也可以通过启动选项来做：
+	 * {@code --add-opens java.base/java.lang=ALL-UNNAMED}
 	 */
 	public static void disableIllegalAccessWarning() {
 		var javaVersionElements = System.getProperty("java.version").split("\\.");

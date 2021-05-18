@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 @RequiredArgsConstructor
 public final class Controller {
 
@@ -41,6 +42,10 @@ public final class Controller {
 
 	public void deleteTree(int id) {
 		repository.deleteTree(id);
+	}
+
+	public List<Category> getChildren(int id, int ancestor) {
+		return null;
 	}
 
 	public List<Category> getPath(int id, int ancestor) {

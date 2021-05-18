@@ -6,6 +6,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 
+/*
+ * 原本是想从 mariadb-java-client 实现的 PreparedStatement 对象着手获取 SQL 的，
+ * 但看了 2.x 和 3.x 巨大的变化之后感觉不靠谱，还是从外层代理没有侵入性更好。
+ */
 @RequiredArgsConstructor
 final class ArgRecordHandler implements InvocationHandler {
 

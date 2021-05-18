@@ -3,4 +3,4 @@ target/
 
 *.iml
 *.log
-*.local.properties
+*.local.*

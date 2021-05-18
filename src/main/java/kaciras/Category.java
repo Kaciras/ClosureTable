@@ -17,8 +17,8 @@ import java.util.List;
 public class Category {
 
 	/*
-	 * 一些方法需要依赖CategoryMapper，在调用方法前需要将其注入此类。
-	 * 如果用Spring则可以依靠@Configurable来完成，否则需要手动设置一下。
+	 * 一些方法需要依赖 CategoryMapper，在调用方法前需要将其注入此类。
+	 * 如果用 Spring 则可以靠 @Configurable 来完成。
 	 */
 	static CategoryMapper categoryMapper;
 
@@ -109,26 +109,26 @@ public class Category {
 	 * 父类的子分类），即使目标是指定分类原本的父类。
 	 * <p>
 	 * 例如下图(省略顶级分类)：
-	 *       1                                    1
-	 *       |                                  / | \
-	 *       2                                 3  4  5
-	 *     / | \         (id=2).moveTo(7)           / \
-	 *    3  4  5       ----------------->         6   7
-	 *         / \                                /  / | \
-	 *       6    7                              8  9  10 2
-	 *      /    /  \
-	 *     8    9    10
+	 * 1                                    1
+	 * |                                  / | \
+	 * 2                                 3  4  5
+	 * / | \         (id=2).moveTo(7)           / \
+	 * 3  4  5       ----------------->         6   7
+	 * / \                                /  / | \
+	 * 6    7                              8  9  10 2
+	 * /    /  \
+	 * 8    9    10
 	 *
 	 * @param target 目标分类的id
 	 * @throws IllegalArgumentException 如果target所表示的分类不存在、或此分类的id==target
 	 */
 	public void moveTo(int target) {
-		if(id == target) {
+		if (id == target) {
 			throw new IllegalArgumentException("不能移动到自己下面");
 		}
 
 		Utils.checkNotNegative(target, "target");
-		if(target > 0 && categoryMapper.contains(target) == null) {
+		if (target > 0 && categoryMapper.contains(target) == null) {
 			throw new IllegalArgumentException("指定的上级分类不存在");
 		}
 
@@ -142,24 +142,24 @@ public class Category {
 	 * 的位置，再移动需要被移动的分类。
 	 * <p>
 	 * 例如下图(省略顶级分类)：
-	 *       1                                      1
-	 *       |                                      |
-	 *       2                                      7
-	 *     / | \        (id=2).moveTreeTo(7)      / | \
-	 *    3  4  5      -------------------->     9  10  2
-	 *         / \                                  / | \
-	 *       6    7                                3  4  5
-	 *      /    /  \                                    |
-	 *     8    9    10                                  6
-	 *                                                   |
-	 *                                                   8
+	 * 1                                      1
+	 * |                                      |
+	 * 2                                      7
+	 * / | \        (id=2).moveTreeTo(7)      / | \
+	 * 3  4  5      -------------------->     9  10  2
+	 * / \                                  / | \
+	 * 6    7                                3  4  5
+	 * /    /  \                                    |
+	 * 8    9    10                                  6
+	 * |
+	 * 8
 	 *
 	 * @param target 目标分类的id
 	 * @throws IllegalArgumentException 如果id或target所表示的分类不存在、或id==target
 	 */
 	public void moveTreeTo(int target) {
 		Utils.checkNotNegative(target, "target");
-		if(target > 0 && categoryMapper.contains(target) == null) {
+		if (target > 0 && categoryMapper.contains(target) == null) {
 			throw new IllegalArgumentException("指定的上级分类不存在");
 		}
 
@@ -186,7 +186,7 @@ public class Category {
 	 * 将指定节点移动到另某节点下面，该方法不修改子节点的相关记录，
 	 * 为了保证数据的完整性，需要与moveSubTree()方法配合使用。
 	 *
-	 * @param id 指定节点id
+	 * @param id     指定节点id
 	 * @param parent 某节点id
 	 */
 	private void moveNode(int id, int parent) {
