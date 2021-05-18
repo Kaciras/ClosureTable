@@ -11,18 +11,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 final class CategoryStoreTest {
 
+	private static final String[] NAMES = {"root", "电子产品", "电脑配件", "硬盘", "CPU",
+			"显卡", "AMD", "NVIDIA", "RX580", "GTX690战术核显卡", "RTX3080", "水果", "苹果", "西瓜"};
+
 	private static Repository repository;
 	private static SqlSession session;
 
 	@BeforeAll
 	static void init() throws Exception {
 		session = Utils.createSqlSession(Utils.getDaraSource());
-
-		var mapper = session.getMapper(CategoryMapper.class);
-		repository = new Repository(mapper);
-
-		// 如果使用Spring，可以用@Configurable来注入此依赖。
-		Category.categoryMapper = mapper;
 
 		/*
 		 * 测试数据如下:
@@ -42,6 +39,12 @@ final class CategoryStoreTest {
 		 */
 		Utils.executeScript(session.getConnection(), "schema.sql");
 		Utils.executeScript(session.getConnection(), "data.sql");
+
+		var mapper = session.getMapper(CategoryMapper.class);
+
+		// 如果使用 Spring，可以用 @Configurable 来注入此依赖。
+		Category.categoryMapper = mapper;
+		repository = new Repository(mapper);
 	}
 
 	@AfterAll
@@ -64,7 +67,7 @@ final class CategoryStoreTest {
 	private static Category testCategory(int id) {
 		var category = new Category();
 		category.setId(id);
-		category.setName("Name_" + id);
+		category.setName(NAMES[id]);
 		return category;
 	}
 
@@ -174,7 +177,7 @@ final class CategoryStoreTest {
 		assertThat(repository.findById(11).getLevel()).isEqualTo(1);
 	}
 
-	/**
+	/*
 	 *       1                                    1
 	 *       |                                  / | \
 	 *       2                                 3  4  5
@@ -210,7 +213,7 @@ final class CategoryStoreTest {
 				.containsExactlyInAnyOrder(testCategory(3), testCategory(4), testCategory(5));
 	}
 
-	/**
+	/*
 	 *       1                                      1
 	 *       |                                      |
 	 *       2                                      7
