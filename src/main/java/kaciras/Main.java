@@ -80,6 +80,8 @@ public final class Main {
 			Files.copy(path, exchange.getResponseBody());
 		} catch (NoSuchFileException ex) {
 			exchange.sendResponseHeaders(404, 0);
+		} catch (IOException ignore) {
+			// 客户端断开会抛“你的主机中的软件中止了一个已建立的连接”
 		}
 	}
 }
