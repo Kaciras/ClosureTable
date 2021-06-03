@@ -54,8 +54,15 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 
 		var params = method.getParameters();
 		var args = new Object[params.length];
-		for (int i = 0; i < args.length; i++) {
-			args[i] = objectMapper.treeToValue(body.get(i), params[i].getType());
+		for (var i = 0; i < args.length; i++) {
+			var type = params[i].getType();
+			var name = params[i].getName();
+
+			var jsonValue = body.get(name);
+			if (jsonValue == null) {
+				throw new ReflectiveOperationException("缺少参数：" + name);
+			}
+			args[i] = objectMapper.treeToValue(jsonValue, type);
 		}
 
 		var result = new ResultView();
