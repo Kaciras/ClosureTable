@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
+import lombok.AllArgsConstructor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -11,12 +12,22 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * 一个简单的 HTTP 控制器绑定实现。
+ */
 public final class HttpAdapter implements UncheckedHttpHandler {
 
+	@AllArgsConstructor
 	private static final class ResultView {
-		public String[] sql;
-		public long time;
-		public Object data;
+		public final String[] sql;
+		public final long time;
+		public final Object data;
+	}
+
+	@AllArgsConstructor
+	private static final class ErrorView {
+		public final String type;
+		public final String message;
 	}
 
 	private final ObjectMapper objectMapper;
@@ -43,13 +54,13 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 		var method = methodTable.get(endpoint);
 
 		if (method != null) {
-			invokeSql(exchange, method);
+			invoke(exchange, method);
 		} else {
 			exchange.sendResponseHeaders(404, 0);
 		}
 	}
 
-	private void invokeSql(HttpExchange exchange, Method method) throws Exception {
+	private void invoke(HttpExchange exchange, Method method) throws Exception {
 		var body = objectMapper.readTree(exchange.getRequestBody());
 
 		var params = method.getParameters();
@@ -65,17 +76,27 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 			args[i] = objectMapper.treeToValue(jsonValue, type);
 		}
 
-		var result = new ResultView();
 		dataSource.reset();
 
-		var start = System.currentTimeMillis();
-		result.data = method.invoke(controller, args);
-		result.time = System.currentTimeMillis() - start;
-		result.sql = dataSource.getExecutedSql();
+		try {
+			var start = System.currentTimeMillis();
+			var data = method.invoke(controller, args);
+			var time = System.currentTimeMillis() - start;
+			var sql = dataSource.getExecutedSql();
+			respond(exchange, 200, new ResultView(sql, time, data));
+		} catch (Exception ex) {
+			var type = ex.getClass().getSimpleName();
+			var message = ex.getMessage();
+			respond(exchange, 400, new ErrorView(type, message));
+		}
+	}
 
-		var json = objectMapper.writeValueAsBytes(result);
-		exchange.getResponseHeaders().add("Content-Type", "application/json");
-		exchange.sendResponseHeaders(200, json.length);
+	private void respond(HttpExchange exchange, int status, Object body) throws Exception {
+		var headers = exchange.getResponseHeaders();
+		var json = objectMapper.writeValueAsBytes(body);
+
+		headers.add("Content-Type", "application/json");
+		exchange.sendResponseHeaders(status, json.length);
 		exchange.getResponseBody().write(json);
 	}
 }
