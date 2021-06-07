@@ -1,35 +1,40 @@
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT = @@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
 /*!50503 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0 */;
+/*!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;
 
-/* 删除以前遗留的表 */
+/* 删除上次运行时遗留的表和数据 */
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS category_tree;
 
 /* 分类属性表，保存了分类的ID和名称，你可以在这个表中添加更多的属性 */
-CREATE TABLE IF NOT EXISTS `category` (
-	`id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`name` TINYTEXT NOT NULL,
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8mb4_general_ci'
-ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `category`
+(
+    `id`       int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `parentId` int(10) unsigned DEFAULT NULL,
+    `name`     tinytext         NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 
 /* 分类树表，存储了分类之间的关系 */
-CREATE TABLE IF NOT EXISTS `category_tree` (
-	`ancestor` SMALLINT(5) UNSIGNED NOT NULL,
-	`descendant` SMALLINT(5) UNSIGNED NOT NULL,
-	`distance` TINYINT(3) UNSIGNED NOT NULL,
-PRIMARY KEY (descendant, ancestor, distance))
-COLLATE='utf8mb4_general_ci'
-ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `category_tree`
+(
+    `ancestor`   int(10) unsigned    NOT NULL,
+    `descendant` int(10) unsigned    NOT NULL,
+    `distance`   tinyint(3) unsigned NOT NULL,
+    PRIMARY KEY (`descendant`, `ancestor`, `distance`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 /* 插入根分类 */
-INSERT INTO `category_tree` (ancestor,descendant,distance) VALUES (0, 0, 0);
-INSERT INTO `category` (`id`, `name`) VALUES (0, 'root');
+INSERT INTO `category_tree` (ancestor, descendant, distance)
+VALUES (0, 0, 0);
+INSERT INTO `category` (`id`, `name`, `parentId`)
+VALUES (0, 'root', null);
 
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET SQL_MODE = IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS = IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;
