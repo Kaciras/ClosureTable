@@ -4,8 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * 分类对象，该类使用充血模型，除了属性之外还包含了一些方法。
  *
@@ -22,93 +20,41 @@ public class Category {
 	 */
 	static CategoryMapper categoryMapper;
 
-	/** 分类id，数据库生成 */
+	/** 分类的 ID，由数据库生成 */
 	private int id;
 
 	/** 分类名 */
 	private String name;
 
-	/**
-	 * 获取分类的父分类。
-	 *
-	 * @return 父分类实体对象，如果指定的分类是一级分类，则返回null
-	 */
-	public Category getParent() {
-		return getAncestor(1);
-	}
+	/** 父类的 ID */
+	private int parentId;
 
 	/**
-	 * 查询指定分类往上第n级分类。
+	 * 查询指定分类往上第 N 级分类，如果不存在则返回 null。
+	 * N=0 返回自身的 ID，N=1 返回父 ID，以此类推。
 	 *
 	 * @param n 距离
-	 * @return 上级分类，如果不存在则为null
+	 * @return 上级分类的 ID
 	 */
-	public Category getAncestor(int n) {
-		Utils.checkPositive(n, "distant");
-		var parent = categoryMapper.selectAncestor(id, n);
-		return parent == null ? null : categoryMapper.selectAttributes(parent);
-	}
-
-	/**
-	 * 分类的下的直属子分类。
-	 *
-	 * @return 直属子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
-	 * @throws IllegalArgumentException 如果id小于0
-	 */
-	public List<Category> getChildren() {
-		return getChildren(1);
-	}
-
-	/**
-	 * 分类的下的第n级子分类。
-	 *
-	 * @param n 向下级数，1表示直属子分类
-	 * @return 子类列表，如果id所指定的分类不存在、或没有符合条件的分类，则返回空列表
-	 * @throws IllegalArgumentException 如果id小于0，或n不是正数
-	 */
-	public List<Category> getChildren(int n) {
-		Utils.checkNotNegative(id, "id");
+	public int getAncestorId(int n) {
 		Utils.checkPositive(n, "n");
-		return categoryMapper.selectSubLayer(id, n);
+		return categoryMapper.selectAncestor(id, n);
 	}
 
 	/**
-	 * 获取由顶级分类到此分类(含)路径上的所有的分类对象。
-	 * 如果指定的分类不存在，则返回空列表。
-	 *
-	 * @return 分类实体列表，越靠上的分类在列表中的位置越靠前
-	 */
-	public List<Category> getPath() {
-		return categoryMapper.selectPathToRoot(id);
-	}
-
-	/**
-	 * 获取此分类(含)到其某个的上级分类（不含）之间的所有分类的实体对象（仅查询id和name属性）。
-	 * 如果指定的分类、上级分类不存在，或是上级分类不是指定分类的上级，则返回空列表
-	 *
-	 * @param ancestor 上级分类的id，若为0则表示获取到一级分类（含）的列表。
-	 * @return 分类实体列表，越靠上的分类在列表中的位置越靠前。
-	 * @throws IllegalArgumentException 如果ancestor小于1。
-	 */
-	public List<Category> getPathRelativeTo(int ancestor) {
-		Utils.checkPositive(ancestor, "ancestor");
-		return categoryMapper.selectPathToAncestor(id, ancestor);
-	}
-
-	/**
-	 * 查询分类是哪一级的，根分类级别是0。
+	 * 查询分类是哪一级的，根分类级别是 0。
 	 *
 	 * @return 级别
 	 */
-	int getLevel() {
-		return categoryMapper.selectDistance(0, id);
+	public int getLevel() {
+		return categoryMapper.selectDistance(id,0);
 	}
 
 	/**
-	 * 将一个分类移动到目标分类下面（成为其子分类）。被移动分类的子类将自动上浮（成为指定分类
-	 * 父类的子分类），即使目标是指定分类原本的父类。
+	 * 将一个分类移动到目标分类下面（成为其子分类）。被移动分类的子类将自动上浮
+	 * （成为指定分类父类的子分类），即使目标是指定分类原本的父类。
 	 * <p>
-	 * 例如下图(省略顶级分类)：
+	 * 例如下图（省略根分类）：
 	 * <pre>
 	 *       1                                    1
 	 *       |                                  / | \
@@ -122,7 +68,7 @@ public class Category {
 	 * </pre>
 	 *
 	 * @param target 目标分类的id
-	 * @throws IllegalArgumentException 如果target所表示的分类不存在、或此分类的id==target
+	 * @throws IllegalArgumentException 如果 target 所表示的分类不存在或是自身
 	 */
 	public void moveTo(int target) {
 		if (id == target) {
@@ -143,7 +89,7 @@ public class Category {
 	 * 如果目标分类是被移动分类的子类，则先将目标分类（连带子类）移动到被移动分类原来的
 	 * 的位置，再移动需要被移动的分类。
 	 * <p>
-	 * 例如下图(省略顶级分类)：
+	 * 例如下图（省略根分类）：
 	 * <pre>
 	 *       1                                      1
 	 *       |                                      |
@@ -158,8 +104,8 @@ public class Category {
 	 *                                                   8
 	 * </pre>
 	 *
-	 * @param target 目标分类的id
-	 * @throws IllegalArgumentException 如果id或target所表示的分类不存在、或id==target
+	 * @param target 目标分类的 ID
+	 * @throws IllegalArgumentException 如果 target 所表示的分类不存在或是自身
 	 */
 	public void moveTreeTo(int target) {
 		Utils.checkNotNegative(target, "target");
@@ -168,7 +114,7 @@ public class Category {
 		}
 
 		/* 移动分移到自己子树下和无关节点下两种情况 */
-		var distance = categoryMapper.selectDistance(id, target);
+		var distance = categoryMapper.selectDistance(target, id);
 
 		// noinspection StatementWithEmptyBody
 		if (distance == null) {
@@ -188,15 +134,15 @@ public class Category {
 
 	/**
 	 * 将指定节点移动到另某节点下面，该方法不修改子节点的相关记录，
-	 * 为了保证数据的完整性，需要与moveSubTree()方法配合使用。
+	 * 为了保证数据的完整性，需要与 moveSubTree() 方法配合使用。
 	 *
-	 * @param id     指定节点id
-	 * @param parent 某节点id
+	 * @param id     指定节点 ID
+	 * @param parent 某节点 ID
 	 */
 	private void moveNode(int id, int parent) {
 		categoryMapper.deletePath(id);
 		categoryMapper.insertPath(id, parent);
-		categoryMapper.insertNode(id);
+		categoryMapper.insertSelfLink(id);
 	}
 
 	void moveSubTree(int parent) {
