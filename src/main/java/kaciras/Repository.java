@@ -9,11 +9,8 @@ import java.util.List;
  * 分类存储，提供对分类的增删改查等操作的支持。
  * <p>
  * 类别（分类）是用于归类、整理文章资源的数据信息。
- * 每个分类都可以拥有若干子分类，但最多只能属于一个父分类，没有父分类的称为
- * 顶级分类。分类的从属关系可以看做一棵多叉数。
- * <p>
- * 除了相互之间的关系外，分类拥有ID、名称这两个属性。其中ID为int，
- * 由数据库自动生成，你也可以添加其它属性。
+ * 每个分类都可以拥有若干子分类，但最多只能属于一个父分类，没有父分类的称为根分类。
+ * 分类的从属关系可以看做一棵多叉数。
  * <p>
  * 分类树有一个根节点，其 ID 为 0，且不可修改 ID、移动和删除。
  *
@@ -22,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Repository {
 
-	private final CategoryMapper categoryMapper;
+	private final CategoryMapper mapper;
 
 	/**
 	 * 根据指定的 ID，查询出分类对象。
@@ -32,7 +29,7 @@ public class Repository {
 	 */
 	public Category findById(int id) {
 		Utils.checkNotNegative(id, "id");
-		return categoryMapper.selectById(id);
+		return mapper.selectById(id);
 	}
 
 	/**
@@ -45,7 +42,7 @@ public class Repository {
 	public List<Category> findSubLayer(int id, int depth) {
 		Utils.checkNotNegative(id, "id");
 		Utils.checkPositive(depth, "depth");
-		return categoryMapper.selectSubLayer(id, depth);
+		return mapper.selectSubLayer(id, depth);
 	}
 
 	/**
@@ -56,19 +53,19 @@ public class Repository {
 	 */
 	public List<Category> findTree(int ancestor) {
 		Utils.checkNotNegative(ancestor, "ancestor");
-		return categoryMapper.selectDescendant(ancestor);
+		return mapper.selectDescendant(ancestor);
 	}
 
 	/**
 	 * 查出指定 ID 的分类的所有下级分类。
 	 *
 	 * @param ancestor 根分类的 ID
-	 * @param limit 深度限制
+	 * @param limit    深度限制
 	 * @return 分类列表
 	 */
 	public List<Category> findTree(int ancestor, int limit) {
 		Utils.checkNotNegative(ancestor, "ancestor");
-		return categoryMapper.selectDescendant(ancestor, limit);
+		return mapper.selectDescendant(ancestor, limit);
 	}
 
 	/**
@@ -78,14 +75,14 @@ public class Repository {
 	 * @return 分类列表，越上级的分类在列表中的位置越靠前
 	 */
 	public List<Category> findPath(int id) {
-		return categoryMapper.selectPathToRoot(id);
+		return mapper.selectPathToRoot(id);
 	}
 
 	/**
 	 * 获取指定分类（含）到其某个的上级分类（不含）之间的所有分类的对象。
 	 * 如果指定的分类、上级分类不存在，或是上级分类不是指定分类的上级，则返回空列表
 	 *
-	 * @param ancestor 上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
+	 * @param ancestor   上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
 	 * @param descendant 上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
 	 * @return 分类列表，越靠上的分类在列表中的位置越靠前。
 	 * @throws IllegalArgumentException 如果 ancestor 小于1。
@@ -93,7 +90,7 @@ public class Repository {
 	public List<Category> findBetween(int ancestor, int descendant) {
 		Utils.checkNotNegative(ancestor, "ancestor");
 		Utils.checkPositive(ancestor, "descendant");
-		return categoryMapper.selectPathToAncestor(descendant, ancestor);
+		return mapper.selectPathToAncestor(descendant, ancestor);
 	}
 
 	/**
@@ -102,23 +99,23 @@ public class Repository {
 	 * @return 分类数量
 	 */
 	public int size() {
-		return categoryMapper.selectCount() - 1;
+		return mapper.selectCount() - 1;
 	}
 
 	/**
 	 * 新增一个分类，自动生成并设置 ID 属性。
 	 *
 	 * @param category 分类实体对象
-	 * @param parent   上级分类id
 	 */
-	public void add(Category category, int parent) {
-		if (parent > 0 && categoryMapper.contains(parent) == null) {
+	public void add(Category category) {
+		var parent = category.getParentId();
+		if (parent > 0 && mapper.contains(parent) == null) {
 			throw new IllegalArgumentException("上级分类不存在");
 		}
 		try {
-			categoryMapper.insert(category);
-			categoryMapper.insertPath(category.getId(), parent);
-			categoryMapper.insertSelfLink(category.getId());
+			mapper.insert(category);
+			mapper.insertPath(category.getId(), parent);
+			mapper.insertSelfLink(category.getId());
 		} catch (PersistenceException ex) {
 			throw new IllegalArgumentException(ex);
 		}
@@ -132,7 +129,7 @@ public class Repository {
 	 */
 	public void update(Category category) {
 		try {
-			Utils.checkEffective(categoryMapper.update(category));
+			Utils.checkEffective(mapper.update(category));
 		} catch (PersistenceException ex) {
 			throw new IllegalArgumentException(ex);
 		}
@@ -148,15 +145,15 @@ public class Repository {
 	public void delete(int id) {
 		Utils.checkPositive(id, "id");
 
-		if (categoryMapper.contains(id) == null) {
+		if (mapper.contains(id) == null) {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
-		var parent = categoryMapper.selectAncestor(id, 1);
+		var parent = mapper.selectAncestor(id, 1);
 		if (parent == null) {
 			parent = 0;
 		}
 		findById(id).moveSubTree(parent);
-		deleteBoth(id);
+		deleteFromAllTable(id);
 	}
 
 	/**
@@ -168,13 +165,11 @@ public class Repository {
 	public void deleteTree(int id) {
 		Utils.checkPositive(id, "id");
 
-		if (categoryMapper.contains(id) == null) {
+		if (mapper.contains(id) == null) {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
-		deleteBoth(id);
-		for (var des : categoryMapper.selectDescendantId(id)) {
-			deleteBoth(des);
-		}
+		deleteFromAllTable(id);
+		mapper.selectDescendantId(id).forEach(this::deleteFromAllTable);
 	}
 
 	/**
@@ -182,8 +177,8 @@ public class Repository {
 	 *
 	 * @param id 分类的 ID
 	 */
-	private void deleteBoth(int id) {
-		Utils.checkEffective(categoryMapper.delete(id));
-		categoryMapper.deletePath(id);
+	private void deleteFromAllTable(int id) {
+		mapper.delete(id);
+		mapper.deletePath(id);
 	}
 }
