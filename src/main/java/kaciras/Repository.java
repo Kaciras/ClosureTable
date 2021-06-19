@@ -3,8 +3,6 @@ package kaciras;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import java.util.List;
-
 /**
  * 分类存储，提供对分类的增删改查等操作的支持。
  * <p>
@@ -30,67 +28,6 @@ public class Repository {
 	public Category findById(int id) {
 		Utils.checkNotNegative(id, "id");
 		return mapper.selectById(id);
-	}
-
-	/**
-	 * 获取指定分类往下的第 N 级分类。
-	 * N=1 表示子分类， N=2 表示子分类的子分类，以此类推。
-	 *
-	 * @param id    分类 ID
-	 * @param depth 向下级数 N
-	 */
-	public List<Category> findSubLayer(int id, int depth) {
-		Utils.checkNotNegative(id, "id");
-		Utils.checkPositive(depth, "depth");
-		return mapper.selectSubLayer(id, depth);
-	}
-
-	/**
-	 * 查出指定 ID 的分类的所有下级分类。
-	 *
-	 * @param ancestor 根分类的 ID
-	 * @return 分类列表
-	 */
-	public List<Category> findTree(int ancestor) {
-		Utils.checkNotNegative(ancestor, "ancestor");
-		return mapper.selectDescendant(ancestor);
-	}
-
-	/**
-	 * 查出指定 ID 的分类的所有下级分类。
-	 *
-	 * @param ancestor 根分类的 ID
-	 * @param limit    深度限制
-	 * @return 分类列表
-	 */
-	public List<Category> findTree(int ancestor, int limit) {
-		Utils.checkNotNegative(ancestor, "ancestor");
-		return mapper.selectDescendant(ancestor, limit);
-	}
-
-	/**
-	 * 获取根分类到此分类（含）路径上的所有的分类对象。
-	 * 如果指定的分类不存在，则返回空列表。
-	 *
-	 * @return 分类列表，越上级的分类在列表中的位置越靠前
-	 */
-	public List<Category> findPath(int id) {
-		return mapper.selectPathToRoot(id);
-	}
-
-	/**
-	 * 获取指定分类（含）到其某个的上级分类（不含）之间的所有分类的对象。
-	 * 如果指定的分类、上级分类不存在，或是上级分类不是指定分类的上级，则返回空列表
-	 *
-	 * @param ancestor   上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
-	 * @param descendant 上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
-	 * @return 分类列表，越靠上的分类在列表中的位置越靠前。
-	 * @throws IllegalArgumentException 如果 ancestor 小于1。
-	 */
-	public List<Category> findBetween(int ancestor, int descendant) {
-		Utils.checkNotNegative(ancestor, "ancestor");
-		Utils.checkPositive(ancestor, "descendant");
-		return mapper.selectPathToAncestor(descendant, ancestor);
 	}
 
 	/**

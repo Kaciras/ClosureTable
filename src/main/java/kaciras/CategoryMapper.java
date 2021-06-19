@@ -32,7 +32,7 @@ public interface CategoryMapper {
 	void insertPath(int id, int parent);
 
 	@Delete("DELETE FROM category WHERE id=#{id}")
-	int delete(int id);
+	void delete(int id);
 
 	/**
 	 * 从树中删除某节点的路径。
@@ -50,7 +50,6 @@ public interface CategoryMapper {
 	// ======================== 查询相关的方法 ========================
 
 	@Select("SELECT * FROM category WHERE id=#{id}")
-	@TypeDiscriminator(column = "id", javaType = int.class, cases = @Case(value = "0", type = RootCategory.class))
 	Category selectById(int id);
 
 	@Select("SELECT COUNT(*) FROM category")
@@ -91,19 +90,6 @@ public interface CategoryMapper {
 	List<Category> selectDescendant(int ancestor);
 
 	/**
-	 * 查询某个节点的子树中所有的节点，不包括参数所指定的节点。
-	 *
-	 * @param ancestor 节点 ID
-	 * @param limit    深度限制
-	 * @return 子树的节点列表
-	 */
-	@Select("SELECT B.* FROM category_tree AS A " +
-			"JOIN category AS B " +
-			"ON A.descendant=B.id " +
-			"WHERE ancestor=#{ancestor} AND distance<=#{limit}")
-	List<Category> selectDescendant(int ancestor, int limit);
-
-	/**
 	 * 查找某节点下的所有直属子节点的 ID。
 	 * 该方法与上面的<code>selectSubLayer</code>不同，它只查询节点的 id，效率高点。
 	 *
@@ -120,7 +106,7 @@ public interface CategoryMapper {
 	 * @return 子节点 ID
 	 */
 	@Select("SELECT descendant FROM category_tree WHERE ancestor=#{id} AND distance>0")
-	int[] selectDescendantId(int id);
+	List<Integer> selectDescendantId(int id);
 
 	/**
 	 * 查询某个节点的第 N 级父节点。如果 id 指定的节点不存在、操作错误或是数据库被外部修改，
