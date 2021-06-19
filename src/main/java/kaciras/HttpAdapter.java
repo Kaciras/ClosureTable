@@ -84,6 +84,8 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 			var time = System.currentTimeMillis() - start;
 			var sql = dataSource.getExecutedSql();
 			respond(exchange, 200, new ResultView(sql, time, data));
+		} catch (ReflectiveOperationException ex) {
+			throw ex;
 		} catch (Exception ex) {
 			var type = ex.getClass().getSimpleName();
 			var message = ex.getMessage();
