@@ -10,7 +10,7 @@ public interface CategoryMapper {
 	// ======================== 修改相关的方法 ========================
 
 	@Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-	@Insert("INSERT INTO category(name, parentId) VALUES(#{name}, #{parentId})")
+	@Insert("INSERT INTO category(name) VALUES(#{name})")
 	void insert(Category category);
 
 	/**

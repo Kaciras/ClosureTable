@@ -11,9 +11,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 final class RepositoryTest {
 
-	private static final String[] NAMES = {"root", "电子产品", "电脑配件", "硬盘", "CPU",
-			"显卡", "AMD", "NVIDIA", "RX580", "GTX690战术核显卡", "RTX3080", "水果", "苹果", "西瓜"};
-
 	private static Repository repository;
 	private static SqlSession session;
 
@@ -40,8 +37,6 @@ final class RepositoryTest {
 		Utils.executeScript(session.getConnection(), "schema.sql");
 		Utils.executeScript(session.getConnection(), "data.sql");
 
-
-
 		var mapper = session.getMapper(CategoryMapper.class);
 
 		// 如果使用 Spring，可以用 @Configurable 来注入此依赖。
@@ -60,29 +55,15 @@ final class RepositoryTest {
 		session.rollback(true);
 	}
 
-	/**
-	 * 生成一个指定ID的分类对象，其属性与测试数据一致，作为断言时的预期对象。
-	 *
-	 * @param id 分类ID
-	 * @return 分类对象
-	 */
-	private static Category testCategory(int id) {
-		var category = new Category();
-		category.setId(id);
-		category.setName(NAMES[id]);
-		return category;
-	}
-
 	@Test
 	void addInvalid() {
 		/* 分类名为 null 时抛异常 */
 		var category = new Category();
-		assertThatThrownBy(() -> repository.add(category)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(category, 1)).isInstanceOf(IllegalArgumentException.class);
 
 		/* parent 指定的分类不存在时抛异常 */
 		category.setName("Name");
-		category.setParentId(567);
-		assertThatThrownBy(() -> repository.add(category)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(category, 567)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -101,7 +82,7 @@ final class RepositoryTest {
 		category.setName("Name");
 
 		/* 设置属性后正常添加，并设置对象的id */
-		repository.add(category);
+		repository.add(category, 1);
 		assertThat(category.getId()).isGreaterThan(0);
 
 		/* findById 出来的对象与原对象属性相同 */
@@ -114,53 +95,57 @@ final class RepositoryTest {
 		assertThat(repository.size()).isEqualTo(13);
 	}
 
+	/* 方法参数错误时抛异常 */
 	@Test
-	void delete() {
-		/* 方法参数错误时抛异常 */
+	void invalidDelete() {
 		assertThatThrownBy(() -> repository.delete(-123)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.delete(0)).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> repository.delete(45)).isInstanceOf(IllegalArgumentException.class);
+	}
 
-		repository.delete(testCategory(1).getId());
+	@Test
+	void delete() {
+		repository.delete(1);
 
-		assertThat(repository.findById(0).getChildren())
-				.usingFieldByFieldElementComparator()
-				.containsExactlyInAnyOrder(testCategory(2), testCategory(11));
-		assertThat(repository.findById(7).getPath())
-				.usingFieldByFieldElementComparator()
-				.containsExactly(testCategory(2), testCategory(5), testCategory(7));
+		CategoryAssert.assertList(repository.findById(0).getChildren(), 2, 11);
+		CategoryAssert.assertList(repository.findById(7).getPath(), 2, 5, 7);
+	}
+
+	@Test
+	void invalidDeleteTree() {
+		assertThatThrownBy(() -> repository.deleteTree(-123)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.deleteTree(0)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.deleteTree(45)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	void deleteTree() {
-		assertThatThrownBy(() -> repository.deleteTree(-123)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> repository.deleteTree(0)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> repository.deleteTree(45)).isInstanceOf(IllegalArgumentException.class);
-
 		repository.deleteTree(5);
 
 		assertThat(repository.findById(7)).isNull();
 		assertThat(repository.findById(8)).isNull();
 
-		assertThat(repository.findById(2).getChildren())
-				.usingFieldByFieldElementComparator()
-				.containsExactlyInAnyOrder(testCategory(3), testCategory(4));
+		CategoryAssert.assertList(repository.findById(2).getChildren(), 3, 4);
+	}
+
+	@Test
+	void updateNonExists() {
+		var categoryDTO = new Category();
+		categoryDTO.setId(999);
+		categoryDTO.setName("NewName");
+
+		assertThatThrownBy(() -> repository.update(categoryDTO))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	void update() {
 		var categoryDTO = new Category();
-		categoryDTO.setId(999);
+		categoryDTO.setId(1);
 		categoryDTO.setName("NewName");
 
-		/* 不能更新不存在的分类 */
-		assertThatThrownBy(() -> repository.update(categoryDTO))
-				.isInstanceOf(IllegalArgumentException.class);
-
-		categoryDTO.setId(1);
 		repository.update(categoryDTO);
 
-		assertThat(repository.findById(testCategory(1).getId()))
-				.usingRecursiveComparison().isEqualTo(categoryDTO);
+		assertThat(repository.findById(1)).usingRecursiveComparison().isEqualTo(categoryDTO);
 	}
 }

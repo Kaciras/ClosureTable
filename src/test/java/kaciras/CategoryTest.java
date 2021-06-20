@@ -56,13 +56,6 @@ final class CategoryTest {
 	}
 
 	@Test
-	void getParent() {
-		assertThat(repository.findById(2).getParentId()).isEqualTo(1);
-		assertThat(repository.findById(4).getParentId()).isEqualTo(2);
-		assertThat(repository.findById(0).getParentId()).isNull();
-	}
-
-	@Test
 	void getAncestorId() {
 		/* 方法参数错误时抛异常 */
 		assertThatThrownBy(() -> repository.findById(4).getAncestorId(-5))
@@ -138,14 +131,15 @@ final class CategoryTest {
 	@Test
 	void move() {
 		var newParent = repository.findById(7);
+		var category = repository.findById(2);
 
-		repository.findById(2).moveTo(newParent);
+		category.moveTo(newParent);
 
 		// 移动后具有新的父节点
-		assertThat(repository.findById(2).getParentId()).isEqualTo(7);
+		assertThat(category.getAncestorId(1)).isEqualTo(7);
 
 		// 子树自动升级
-		CategoryAssert.assertList(repository.findById(2).getChildren(), 3, 4, 5);
+		CategoryAssert.assertList(category.getChildren());
 	}
 
 	/* 不能移动到自己下面，根分类也不能够移动 */
@@ -166,24 +160,25 @@ final class CategoryTest {
 	 *       2                                      7
 	 *     / | \       (id=2).moveTreeTo(7)       / | \
 	 *    3  4  5      -------------------->     9  10  2
-	 *         / \                                  / | \
-	 *       6    7                                3  4  5
-	 *      /    /  \                                    |
-	 *     8    9    10                                  6
-	 *                                                   |
-	 *                                                   8
+	 *         / \                                    / | \
+	 *       6    7                                  3  4  5
+	 *      /    /  \                                      |
+	 *     8    9    10                                    6
+	 *                                                     |
+	 *                                                     8
 	 */
 	@Test
 	void moveTree() {
 		var newParent = repository.findById(7);
+		var category = repository.findById(2);
 
-		repository.findById(2).moveTreeTo(newParent);
+		category.moveTreeTo(newParent);
 
 		/* 移动后具有新的父节点 */
-		assertThat(repository.findById(2).getParentId()).isEqualTo(7);
+		assertThat(category.getAncestorId(1)).isEqualTo(7);
 
 		/* 子树也随之移动 */
+		CategoryAssert.assertList(category.getChildren(), 3, 4, 5);
 		CategoryAssert.assertList(repository.findById(1).getChildren(), 7);
-		CategoryAssert.assertList(repository.findById(2).getChildren(), 3, 4, 5);
 	}
 }

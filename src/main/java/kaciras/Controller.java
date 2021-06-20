@@ -18,8 +18,7 @@ public final class Controller {
 	public Category create(int parentId, String name) {
 		var category = new Category();
 		category.setName(name);
-		category.setParentId(parentId);
-		repository.add(category);
+		repository.add(category, parentId);
 		return category;
 	}
 

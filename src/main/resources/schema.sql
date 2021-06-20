@@ -12,7 +12,6 @@ DROP TABLE IF EXISTS category_tree;
 CREATE TABLE IF NOT EXISTS `category`
 (
     `id`       int(10) unsigned NOT NULL AUTO_INCREMENT,
-    `parentId` int(10) unsigned DEFAULT NULL,
     `name`     tinytext         NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -30,10 +29,8 @@ CREATE TABLE IF NOT EXISTS `category_tree`
   DEFAULT CHARSET = utf8mb4;
 
 /* 插入根分类 */
-INSERT INTO `category_tree` (ancestor, descendant, distance)
-VALUES (0, 0, 0);
-INSERT INTO `category` (`id`, `name`, `parentId`)
-VALUES (0, 'root', null);
+INSERT INTO `category_tree` (ancestor, descendant, distance) VALUES (0, 0, 0);
+INSERT INTO `category` (`id`, `name`) VALUES (0, 'root');
 
 /*!40101 SET SQL_MODE = IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS = IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

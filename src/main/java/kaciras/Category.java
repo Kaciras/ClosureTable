@@ -28,9 +28,6 @@ public class Category {
 	/** 分类名 */
 	private String name;
 
-	/** 父类的 ID */
-	private Integer parentId;
-
 	/**
 	 * 查询指定分类往上第 N 级分类，如果不存在则返回 null。
 	 * N=0 返回自身的 ID，N=1 返回父 ID，以此类推。
