@@ -154,4 +154,10 @@ public interface CategoryMapper {
 	 */
 	@Select("SELECT distance FROM category_tree WHERE descendant=#{id} AND ancestor=#{ancestor}")
 	Integer selectDistance(int id, int ancestor);
+
+	// ======================== 特殊方法，仅用于演示页面 ========================
+
+	@Select("SELECT A.*, B.ancestor as parentId FROM category AS A " +
+			"LEFT JOIN (SELECT * FROM category_tree WHERE distance=1) AS B ON A.id=B.descendant ")
+	List<ListQueryVO> selectAllWithParent();
 }

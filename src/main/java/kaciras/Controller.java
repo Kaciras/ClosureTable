@@ -11,8 +11,8 @@ public final class Controller {
 
 	private final Repository repository;
 
-	public List<Category> getAll() {
-		return repository.findById(0).getTree();
+	public List<ListQueryVO> getAll() {
+		return repository.getAllForDemo();
 	}
 
 	public Category create(int parentId, String name) {

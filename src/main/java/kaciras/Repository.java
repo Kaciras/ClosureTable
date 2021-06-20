@@ -3,6 +3,8 @@ package kaciras;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.exceptions.PersistenceException;
 
+import java.util.List;
+
 /**
  * 分类存储，提供对分类的增删改查等操作的支持。
  * <p>
@@ -116,5 +118,14 @@ public class Repository {
 	private void deleteFromAllTable(int id) {
 		mapper.delete(id);
 		mapper.deletePath(id);
+	}
+
+	/**
+	 *
+	 *
+	 * @return 带父 ID 的分类列表
+	 */
+	public List<ListQueryVO> getAllForDemo(){
+		return mapper.selectAllWithParent();
 	}
 }
