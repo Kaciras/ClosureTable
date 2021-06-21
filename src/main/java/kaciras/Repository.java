@@ -62,11 +62,7 @@ public class Repository {
 	 * @param category 包含新属性的分类对象
 	 */
 	public void update(Category category) {
-		try {
-			Utils.checkEffective(mapper.update(category));
-		} catch (PersistenceException ex) {
-			throw new IllegalArgumentException(ex);
-		}
+		Utils.checkEffective(mapper.update(category));
 	}
 
 	/**
@@ -79,15 +75,15 @@ public class Repository {
 	public void delete(int id) {
 		Utils.checkPositive(id, "id");
 
-		if (mapper.contains(id) == null) {
+		var category = findById(id);
+		if (category == null) {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
-		var parent = mapper.selectAncestor(id, 1);
-		if (parent == null) {
-			parent = 0;
-		}
-		findById(id).moveSubTree(parent);
+
+		// 已排除根节点，故 parent 不会为 null。
+		var parent = category.getAncestorId(1);
 		deleteFromAllTable(id);
+		category.moveSubTree(parent);
 	}
 
 	/**
@@ -99,7 +95,8 @@ public class Repository {
 	public void deleteTree(int id) {
 		Utils.checkPositive(id, "id");
 
-		if (mapper.contains(id) == null) {
+		var category = findById(id);
+		if (category == null) {
 			throw new IllegalArgumentException("指定的分类不存在");
 		}
 		deleteFromAllTable(id);
@@ -121,7 +118,7 @@ public class Repository {
 	 *
 	 * @return 带父 ID 的分类列表
 	 */
-	public List<ListQueryVO> getAllForDemo(){
+	public List<ListQueryVO> getAllForDemo() {
 		return mapper.selectAllWithParent();
 	}
 }

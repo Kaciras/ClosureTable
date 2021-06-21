@@ -65,15 +65,6 @@ public interface CategoryMapper {
 	int selectCount();
 
 	/**
-	 * 判断一个节点是否存在。
-	 *
-	 * @param id 节点的 ID
-	 * @return true 表示存在，null 或 false 表示不存在
-	 */
-	@Select("SELECT 1 FROM category WHERE id=#{id}")
-	Boolean contains(int id);
-
-	/**
 	 * 查询某个节点的第 N 级子节点。
 	 *
 	 * @param ancestor 祖先节点的 ID
@@ -121,11 +112,11 @@ public interface CategoryMapper {
 	 * 查询某个节点往上第 N 级父节点的 ID。
 	 *
 	 * @param id 节点的 ID
-	 * @param n  祖先距离 N（0表示自己，1表示直接父节点）
+	 * @param distance 祖先距离 N（0表示自己，1表示直接父节点）
 	 * @return 父节点的 ID，如果不存在则返回 null
 	 */
-	@Select("SELECT ancestor FROM category_tree WHERE descendant=#{id} AND distance=#{n}")
-	Integer selectAncestor(int id, int n);
+	@Select("SELECT ancestor FROM category_tree WHERE descendant=#{id} AND distance=#{distance}")
+	Integer selectAncestor(int id, int distance);
 
 	/**
 	 * 查询由 ID 指定节点（含）到根节点（不含）的路径。
