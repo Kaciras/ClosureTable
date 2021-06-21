@@ -105,6 +105,12 @@ final class CategoryTest {
 		CategoryAssert.assertList(list, 8, 9, 10);
 	}
 
+	@Test
+	void getTree() {
+		var list = repository.findById(0).getTree();
+		CategoryAssert.assertContain(list, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
+	}
+
 	/* 不能移动到自己下面，根分类也不能够移动 */
 	@Test
 	void invalidMove() {
