@@ -46,13 +46,10 @@ public class Repository {
 	 *
 	 * @param category 分类实体对象
 	 */
-	public void add(Category category, int parent) {
-		if (parent > 0 && mapper.contains(parent) == null) {
-			throw new IllegalArgumentException("上级分类不存在");
-		}
+	public void add(Category category, Category parent) {
 		try {
 			mapper.insert(category);
-			mapper.insertPath(category.getId(), parent);
+			mapper.insertPath(category.getId(), parent.getId());
 			mapper.insertSelfLink(category.getId());
 		} catch (PersistenceException ex) {
 			throw new IllegalArgumentException(ex);

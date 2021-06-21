@@ -55,15 +55,13 @@ final class RepositoryTest {
 		session.rollback(true);
 	}
 
+	/* 分类名为 null 时抛异常 */
 	@Test
 	void addInvalid() {
-		/* 分类名为 null 时抛异常 */
+		var parent = repository.findById(0);
 		var category = new Category();
-		assertThatThrownBy(() -> repository.add(category, 1)).isInstanceOf(IllegalArgumentException.class);
 
-		/* parent 指定的分类不存在时抛异常 */
-		category.setName("Name");
-		assertThatThrownBy(() -> repository.add(category, 567)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> repository.add(category, parent)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -82,7 +80,7 @@ final class RepositoryTest {
 		category.setName("Name");
 
 		/* 设置属性后正常添加，并设置对象的id */
-		repository.add(category, 1);
+		repository.add(category,  repository.findById(1));
 		assertThat(category.getId()).isGreaterThan(0);
 
 		/* findById 出来的对象与原对象属性相同 */
@@ -126,16 +124,6 @@ final class RepositoryTest {
 		assertThat(repository.findById(8)).isNull();
 
 		CategoryAssert.assertList(repository.findById(2).getChildren(), 3, 4);
-	}
-
-	@Test
-	void updateNonExists() {
-		var categoryDTO = new Category();
-		categoryDTO.setId(999);
-		categoryDTO.setName("NewName");
-
-		assertThatThrownBy(() -> repository.update(categoryDTO))
-				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

@@ -18,13 +18,12 @@ public final class Controller {
 	public Category create(int parentId, String name) {
 		var category = new Category();
 		category.setName(name);
-		repository.add(category, parentId);
+		repository.add(category, repository.findById(parentId));
 		return category;
 	}
 
 	public void update(int id, String newName) {
-		var category = new Category();
-		category.setId(id);
+		var category = repository.findById(id);
 		category.setName(newName);
 		repository.update(category);
 	}
