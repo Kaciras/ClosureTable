@@ -15,6 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * 通过代理记录创建的数据库连接，接着用同样的方法记录所有创建的 Statement 对象。
+ * 最后用 Statement 的参数还原执行的 SQL 以显示在演示页面里。
+ *
+ * <h3>吐槽</h3>
+ * 就为了获取 SQL 搞了个三层代理，DataSource -> Connection -> Statement，真他妈麻烦。
+ */
 @RequiredArgsConstructor
 public final class TrackingDataSource implements DataSource {
 
@@ -26,6 +33,11 @@ public final class TrackingDataSource implements DataSource {
 		records.clear();
 	}
 
+	/**
+	 * 获取所有记录的 SQL 语句，已对参数化查询进行处理，结果接近真实的 SQL。
+	 *
+	 * @return SQL 语句数组
+	 */
 	public String[] getExecutedSql() {
 		return records.stream().map(ArgRecordHandler::sqlToString).toArray(String[]::new);
 	}

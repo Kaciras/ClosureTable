@@ -6,13 +6,12 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import java.util.List;
 
 /**
- * 分类存储，提供对分类的增删改查等操作的支持。
+ * 分类存储，提供对分类增删改查的支持。
  * <p>
- * 类别（分类）是用于归类、整理文章资源的数据信息。
  * 每个分类都可以拥有若干子分类，但最多只能属于一个父分类，没有父分类的称为根分类。
- * 分类的从属关系可以看做一棵多叉数。
+ * 分类之间的关系可以看做一棵多叉数。
  * <p>
- * 分类树有一个根节点，其 ID 为 0，且不可修改 ID、移动和删除。
+ * 分类树有一个根节点，其 ID 为 0，不可移动或删除。
  *
  * @author Kaciras
  */
@@ -24,7 +23,7 @@ public class Repository {
 	/**
 	 * 根据指定的 ID，查询出分类对象。
 	 *
-	 * @param id 分类 ID
+	 * @param id 分类的 ID
 	 * @return 分类对象，如果不存在则为 null
 	 */
 	public Category findById(int id) {
@@ -118,7 +117,7 @@ public class Repository {
 	}
 
 	/**
-	 *
+	 * 专用于演示页面的查询方法，查询结果中多了个 parentId 字段。
 	 *
 	 * @return 带父 ID 的分类列表
 	 */

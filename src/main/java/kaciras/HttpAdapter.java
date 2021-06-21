@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import lombok.AllArgsConstructor;
+import org.apache.ibatis.session.SqlSession;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,14 +32,16 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 		public final String message;
 	}
 
-	private final ObjectMapper objectMapper;
-
 	private final TrackingDataSource dataSource;
+	private final SqlSession session;
 	private final Controller controller;
+
+	private final ObjectMapper objectMapper;
 	private final Map<String, Method> methodTable;
 
-	public HttpAdapter(TrackingDataSource dataSource, Controller controller) {
+	public HttpAdapter(TrackingDataSource dataSource, SqlSession session, Controller controller) {
 		this.dataSource = dataSource;
+		this.session = session;
 		this.controller = controller;
 
 		objectMapper = new ObjectMapper()
@@ -81,14 +85,14 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 		try {
 			var start = System.currentTimeMillis();
 			var data = method.invoke(controller, args);
+			session.commit();
 			var time = System.currentTimeMillis() - start;
 			var sql = dataSource.getExecutedSql();
 			respond(exchange, 200, new ResultView(sql, time, data));
-		} catch (ReflectiveOperationException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			var type = ex.getClass().getSimpleName();
-			var message = ex.getMessage();
+		} catch (InvocationTargetException ex) {
+			var cause = ex.getCause();
+			var type = cause.getClass().getSimpleName();
+			var message = cause.getMessage();
 			respond(exchange, 400, new ErrorView(type, message));
 		}
 	}

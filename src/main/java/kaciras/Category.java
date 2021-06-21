@@ -9,7 +9,6 @@ import java.util.Objects;
 
 /**
  * 分类对象，该类使用充血模型，除了属性之外还包含了一些方法。
- * 不过本项目里没有什么与分类自身相关的逻辑，分类之间的逻辑也放到 Repository 里了。
  */
 @EqualsAndHashCode(of = "id")
 @Data
@@ -22,17 +21,21 @@ public class Category {
 	 */
 	static CategoryMapper mapper;
 
-	/** 分类的 ID，由数据库生成 */
+	/**
+	 * 分类的 ID 跟分类为 0，其它均大于 0。
+	 * <p>
+	 * 该字段仅由数据库生成，虽然为了 Mybatis 必须有 setId()，
+	 * 但这个方法不应该被用户代码使用。
+	 */
 	private int id;
 
-	/** 分类名 */
 	private String name;
 
 	/**
 	 * 查询指定分类往上第 N 级分类，如果不存在则返回 null。
 	 * N=0 返回自身的 ID，N=1 返回父 ID，以此类推。
 	 *
-	 * @param n 距离
+	 * @param n 距离 N
 	 * @return 上级分类的 ID
 	 */
 	public Integer getAncestorId(int n) {
@@ -60,12 +63,15 @@ public class Category {
 		return mapper.selectSubLayer(id, depth);
 	}
 
+	/**
+	 * 获取分类所有的直接子类。
+	 */
 	public List<Category> getChildren() {
 		return mapper.selectSubLayer(id, 1);
 	}
 
 	/**
-	 * 获取该分类的所有下级分类（），返回结果的顺序不做保证。
+	 * 获取该分类的所有下级分类，返回结果的顺序不做保证。
 	 */
 	public List<Category> getTree() {
 		return mapper.selectDescendant(id);
@@ -73,7 +79,6 @@ public class Category {
 
 	/**
 	 * 获取根分类到此分类（含）路径上的所有的分类对象。
-	 * 如果指定的分类不存在，则返回空列表。
 	 *
 	 * @return 分类列表，越上级的分类在列表中的位置越靠前
 	 */
@@ -83,9 +88,9 @@ public class Category {
 
 	/**
 	 * 获取指定分类（含）到其某个的上级分类（不含）之间的所有分类的对象。
-	 * 如果指定的分类、上级分类不存在，或是上级分类不是指定分类的上级，则返回空列表
+	 * 如果上级分类不存在，或是上级分类不是指定分类的上级，则返回空列表
 	 *
-	 * @param ancestor 上级分类的 ID，若为 0 则表示获取到一级分类（含）的列表。
+	 * @param ancestor 上级分类的 ID。
 	 * @return 分类列表，越靠上的分类在列表中的位置越靠前。
 	 * @throws IllegalArgumentException 如果 ancestor 小于1。
 	 */
@@ -175,12 +180,14 @@ public class Category {
 		moveSubTree(id, id);
 	}
 
+	// ======================== 内部使用的方法 ========================
+
 	/**
-	 * 将指定节点移动到另某节点下面，该方法不修改子节点的相关记录，
+	 * 将指定节点移动到某节点下面，该方法不修改子节点的相关记录，
 	 * 为了保证数据的完整性，需要与 moveSubTree() 方法配合使用。
 	 *
-	 * @param id     指定节点 ID
-	 * @param parent 某节点 ID
+	 * @param id     指定节点的 ID
+	 * @param parent 新的父节点 ID
 	 */
 	private void moveNode(int id, int parent) {
 		mapper.deletePath(id);
@@ -196,8 +203,8 @@ public class Category {
 	 * 将指定节点的所有子树移动到某节点下
 	 * 如果两个参数相同，则相当于重建子树，用于父节点移动后更新路径
 	 *
-	 * @param id     指定节点id
-	 * @param parent 某节点id
+	 * @param id     指定节点的 ID
+	 * @param parent 新的父节点 ID
 	 */
 	private void moveSubTree(int id, int parent) {
 		var subs = mapper.selectSubId(id);

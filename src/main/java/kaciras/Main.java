@@ -24,13 +24,13 @@ public final class Main {
 		Utils.executeScript(session.getConnection(), "data.sql");
 
 		var mapper = session.getMapper(CategoryMapper.class);
-		Category.categoryMapper = mapper;
+		Category.mapper = mapper;
 		var controller = new Controller(new Repository(mapper));
-		var api = new HttpAdapter(dataSource, controller);
+		var api = new HttpAdapter(dataSource, session, controller);
 
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
 		server.createContext("/api/", wrapHandler(api));
-		server.createContext("/", wrapHandler(Main::serveStaticResource));
+		server.createContext("/", wrapHandler(Main::serveFiles));
 		server.start();
 
 		// 玩完记得把表删了
@@ -41,7 +41,7 @@ public final class Main {
 	}
 
 	/**
-	 * 包装一个 HttpHandler，为其增加异常处理和自动关闭 HttpExchange 功能，
+	 * 包装一个 HttpHandler，增加异常处理和自动关闭 HttpExchange 功能，
 	 * 同时允许参数抛出更宽泛的异常。
 	 *
 	 * @param handler 被包装的 HttpHandler
@@ -58,7 +58,7 @@ public final class Main {
 		};
 	}
 
-	private static void serveStaticResource(HttpExchange exchange) throws IOException {
+	private static void serveFiles(HttpExchange exchange) throws IOException {
 		var name = exchange.getRequestURI().getPath();
 		if ("/".equals(name)) {
 			name = "index.html";
