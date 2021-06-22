@@ -4,24 +4,128 @@
 	<meta charset="UTF-8">
 	<title>Closure Table Demo</title>
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+	<link rel="stylesheet" href="/global.css">
 	<link rel="stylesheet" href="/tree.css">
 	<link rel="stylesheet" href="/index.css">
 	<script src="https://d3js.org/d3.v6.min.js" defer></script>
 	<script src="/index.js" type="module" defer></script>
 </head>
 <body>
-<section id="tree"></section>
-<table id="table">
-	<thead>
-	<tr>
-		<th>ID</th>
-		<th>Name</th>
-	</tr>
-	</thead>
-	<tbody></tbody>
-</table>
-<section id="console"></section>
-<section>
+<section id="tree-view"></section>
+
+<section id="console">
+	<div id="console-head">
+		<template id="tab-template">
+			<label class="tab-button">
+				__Text_Content__
+				<input type="radio" name="tab" class="hide">
+			</label>
+		</template>
+	</div>
+
+	<form id="create">
+		<label>
+			插入到哪个分类下面
+			<input name="parentId" type="number" min="0" value="0">
+		</label>
+		<label>
+			分类名
+			<input name="name" value="新建分类">
+		</label>
+		<button>执行查询</button>
+	</form>
+	<form id="update">
+		<label>
+			分类的 ID
+			<input name="id" type="number" min="0" value="1">
+		</label>
+		<label>
+			新的名字
+			<input name="newName" value="新的名字哦">
+		</label>
+		<button>执行查询</button>
+	</form>
+	<form id="getLevel">
+		<label>
+			节点的 ID
+			<input name="id" type="number" min="7">
+		</label>
+		<button>执行</button>
+	</form>
+	<form id="getPath">
+		<label>
+			上级节点的 ID
+			<input name="ancestor" type="number" min="0" value="0">
+		</label>
+		<label>
+			下级分类的 ID
+			<input name="descendant" type="number" min="0" value="8">
+		</label>
+		<button>执行查询</button>
+	</form>
+	<form id="delete">
+		<label>
+			分类的 ID
+			<input name="id" type="number" min="7">
+		</label>
+		<label>
+			<input name="single" type="checkbox">
+			仅单个节点而非整个子树
+		</label>
+		<button>执行</button>
+	</form>
+	<form id="move">
+		<label>
+			分类的 ID
+			<input name="id" type="number" min="7">
+		</label>
+		<label>
+			新的父分类
+			<input name="parent" type="number" min="2">
+		</label>
+		<label>
+			<input name="single" type="checkbox">
+			仅单个节点而非整个子树
+		</label>
+		<button>执行</button>
+	</form>
+	<form id="getSubLayer">
+		<label>
+			节点的 ID
+			<input name="ancestor" type="number" min="7">
+		</label>
+		<label>
+			距离 N
+			<input name="depth" type="number" min="0" value="1">
+		</label>
+		<button>执行</button>
+	</form>
+	<form id="getTree">
+		<label>
+			节点的 ID
+			<input name="id" type="number" min="7">
+		</label>
+		<button>执行</button>
+	</form>
+
+	<div id="list-result">
+		<table id="table">
+			<thead>
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+			</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<div id="simple-result">
+		返回值：<span>8</span>
+	</div>
+</section>
+
+<!-- 左下的通用信息栏，显示执行时间和SQL -->
+<section id="metadata">
 	<div id="time"></div>
 	<code id="sql"></code>
 </section>

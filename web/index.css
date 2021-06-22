@@ -1,54 +1,60 @@
-* {
-    box-sizing: border-box;
+/* 用于隐藏不需要的控件 */
+.hide {
+    display: none;
 }
 
-body {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    grid-template-rows: 1fr auto;
-    grid-gap: 15px;
-
-    height: 100vh;
-    margin: 0;
-    padding: 10px;
-
-    font-family: Arial, sans-serif;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 1rem;
-    border: solid 1px #cfcfcf;
-    background-color: white;
-}
-
-th, td {
-    padding: .75rem;
-    vertical-align: top;
-    border-bottom: 1px solid #cfcfcf;
-}
-
-thead th {
-    vertical-align: bottom;
-    border-bottom: 2px solid #cfcfcf;
-}
-
-tbody + tbody {
-    border-top: 2px solid #cfcfcf;
-}
-
-tbody > tr:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+#tree-view {
+    grid-area: tree-view;
 }
 
 #console {
-    padding: 10px;
+    grid-area: console;
     border-radius: 5px;
-    background: #f7f7f7;
+}
+
+#console-head {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, auto));
+    border-top: solid 1px #ccc;
+    border-left: solid 1px #ccc;
+}
+
+.tab-button {
+    display: block;
+    padding: 5px;
+    border-right: solid 1px #ccc;
+    border-bottom: solid 1px #ccc;
+    text-align: center;
+}
+
+.tab-button.active {
+    background: #0071ce;
+    color: white;
+}
+
+#console > form {
+    display: none;
+    background-color: #fafafa;
+    padding: 16px;
+}
+
+#console > form.active {
+    display: block;
+}
+
+#list-result {
+    overflow: auto;
+}
+
+#metadata {
+    grid-area: metadata;
 }
 
 #sql {
+    display: block;
     padding: 10px;
+    height: 4em;
+    border: solid 1px #eee;
     border-radius: 5px;
+    background: #f7f7f7;
 }
