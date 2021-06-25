@@ -7,7 +7,7 @@ const container = document.getElementById("tree-view");
  * @param list
  * @see https://github.com/xswei/d3-hierarchy/blob/master/README.md
  */
-export function update(list ) {
+export function updateTreeView(list ) {
 	if (svg) {
 		svg.remove();
 	}

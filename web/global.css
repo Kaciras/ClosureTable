@@ -20,6 +20,11 @@ label {
     cursor: pointer;
 }
 
+button {
+    font-size: initial;
+    padding: 4px 10px;
+}
+
 code {
     font-family: monospace;
 }
@@ -49,4 +54,8 @@ tbody + tbody {
 
 tbody > tr:hover {
     background-color: rgba(0, 0, 0, 0.04);
+}
+
+input[type="number"] {
+    margin-left: auto;
 }

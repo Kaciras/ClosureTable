@@ -35,11 +35,24 @@
 #console > form {
     display: none;
     background-color: #fafafa;
-    padding: 16px;
+    padding: 1px 16px;
 }
 
 #console > form.active {
     display: block;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+#actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #fafafa;
 }
 
 #list-result {
@@ -57,4 +70,5 @@
     border: solid 1px #eee;
     border-radius: 5px;
     background: #f7f7f7;
+    white-space: break-spaces;
 }

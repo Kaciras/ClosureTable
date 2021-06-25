@@ -14,99 +14,88 @@
 <section id="tree-view"></section>
 
 <section id="console">
-	<div id="console-head">
-		<template id="tab-template">
-			<label class="tab-button">
-				__Text_Content__
-				<input type="radio" name="tab" class="hide">
-			</label>
-		</template>
-	</div>
+	<div id="console-head"></div>
 
 	<form id="create">
-		<label>
+		<label class="field">
 			插入到哪个分类下面
 			<input name="parentId" type="number" min="0" value="0">
 		</label>
-		<label>
+		<label class="field">
 			分类名
 			<input name="name" value="新建分类">
 		</label>
-		<button>执行查询</button>
 	</form>
 	<form id="update">
-		<label>
+		<label class="field">
 			分类的 ID
 			<input name="id" type="number" min="0" value="1">
 		</label>
-		<label>
+		<label class="field">
 			新的名字
 			<input name="newName" value="新的名字哦">
 		</label>
-		<button>执行查询</button>
 	</form>
 	<form id="getLevel">
-		<label>
+		<label class="field">
 			节点的 ID
 			<input name="id" type="number" min="7">
 		</label>
-		<button>执行</button>
 	</form>
 	<form id="getPath">
-		<label>
+		<label class="field">
 			上级节点的 ID
 			<input name="ancestor" type="number" min="0" value="0">
 		</label>
-		<label>
+		<label class="field">
 			下级分类的 ID
 			<input name="descendant" type="number" min="0" value="8">
 		</label>
-		<button>执行查询</button>
 	</form>
 	<form id="delete">
-		<label>
+		<label class="field">
 			分类的 ID
 			<input name="id" type="number" min="7">
 		</label>
-		<label>
+		<label class="field">
 			<input name="single" type="checkbox">
 			仅单个节点而非整个子树
 		</label>
-		<button>执行</button>
 	</form>
 	<form id="move">
-		<label>
+		<label class="field">
 			分类的 ID
 			<input name="id" type="number" min="7">
 		</label>
-		<label>
+		<label class="field">
 			新的父分类
 			<input name="parent" type="number" min="2">
 		</label>
-		<label>
+		<label class="field">
 			<input name="single" type="checkbox">
 			仅单个节点而非整个子树
 		</label>
-		<button>执行</button>
 	</form>
 	<form id="getSubLayer">
-		<label>
+		<label class="field">
 			节点的 ID
 			<input name="ancestor" type="number" min="7">
 		</label>
-		<label>
+		<label class="field">
 			距离 N
 			<input name="depth" type="number" min="0" value="1">
 		</label>
-		<button>执行</button>
 	</form>
 	<form id="getTree">
-		<label>
+		<label class="field">
 			节点的 ID
 			<input name="id" type="number" min="7">
 		</label>
-		<button>执行</button>
 	</form>
+
+	<div id="actions">
+		<button id="invoke">执行</button>
+	</div>
 
 	<div id="list-result">
 		<table id="table">
@@ -122,12 +111,15 @@
 	<div id="simple-result">
 		返回值：<span>8</span>
 	</div>
+	<div id="error-result"></div>
 </section>
 
 <!-- 左下的通用信息栏，显示执行时间和SQL -->
 <section id="metadata">
 	<div id="time"></div>
-	<code id="sql"></code>
+	<pre>
+		<code id="sql"></code>
+	</pre>
 </section>
 </body>
 </html>
