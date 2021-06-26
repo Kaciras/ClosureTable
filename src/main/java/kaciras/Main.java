@@ -16,7 +16,6 @@ public final class Main {
 	private static final int PORT = 6666;
 
 	public static void main(String[] args) throws Exception {
-		Utils.disableIllegalAccessWarning();
 		System.setProperty("file.encoding", "UTF-8");
 
 		var dataSource = new TrackingDataSource(Utils.getDaraSource());

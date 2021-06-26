@@ -2,6 +2,7 @@ package kaciras;
 
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
+import org.apache.ibatis.jdbc.RuntimeSqlException;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
@@ -14,7 +15,6 @@ import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -122,33 +122,6 @@ final class Utils {
 			connection.commit();
 		} catch (SQLException ex) {
 			throw new RuntimeSqlException(ex);
-		}
-	}
-
-	/**
-	 * 关闭烦人的 Illegal access 警告，也可以通过启动选项来做：
-	 * {@code --add-opens java.base/java.lang=ALL-UNNAMED}
-	 */
-	public static void disableIllegalAccessWarning() {
-		var javaVersionElements = System.getProperty("java.version").split("\\.");
-		if (Integer.parseInt(javaVersionElements[0]) == 1) {
-			return; // 1.8.x_xx or lower
-		}
-		try {
-			var theUnsafe = Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe");
-			theUnsafe.setAccessible(true);
-			var u = theUnsafe.get(null);
-
-			var cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-			var logger = cls.getDeclaredField("logger");
-
-			var offset = (long) u.getClass()
-					.getMethod("staticFieldOffset", Field.class).invoke(u, logger);
-
-			u.getClass().getMethod("putObjectVolatile", Object.class, long.class, Object.class)
-					.invoke(u, cls, offset, null);
-		} catch (Exception ignore) {
-			throw new UnsupportedClassVersionError("Can not disable illegal access warning");
 		}
 	}
 }
