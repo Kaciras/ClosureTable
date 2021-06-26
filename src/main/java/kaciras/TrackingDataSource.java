@@ -38,8 +38,8 @@ public final class TrackingDataSource implements DataSource {
 	 *
 	 * @return SQL 语句数组
 	 */
-	public String[] getExecutedSql() {
-		return records.stream().map(ArgRecordHandler::sqlToString).toArray(String[]::new);
+	public String[] getExecutedSqls() {
+		return records.stream().map(ArgRecordHandler::getExecutedSql).toArray(String[]::new);
 	}
 
 	/**

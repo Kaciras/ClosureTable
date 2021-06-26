@@ -21,7 +21,7 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 
 	@AllArgsConstructor
 	private static final class ResultView {
-		public final String[] sql;
+		public final String[] sqls;
 		public final long time;
 		public final Object data;
 	}
@@ -87,21 +87,22 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 			var data = method.invoke(controller, args);
 			session.commit();
 			var time = System.currentTimeMillis() - start;
-			var sql = dataSource.getExecutedSql();
-			respond(exchange, 200, new ResultView(sql, time, data));
+			var sqls = dataSource.getExecutedSqls();
+			respond(exchange, 200, new ResultView(sqls, time, data));
 		} catch (InvocationTargetException ex) {
 			var cause = ex.getCause();
 			var type = cause.getClass().getSimpleName();
 			var message = cause.getMessage();
+			ex.printStackTrace();
 			respond(exchange, 400, new ErrorView(type, message));
 		}
 	}
 
 	private void respond(HttpExchange exchange, int status, Object body) throws Exception {
 		var headers = exchange.getResponseHeaders();
-		var json = objectMapper.writeValueAsBytes(body);
-
 		headers.add("Content-Type", "application/json");
+
+		var json = objectMapper.writeValueAsBytes(body);
 		exchange.sendResponseHeaders(status, json.length);
 		exchange.getResponseBody().write(json);
 	}

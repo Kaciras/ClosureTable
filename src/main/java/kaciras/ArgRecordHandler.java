@@ -19,7 +19,7 @@ final class ArgRecordHandler implements InvocationHandler {
 	private final PreparedStatement statement;
 	private final String sql;
 
-	public String sqlToString() {
+	public String getExecutedSql() {
 		return String.format(sql.replace("?", "%s"), parameters);
 	}
 

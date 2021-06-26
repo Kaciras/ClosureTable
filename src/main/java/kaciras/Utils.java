@@ -74,7 +74,7 @@ final class Utils {
 		var environment = new Environment("test", txFactory, dataSource);
 
 		var config = new Configuration();
-		config.setCacheEnabled(false);
+		config.setCacheEnabled(false); // 为了追踪执行的 SQL 必须关闭缓存。
 		config.addMapper(CategoryMapper.class);
 		config.setEnvironment(environment);
 
@@ -116,14 +116,12 @@ final class Utils {
 	 * 删除 category 和 category_tree 两张表。
 	 */
 	public static void dropTables(Connection connection) {
-		try {
-			var statement = connection.createStatement();
+		try (var statement = connection.createStatement()) {
 			statement.execute("DROP TABLE category");
 			statement.execute("DROP TABLE category_tree");
-			statement.close();
 			connection.commit();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		} catch (SQLException ex) {
+			throw new RuntimeSqlException(ex);
 		}
 	}
 
