@@ -17,6 +17,7 @@ public final class Main {
 
 	public static void main(String[] args) throws Exception {
 		Utils.disableIllegalAccessWarning();
+		System.setProperty("file.encoding", "UTF-8");
 
 		var dataSource = new TrackingDataSource(Utils.getDaraSource());
 		var session = Utils.createSqlSession(dataSource);
