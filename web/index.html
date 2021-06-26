@@ -39,7 +39,7 @@
 	<form id="getLevel">
 		<label class="field">
 			节点的 ID
-			<input name="id" type="number" min="7">
+			<input name="id" type="number" min="0" value="7">
 		</label>
 	</form>
 	<form id="getPath">
@@ -55,31 +55,31 @@
 	<form id="delete">
 		<label class="field">
 			分类的 ID
-			<input name="id" type="number" min="7">
+			<input name="id" type="number" min="0" value="7">
 		</label>
 		<label class="field">
-			<input name="single" type="checkbox">
 			仅单个节点而非整个子树
+			<input name="single" type="checkbox">
 		</label>
 	</form>
 	<form id="move">
 		<label class="field">
 			分类的 ID
-			<input name="id" type="number" min="7">
+			<input name="id" type="number" min="0" value="7">
 		</label>
 		<label class="field">
 			新的父分类
-			<input name="parent" type="number" min="2">
+			<input name="parent" type="number" min="0" value="2">
 		</label>
 		<label class="field">
-			<input name="single" type="checkbox">
 			仅单个节点而非整个子树
+			<input name="single" type="checkbox">
 		</label>
 	</form>
 	<form id="getSubLayer">
 		<label class="field">
 			节点的 ID
-			<input name="ancestor" type="number" min="7">
+			<input name="id" type="number" min="0" value="7">
 		</label>
 		<label class="field">
 			距离 N
@@ -89,7 +89,7 @@
 	<form id="getTree">
 		<label class="field">
 			节点的 ID
-			<input name="id" type="number" min="7">
+			<input name="id" type="number" min="0" value="7">
 		</label>
 	</form>
 
@@ -97,7 +97,7 @@
 		<button id="invoke">执行</button>
 	</div>
 
-	<div id="list-result">
+	<div id="list-result" class="result">
 		<table id="table">
 			<thead>
 			<tr>
@@ -108,18 +108,18 @@
 			<tbody></tbody>
 		</table>
 	</div>
-	<div id="simple-result">
+	<div id="simple-result" class="result">
 		返回值：<span>8</span>
 	</div>
-	<div id="error-result"></div>
+	<div id="error-result" class="result"></div>
 </section>
 
 <!-- 左下的通用信息栏，显示执行时间和SQL -->
 <section id="metadata">
-	<div id="time"></div>
-	<pre>
-		<code id="sql"></code>
-	</pre>
+	<p>
+		执行用时：<time id="time">N/A</time> ms
+	</p>
+	<pre><code id="sql"></code></pre>
 </section>
 </body>
 </html>

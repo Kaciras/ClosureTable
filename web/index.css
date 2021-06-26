@@ -1,74 +1,90 @@
 /* 用于隐藏不需要的控件 */
 .hide {
-    display: none;
+	display: none;
 }
 
 #tree-view {
-    grid-area: tree-view;
+	grid-area: tree-view;
 }
 
 #console {
-    grid-area: console;
-    border-radius: 5px;
+	grid-area: console;
+	border-radius: 5px;
 }
 
 #console-head {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, auto));
-    border-top: solid 1px #ccc;
-    border-left: solid 1px #ccc;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(100px, auto));
+	border-top: solid 1px var(--border-color);
+	border-left: solid 1px var(--border-color);
+	margin-bottom: 16px;
 }
 
 .tab-button {
-    display: block;
-    padding: 5px;
-    border-right: solid 1px #ccc;
-    border-bottom: solid 1px #ccc;
-    text-align: center;
+	display: block;
+	padding: 5px;
+	border-right: solid 1px var(--border-color);
+	border-bottom: solid 1px var(--border-color);
+	text-align: center;
 }
 
 .tab-button.active {
-    background: #0071ce;
-    color: white;
+	background: #0091de;
+	color: white;
 }
 
 #console > form {
-    display: none;
-    background-color: #fafafa;
-    padding: 1px 16px;
+	display: none;
+	background-color: #fafafa;
+	border-radius: var(--radius);
+	padding: 1px 16px;
 }
 
 #console > form.active {
-    display: block;
+	display: block;
+}
+
+#console > form  input {
+	margin-left: auto;
 }
 
 .field {
-    display: flex;
-    align-items: center;
-    margin: 15px 0;
+	display: flex;
+	align-items: center;
+	margin: 15px 0;
 }
 
 #actions {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px;
-    background-color: #fafafa;
+	display: flex;
+	justify-content: flex-end;
+	padding: 10px;
+	margin-bottom: 16px;
+	background-color: #fafafa;
+}
+
+.result {
+	display: none;
 }
 
 #list-result {
-    overflow: auto;
+	overflow: auto;
+}
+
+#simple-result {
+	padding: 10px;
 }
 
 #metadata {
-    grid-area: metadata;
+	grid-area: metadata;
+	border-top: solid 1px var(--border-color);
 }
 
 #sql {
-    display: block;
-    padding: 10px;
-    height: 4em;
-    border: solid 1px #eee;
-    border-radius: 5px;
-    background: #f7f7f7;
-    white-space: break-spaces;
+	display: block;
+	padding: 8px;
+	height: 4em;
+	border: solid 1px #eee;
+	border-radius: var(--radius);
+	background: #f7f7f7;
+	white-space: break-spaces;
 }

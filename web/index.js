@@ -2,16 +2,36 @@ import { updateTreeView } from "./tree.js";
 
 const API = "http://localhost:6666/api/";
 
-function invokeSQL(name, args = {}) {
+async function invokeSQL(name, args = {}) {
 	const request = new Request(API + name, {
 		method: "POST",
 		body: JSON.stringify(args),
 	});
-	return fetch(request).then(r => r.json());
+	const response = await fetch(request);
+	const body = await response.json();
+	return { status: response.status, body };
+}
+
+function processSql(sqls) {
+	return sqls.filter(s => s.includes("category_tree")).map(s => s + ";").join("\n");
 }
 
 function refreshTreeView() {
-	invokeSQL("getAll").then(r => updateTreeView(r.data));
+	invokeSQL("getAll").then(r => updateTreeView(r.body.data));
+}
+
+function showErrorResult(data) {
+	document.getElementById("list-result").style.display = "none";
+	document.getElementById("simple-result").style.display = "block";
+
+	const title = document.createElement("p");
+	title.textContent = "执行失败，错误：" + data.type;
+
+	const message = document.createElement("p");
+	message.textContent = data.message;
+
+	document.getElementById("error-result").innerHTML = "";
+	document.getElementById("error-result").append(title, message);
 }
 
 function updateSimple(value) {
@@ -99,22 +119,27 @@ refreshTreeView();
 
 document.getElementById("invoke").onclick = async () => {
 	const { type, panel } = tabMap[currentTab];
-	const body = Object.fromEntries(new FormData(panel));
-	const { sql, time, data } = await invokeSQL(currentTab, body);
+	const args = Object.fromEntries(new FormData(panel));
+	const { status, body } = await invokeSQL(currentTab, args);
 
-	switch (type) {
-		case ActionType.Modify:
-			refreshTreeView();
-			break;
-		case ActionType.QueryValue:
-			updateSimple(data);
-			break;
-		case ActionType.QueryList:
-			updateTable(data);
-			break;
+	if (status !== 200) {
+		showErrorResult(body);
+	} else {
+		const { sqls, time, data } = body
+
+		switch (type) {
+			case ActionType.Modify:
+				refreshTreeView();
+				break;
+			case ActionType.QueryValue:
+				updateSimple(data);
+				break;
+			case ActionType.QueryList:
+				updateTable(data);
+				break;
+		}
+
+		document.getElementById("time").textContent = time;
+		document.getElementById("sql").textContent = processSql(sqls);
 	}
-
-	document.getElementById("time").textContent = time;
-	document.getElementById("sql").textContent = sql
-		.filter(line => line.includes("category_tree")).join(";\n");
 }

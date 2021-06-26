@@ -1,61 +1,62 @@
+:root {
+	--border-color: #ddd;
+	--radius: 6px;
+}
+
 * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body {
-    display: grid;
-    grid-gap: 15px;
-    grid-template-columns: 1fr 400px;
-    grid-template-rows: 1fr auto;
-    grid-template-areas: "tree-view console" "metadata console";
+	display: grid;
+	grid-gap: 15px;
+	grid-template-columns: 1fr 400px;
+	grid-template-rows: 1fr auto;
+	grid-template-areas: "tree-view console" "metadata console";
 
-    height: 100vh;
-    margin: 0;
-    padding: 10px;
+	height: 100vh;
+	margin: 0;
+	padding: 10px;
 
-    font-family: Arial, sans-serif;
+	font-family: Arial, sans-serif;
 }
 
 label {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 button {
-    font-size: initial;
-    padding: 4px 10px;
+	font-size: initial;
+	padding: 4px 10px;
 }
 
 code {
-    font-family: monospace;
+	font-family: monospace;
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 1rem;
-    border: solid 1px #cfcfcf;
-    background-color: white;
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 1rem;
+	border: solid 1px #cfcfcf;
+	background-color: white;
 }
 
 th, td {
-    padding: .75rem;
-    vertical-align: top;
-    border-bottom: 1px solid #cfcfcf;
+	padding: .75rem;
+	vertical-align: top;
+	border-bottom: 1px solid #cfcfcf;
 }
 
 thead th {
-    vertical-align: bottom;
-    border-bottom: 2px solid #cfcfcf;
+	vertical-align: bottom;
+	border-bottom: 2px solid #cfcfcf;
 }
 
 tbody + tbody {
-    border-top: 2px solid #cfcfcf;
+	border-top: 2px solid #cfcfcf;
 }
 
 tbody > tr:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-}
-
-input[type="number"] {
-    margin-left: auto;
+	background-color: rgba(0, 0, 0, 0.04);
 }
