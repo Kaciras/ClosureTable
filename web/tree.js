@@ -18,7 +18,7 @@ export function updateTreeGraph(list) {
 
 	const zoom = d3.zoom()
 		.scaleExtent([1, 8])
-		.on('zoom', event => g.attr('transform', event.transform));
+		.on("zoom", event => g.attr("transform", event.transform));
 
 	svg.call(zoom);
 
@@ -30,7 +30,7 @@ export function updateTreeGraph(list) {
 	const treemap = d3.tree().size([700, 600]);
 	const nodes = treemap(d3.stratify()(list));
 
-	const link = g.selectAll(".link")
+	g.selectAll(".link")
 		.data(nodes.descendants().slice(1))
 		.enter()
 		.append("path")
@@ -44,14 +44,21 @@ export function updateTreeGraph(list) {
 	const node = g.selectAll(".node")
 		.data(nodes.descendants())
 		.enter().append("g")
-		.attr("class", d => "node " + d.children ? "internal" : "leaf")
+		.attr("class", d => "node " + (d.children ? "internal" : "leaf"))
 		.attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-	node.append("circle").attr("r", 10);
+	node.append("circle").attr("r", 14);
 
 	node.append("text")
+		.attr("class", "id")
+		.attr("text-anchor","middle")
+		.attr("y", 5)
+		.text(d => d.data.id);
+
+	node.append("text")
+		.attr("class", "name")
 		.attr("dy", ".35em")
-		.attr("y", d => d.children ? -20 : 20)
+		.attr("y", d => d.children ? -25 : 25)
 		.style("text-anchor", "middle")
 		.text(d => d.data.name);
 }
