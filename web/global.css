@@ -3,7 +3,7 @@
 	--radius: 6px;
 }
 
-* {
+*, *::before, *::after {
 	box-sizing: border-box;
 }
 

@@ -1,4 +1,4 @@
-import { updateTreeView } from "./tree.js";
+import { updateTreeGraph } from "./tree.js";
 
 const API = "http://localhost:6666/api/";
 
@@ -17,7 +17,11 @@ function processSql(sqls) {
 }
 
 function refreshTreeView() {
-	invokeSQL("getAll").then(r => updateTreeView(r.body.data));
+	document.getElementById("shell-loading").style.opacity = "1";
+	invokeSQL("getAll").then(result => {
+		updateTreeGraph(result.body.data);
+		document.getElementById("shell-loading").style.opacity = "0";
+	});
 }
 
 function showErrorResult(data) {
