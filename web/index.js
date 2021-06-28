@@ -24,24 +24,24 @@ function refreshTreeView() {
 	});
 }
 
-function showErrorResult(data) {
-	document.getElementById("list-result").style.display = "none";
-	document.getElementById("simple-result").style.display = "block";
+let currentResult = document.getElementById("simple-result");
 
+function switchResultPanel(id) {
+	currentResult.style.display = "none";
+	currentResult = document.getElementById(id);
+	currentResult.style.display = "block";
+}
+
+function showErrorResult(data) {
 	const title = document.createElement("p");
 	title.textContent = "执行失败，错误：" + data.type;
 
 	const message = document.createElement("p");
 	message.textContent = data.message;
 
-	document.getElementById("error-result").innerHTML = "";
-	document.getElementById("error-result").append(title, message);
-}
-
-function updateSimple(value) {
-	document.getElementById("list-result").style.display = "none";
-	document.getElementById("simple-result").style.display = "block";
-	document.getElementById("simple-result").textContent = value;
+	switchResultPanel("error-result");
+	currentResult.innerHTML = "";
+	currentResult.append(title, message);
 }
 
 function updateTable(list) {
@@ -64,53 +64,56 @@ function updateTable(list) {
 	const el = document.getElementById("table");
 	el.replaceChild(tBody, el.tBodies[0]);
 
-	document.getElementById("simple-result").style.display = "none";
-	document.getElementById("list-result").style.display = "block";
-}
-
-const ActionType = {
-	Modify: 0,
-	QueryValue: 1,
-	QueryList: 2,
+	switchResultPanel("list-result");
 }
 
 const tabMap = {};
 let currentTab;
 
 // 虽然纯 CSS 也能做 TabPanel，但比 JS 麻烦所以不用
-function addTab(api, name, type) {
+function addTab(api, name, handler) {
 	const radio = document.createElement("input");
 	radio.type = "radio";
 	radio.name = "tab";
 	radio.className = "hide";
 
 	const button = document.createElement("label");
-	button.className = "tab-button";
 	button.textContent = name;
+	button.className = "tab-button";
 	button.append(radio);
 
 	const panel = document.getElementById(api);
 
 	radio.addEventListener("change", () => {
+		const t = tabMap[currentTab];
+		currentTab = api;
+
+		t.button.classList.remove("active");
+		t.panel.classList.remove("active");
+
 		panel.classList.add("active");
 		button.classList.add("active");
-		tabMap[currentTab].button.classList.remove("active");
-		tabMap[currentTab].panel.classList.remove("active");
-		currentTab = api;
 	});
 
-	tabMap[api] = { button, panel, type };
+	tabMap[api] = { button, panel, handler };
 	document.getElementById("console-head").append(button);
 }
 
-addTab("create", "插入", ActionType.Modify);
-addTab("update", "更新", ActionType.Modify);
-addTab("delete", "删除", ActionType.Modify);
-addTab("move", "移动", ActionType.Modify);
-addTab("getLevel", "查询级别", ActionType.QueryValue);
-addTab("getPath", "查询路径", ActionType.QueryList);
-addTab("getSubLayer", "查询子层", ActionType.QueryList);
-addTab("getTree", "查询子树", ActionType.QueryList);
+addTab("create", "插入", value => {
+	refreshTreeView();
+	switchResultPanel("simple-result");
+	currentResult.textContent = `新增分类的 ID：${value.id}`;
+});
+addTab("update", "更新", refreshTreeView);
+addTab("delete", "删除", refreshTreeView);
+addTab("move", "移动", refreshTreeView);
+addTab("getLevel", "查询级别", value => {
+	switchResultPanel("simple-result");
+	currentResult.textContent = value;
+});
+addTab("getPath", "查询路径", updateTable);
+addTab("getTree", "查询子树", updateTable);
+addTab("getSubLayer", "查询子层", updateTable);
 
 currentTab = "getPath";
 refreshTreeView();
@@ -122,27 +125,19 @@ refreshTreeView();
 }
 
 document.getElementById("invoke").onclick = async () => {
-	const { type, panel } = tabMap[currentTab];
-	const args = Object.fromEntries(new FormData(panel));
+	const { handler, panel } = tabMap[currentTab];
+	const form = new FormData(panel);
+	for (const checkbox of panel.querySelectorAll("input[type=checkbox]")) {
+		form.append(checkbox.name, checkbox.checked);
+	}
+	const args = Object.fromEntries(form);
 	const { status, body } = await invokeSQL(currentTab, args);
 
 	if (status !== 200) {
 		showErrorResult(body);
 	} else {
 		const { sqls, time, data } = body
-
-		switch (type) {
-			case ActionType.Modify:
-				refreshTreeView();
-				break;
-			case ActionType.QueryValue:
-				updateSimple(data);
-				break;
-			case ActionType.QueryList:
-				updateTable(data);
-				break;
-		}
-
+		handler(data);
 		document.getElementById("time").textContent = time;
 		document.getElementById("sql").textContent = processSql(sqls);
 	}

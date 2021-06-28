@@ -10,10 +10,10 @@ public interface CategoryMapper {
 	// ======================== 修改相关的方法 ========================
 
 	@Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-	@Insert("INSERT INTO category(name) VALUES(#{name})")
+	@Insert("INSERT INTO category(name) VALUES (#{name})")
 	void insert(Category category);
 
-	@Update("UPDATE category SET `name`=#{name} WHERE id=#{id}")
+	@Update("UPDATE category SET name=#{name} WHERE id=#{id}")
 	int update(Category category);
 
 	/**
@@ -22,7 +22,7 @@ public interface CategoryMapper {
 	 *
 	 * @param id 节点的 ID
 	 */
-	@Insert("INSERT INTO category_tree(ancestor,descendant,distance) VALUES(#{id},#{id},0)")
+	@Insert("INSERT INTO category_tree(ancestor, descendant, distance) VALUES(#{id}, #{id}, 0)")
 	void insertSelfLink(int id);
 
 	/**
@@ -32,8 +32,8 @@ public interface CategoryMapper {
 	 * @param id     节点的 ID
 	 * @param parent 父节点的 ID
 	 */
-	@Insert("INSERT INTO category_tree(ancestor,descendant,distance) " +
-			"(SELECT ancestor,#{id},distance+1 FROM category_tree WHERE descendant=#{parent})")
+	@Insert("INSERT INTO category_tree(ancestor, descendant, distance) " +
+			"(SELECT ancestor, #{id}, distance+1 FROM category_tree WHERE descendant=#{parent})")
 	void insertPath(int id, int parent);
 
 	/**
@@ -156,7 +156,7 @@ public interface CategoryMapper {
 
 	// ======================== 特殊方法，仅用于演示页面 ========================
 
-	@Select("SELECT A.*, B.ancestor as parentId FROM category AS A " +
+	@Select("SELECT A.*, ancestor as parentId FROM category AS A " +
 			"LEFT JOIN (SELECT * FROM category_tree WHERE distance=1) AS B ON A.id=B.descendant")
 	List<ListQueryVO> selectAllWithParent();
 }

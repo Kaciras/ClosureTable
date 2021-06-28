@@ -3,8 +3,9 @@ let svg;
 const container = document.getElementById("tree-view");
 
 /**
+ * 更新树状图，其实就是删了原来的并重建一个。
  *
- * @param list
+ * @param list 分类列表
  * @see https://github.com/xswei/d3-hierarchy/blob/master/README.md
  */
 export function updateTreeGraph(list) {
@@ -17,7 +18,7 @@ export function updateTreeGraph(list) {
 		.attr("height", container.clientHeight);
 
 	const zoom = d3.zoom()
-		.scaleExtent([1, 8])
+		.scaleExtent([1, 4])
 		.on("zoom", event => g.attr("transform", event.transform));
 
 	svg.call(zoom);

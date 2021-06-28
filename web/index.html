@@ -68,11 +68,11 @@
 	<form id="move">
 		<label class="field">
 			分类的 ID
-			<input name="id" type="number" min="0" value="7">
+			<input name="id" type="number" min="0" value="2">
 		</label>
 		<label class="field">
 			新的父分类
-			<input name="parent" type="number" min="0" value="2">
+			<input name="parent" type="number" min="0" value="7">
 		</label>
 		<label class="field">
 			仅单个节点而非整个子树
@@ -111,10 +111,10 @@
 			<tbody></tbody>
 		</table>
 	</div>
-	<div id="simple-result" class="result">
+	<div id="simple-result" class="result box">
 		返回值：<span>8</span>
 	</div>
-	<div id="error-result" class="result"></div>
+	<div id="error-result" class="result box"></div>
 </section>
 
 <!-- 左下的通用信息栏，显示执行时间和SQL -->
@@ -122,7 +122,7 @@
 	<p>
 		执行用时：<time id="time">N/A</time> ms
 	</p>
-	<pre><code id="sql"></code></pre>
+	<pre><code id="sql" class="box"></code></pre>
 </section>
 </body>
 </html>

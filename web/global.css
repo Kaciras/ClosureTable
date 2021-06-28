@@ -21,11 +21,8 @@ body {
 	font-family: Arial, sans-serif;
 }
 
-label {
-	cursor: pointer;
-}
-
 button {
+	cursor: pointer;
 	font-size: initial;
 	padding: 4px 10px;
 }
@@ -37,7 +34,6 @@ code {
 table {
 	border-collapse: collapse;
 	width: 100%;
-	margin-bottom: 1rem;
 	border: solid 1px #cfcfcf;
 	background-color: white;
 }
