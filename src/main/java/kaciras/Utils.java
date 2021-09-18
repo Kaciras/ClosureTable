@@ -45,7 +45,7 @@ final class Utils {
 
 	/**
 	 * 读取运行目录下的配置文件，创建数据源。
-	 * 优先尝试 application.local.properties，没有该文件则使用 application.properties
+	 * 优先尝试 application.local.properties，没有则使用 application.properties
 	 *
 	 * @return Mybatis 的数据源
 	 * @throws IOException 如果读取文件失败

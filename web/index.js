@@ -2,7 +2,15 @@ import { updateTreeGraph } from "./tree.js";
 
 const API = "http://localhost:6666/api/";
 
-async function invokeSQL(name, args = {}) {
+/**
+ * 调用后端控制器（Controller.java）里的方法，
+ * HttpAdapter.java 用于接收请求，并转换为方法调用。
+ *
+ * @param name 方法名
+ * @param args 方法参数
+ * @return 成功返回 ResultView，出错返回 ErrorView
+ */
+async function invokeAPI(name, args = {}) {
 	const request = new Request(API + name, {
 		method: "POST",
 		body: JSON.stringify(args),
@@ -12,13 +20,31 @@ async function invokeSQL(name, args = {}) {
 	return { status: response.status, body };
 }
 
-function processSql(sqls) {
-	return sqls.filter(s => s.includes("category_tree")).map(s => s + ";").join("\n");
+/**
+ * 刷新左下方的执行时间和 SQL 等信息。
+ *
+ * @param body API 返回的结果（ResultView）
+ */
+function showSQLInfo(body) {
+	const { sqls, time } = body
+
+	const combined = sqls
+		.filter(s => s.includes("category_tree"))
+		.map(s => s + ";")
+		.join("\n");
+
+	const sqlHTML = Prism.highlight(combined, Prism.languages.sql, "sql");
+
+	document.getElementById("time").textContent = time;
+	document.getElementById("sql").innerHTML = sqlHTML;
 }
 
+/**
+ * 刷新左上方的树图表，在每个修改操作之后都会调用。
+ */
 function refreshTreeView() {
 	document.getElementById("shell-loading").style.opacity = "1";
-	invokeSQL("getAll").then(result => {
+	invokeAPI("getAll").then(result => {
 		updateTreeGraph(result.body.data);
 		document.getElementById("shell-loading").style.opacity = "0";
 	});
@@ -68,7 +94,7 @@ function updateTable(list) {
 }
 
 const tabMap = {};
-let currentTab;
+let methodName;
 
 // 虽然纯 CSS 也能做 TabPanel，但比 JS 麻烦所以不用
 function addTab(api, name, handler) {
@@ -85,8 +111,8 @@ function addTab(api, name, handler) {
 	const panel = document.getElementById(api);
 
 	radio.addEventListener("change", () => {
-		const t = tabMap[currentTab];
-		currentTab = api;
+		const t = tabMap[methodName];
+		methodName = api;
 
 		t.button.classList.remove("active");
 		t.panel.classList.remove("active");
@@ -115,31 +141,30 @@ addTab("getPath", "查询路径", updateTable);
 addTab("getTree", "查询子树", updateTable);
 addTab("getSubLayer", "查询子层", updateTable);
 
-currentTab = "getPath";
+methodName = "getPath";
 refreshTreeView();
 
 {
-	const { button, panel } = tabMap[currentTab];
+	const { button, panel } = tabMap[methodName];
 	panel.classList.add("active");
 	button.classList.add("active");
 }
 
 document.getElementById("invoke").onclick = async () => {
-	const { handler, panel } = tabMap[currentTab];
+	const { handler, panel } = tabMap[methodName];
+
 	const form = new FormData(panel);
 	for (const checkbox of panel.querySelectorAll("input[type=checkbox]")) {
 		form.append(checkbox.name, checkbox.checked);
 	}
 	const args = Object.fromEntries(form);
-	const { status, body } = await invokeSQL(currentTab, args);
 
-	if (status !== 200) {
-		showErrorResult(body);
+	const { status, body } = await invokeAPI(methodName, args);
+
+	if (status === 200) {
+		handler(body.data);
+		showSQLInfo(body);
 	} else {
-		const { sqls, time, data } = body
-		handler(data);
-		document.getElementById("time").textContent = time;
-		const sqlHTML = Prism.highlight(processSql(sqls), Prism.languages.sql, 'sql');
-		document.getElementById("sql").innerHTML = sqlHTML;
+		showErrorResult(body);
 	}
 }
