@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: zulu
-          java-version: 16
+          java-version: 17
 
       - name: Checkout code
         uses: actions/checkout@v2
