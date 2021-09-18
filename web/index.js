@@ -139,6 +139,7 @@ document.getElementById("invoke").onclick = async () => {
 		const { sqls, time, data } = body
 		handler(data);
 		document.getElementById("time").textContent = time;
-		document.getElementById("sql").textContent = processSql(sqls);
+		const sqlHTML = Prism.highlight(processSql(sqls), Prism.languages.sql, 'sql');
+		document.getElementById("sql").innerHTML = sqlHTML;
 	}
 }
