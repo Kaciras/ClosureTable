@@ -50,7 +50,7 @@ final class Utils {
 	 * @return Mybatis 的数据源
 	 * @throws IOException 如果读取文件失败
 	 */
-	public static DataSource getDaraSource() throws IOException {
+	public static PooledDataSource getDaraSource() throws IOException {
 		var configFile = Path.of("application.local.properties");
 		if (!Files.exists(configFile)) {
 			configFile = Path.of("application.properties");
@@ -61,11 +61,10 @@ final class Utils {
 			props.load(stream);
 		}
 
-		var dataSource = new UnpooledDataSource();
-		dataSource.setDriver(props.getProperty("DRIVER"));
-		dataSource.setUrl(props.getProperty("URL"));
-		dataSource.setUsername(props.getProperty("USER"));
-		dataSource.setPassword(props.getProperty("PASSWORD"));
+		var dataSource = new UnpooledDataSource(
+				props.getProperty("DRIVER"), props.getProperty("URL"),
+				props.getProperty("USER"), props.getProperty("PASSWORD")
+		);
 		return new PooledDataSource(dataSource);
 	}
 
@@ -90,6 +89,26 @@ final class Utils {
 		return new DefaultSqlSessionFactory(config).openSession();
 	}
 
+	static void importData(PooledDataSource source, SqlSession session) throws Exception {
+		var connection = session.getConnection();
+		var runner = new ScriptRunner(connection);
+		runner.setLogWriter(null);
+
+		var driver = source.getUrl().split(":")[1];
+		if (!driver.equals("postgresql")) {
+			executeScript(runner, "schema-mysql.sql");
+			executeScript(runner, "data.sql");
+		} else {
+			executeScript(runner, "schema-pg.sql");
+			executeScript(runner, "data.sql");
+
+			// 插入数据时如果指定了 id，PG 的自增记录不会增加，这一点很不人性化。
+			try (var stat = connection.createStatement()) {
+				stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
+			}
+		}
+	}
+
 	/**
 	 * 运行资源目录下的 SQL 脚本文件。
 	 *
@@ -97,18 +116,13 @@ final class Utils {
 	 * @param url        文件路径（ClassPath）
 	 * @throws Exception 如果出现异常
 	 */
-	public static void executeScript(Connection connection, String url) throws Exception {
+	public static void executeScript(ScriptRunner runner, String url) throws Exception {
 		var stream = Utils.class.getClassLoader().getResourceAsStream(url);
 		if (stream == null) {
 			throw new FileNotFoundException(url);
 		}
-
-		var runner = new ScriptRunner(connection);
-		runner.setLogWriter(null);
-
-		try (var r = new InputStreamReader(stream)) {
-			runner.runScript(r);
-			connection.commit();
+		try (var reader = new InputStreamReader(stream)) {
+			runner.runScript(reader);
 		}
 	}
 

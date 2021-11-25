@@ -18,15 +18,15 @@ public final class Main {
 	public static void main(String[] args) throws Exception {
 		System.setProperty("file.encoding", "UTF-8");
 
-		var dataSource = new TrackingDataSource(Utils.getDaraSource());
-		var session = Utils.createSqlSession(dataSource);
-		Utils.executeScript(session.getConnection(), "schema.sql");
-		Utils.executeScript(session.getConnection(), "data.sql");
+		var dataSource = Utils.getDaraSource();
+		var tracked = new TrackingDataSource(dataSource);
+		var session = Utils.createSqlSession(tracked);
+		Utils.importData(dataSource, session);
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
 		var controller = new Controller(new Repository(mapper));
-		var api = new HttpAdapter(dataSource, session, controller);
+		var api = new HttpAdapter(tracked, session, controller);
 
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
 		server.createContext("/api/", wrapHandler(api));

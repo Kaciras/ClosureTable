@@ -1,59 +1,15 @@
 package kaciras;
 
-import org.apache.ibatis.session.SqlSession;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@ExtendWith(DatabaseTestLifecycle.class)
 final class CategoryTest {
 
-	private static Repository repository;
-	private static SqlSession session;
-
-	@BeforeAll
-	static void init() throws Exception {
-		session = Utils.createSqlSession(Utils.getDaraSource());
-
-		/*
-		 * 测试数据如下:
-		 *
-		 *             0
-		 *           /   \
-		 *      ................
-		 *        1         11
-		 *        |        /  \
-		 *        2       12   13
-		 *      / | \
-		 *     3  4  5
-		 *          /  \
-		 *         6    7
-		 *       /    /  \
-		 *      8    9    10
-		 */
-		Utils.executeScript(session.getConnection(), "schema.sql");
-		Utils.executeScript(session.getConnection(), "data.sql");
-
-		var mapper = session.getMapper(CategoryMapper.class);
-
-		// 如果使用 Spring，可以用 @Configurable 来注入此依赖。
-		Category.mapper = mapper;
-		repository = new Repository(mapper);
-	}
-
-	@AfterAll
-	static void close() {
-		Utils.dropTables(session.getConnection());
-		session.close();
-	}
-
-	@AfterEach
-	void afterEach() {
-		session.rollback(true);
-	}
+	public Repository repository;
 
 	@Test
 	void getAncestorId() {
