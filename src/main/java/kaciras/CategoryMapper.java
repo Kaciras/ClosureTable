@@ -157,6 +157,7 @@ public interface CategoryMapper {
 	// ======================== 特殊方法，仅用于演示页面 ========================
 
 	@Select("SELECT A.*, ancestor as parentId FROM category AS A " +
-			"LEFT JOIN (SELECT * FROM category_tree WHERE distance=1) AS B ON A.id=B.descendant")
+			"LEFT JOIN (SELECT * FROM category_tree WHERE distance=1) AS B ON A.id=B.descendant " +
+			"ORDER BY id ASC")
 	List<ListQueryVO> selectAllWithParent();
 }
