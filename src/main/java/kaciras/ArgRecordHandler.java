@@ -26,8 +26,6 @@ final class ArgRecordHandler implements InvocationHandler {
 	@SuppressWarnings("EnhancedSwitchMigration")
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		var index = (Integer) args[0] - 1;
-
 		switch (method.getName()) {
 			case "setByte":
 			case "setShort":
@@ -39,10 +37,10 @@ final class ArgRecordHandler implements InvocationHandler {
 			case "setFloat":
 			case "setDouble":
 			case "setBoolean":
-				parameters[index] = args[1];
+				parameters[(int) args[0] - 1] = args[1];
 				break;
 			case "setString":
-				parameters[index] = "'" + args[1] + "'";
+				parameters[(int) args[0] - 1] = "'" + args[1] + "'";
 				break;
 		}
 		return method.invoke(statement, args);
