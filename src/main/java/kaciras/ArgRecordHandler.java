@@ -1,32 +1,34 @@
 package kaciras;
 
-import lombok.RequiredArgsConstructor;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
+import java.util.List;
 
-/*
- * 原本是想从 mariadb-java-client 实现的 PreparedStatement 对象着手获取 SQL 的，
- * 但看了 2.x 和 3.x 巨大的变化之后感觉太不稳定了，还是外层代理更好。
+/**
+ * 跟踪 PreparedStatement 设置的参数，以及执行 execute* 方法时记录 SQL。
  */
-@RequiredArgsConstructor
 final class ArgRecordHandler implements InvocationHandler {
 
 	// 目前的 SQL 里最多只有 3 个参数。
 	private final Object[] parameters = new Object[3];
 
 	private final PreparedStatement statement;
-	private final String sql;
+	private final String template;
+	private final List<String> records;
 
-	public String getExecutedSql() {
-		return String.format(sql.replace("?", "%s"), parameters);
+	ArgRecordHandler(PreparedStatement statement, String sql, List<String> records) {
+		this.statement = statement;
+		this.records = records;
+		this.template = sql.replace("?", "%s");
 	}
 
 	@SuppressWarnings("EnhancedSwitchMigration")
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		switch (method.getName()) {
+		if (method.getName().startsWith("execute")) {
+			records.add(String.format(template, parameters));
+		} else switch (method.getName()) {
 			case "setByte":
 			case "setShort":
 			case "setInt":

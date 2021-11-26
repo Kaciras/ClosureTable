@@ -25,7 +25,8 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public final class TrackingDataSource implements DataSource {
 
-	private final List<ArgRecordHandler> records = new ArrayList<>();
+	// 因为演示中不存在并发，就没有加锁。
+	private final List<String> records = new ArrayList<>();
 
 	private final DataSource dataSource;
 
@@ -39,7 +40,7 @@ public final class TrackingDataSource implements DataSource {
 	 * @return SQL 语句数组
 	 */
 	public String[] getExecutedSqls() {
-		return records.stream().map(ArgRecordHandler::getExecutedSql).toArray(String[]::new);
+		return records.toArray(String[]::new);
 	}
 
 	/**
@@ -76,8 +77,7 @@ public final class TrackingDataSource implements DataSource {
 			}
 
 			var stat = (PreparedStatement) returnValue;
-			var recorder = new ArgRecordHandler(stat, (String) args[0]);
-			records.add(recorder);
+			var recorder = new ArgRecordHandler(stat, (String) args[0], records);
 			return createProxy(PreparedStatement.class, recorder);
 		}
 	}
