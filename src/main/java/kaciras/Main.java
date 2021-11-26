@@ -18,10 +18,11 @@ public final class Main {
 	public static void main(String[] args) throws Exception {
 		System.setProperty("file.encoding", "UTF-8");
 
-		var dataSource = Utils.getDaraSource();
+		var config = Utils.loadConfig();
+		var dataSource = Utils.getDaraSource(config);
 		var tracked = new TrackingDataSource(dataSource);
 		var session = Utils.createSqlSession(tracked);
-		Utils.importData(dataSource, session);
+		Utils.importData(config, session);
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;

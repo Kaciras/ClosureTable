@@ -4,7 +4,10 @@ import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.extension.*;
 
-public class DatabaseTestLifecycle implements
+/**
+ * 每个测试都要配置数据库，所以就把这部分逻辑提出来了。
+ */
+public final class DatabaseTestLifecycle implements
 		BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
 	private PooledDataSource dataSource;
@@ -13,10 +16,12 @@ public class DatabaseTestLifecycle implements
 
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
-		dataSource = Utils.getDaraSource();
+		var config = Utils.loadConfig();
+
+		dataSource = Utils.getDaraSource(config);
 		session = Utils.createSqlSession(dataSource);
 
-		Utils.importData(dataSource, session);
+		Utils.importData(config, session);
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
@@ -46,7 +51,7 @@ public class DatabaseTestLifecycle implements
 		try {
 			obj.getClass().getDeclaredField(field).set(obj, value);
 		} catch (NoSuchFieldException ignore) {
-
+			// 依赖注入是可选的，没有相应的字段就不注入。
 		}
 	}
 }

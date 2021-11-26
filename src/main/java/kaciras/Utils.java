@@ -1,5 +1,6 @@
 package kaciras;
 
+import lombok.Cleanup;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.RuntimeSqlException;
@@ -44,23 +45,31 @@ final class Utils {
 	}
 
 	/**
-	 * 读取运行目录下的配置文件，创建数据源。
-	 * 优先尝试 application.local.properties，没有则使用 application.properties
+	 * 读取运行目录下的配置文件，根据以下规则：
+	 * 1）如果设置了 CONFIG_FILE 环境变量则读取其指定的文件。
+	 * 2）尝试读取 application.local.properties。
+	 * 3）读取 application.properties。
 	 *
-	 * @return Mybatis 的数据源
+	 * @return 配置信息
 	 * @throws IOException 如果读取文件失败
 	 */
-	public static PooledDataSource getDaraSource() throws IOException {
-		var configFile = Path.of("application.local.properties");
-		if (!Files.exists(configFile)) {
-			configFile = Path.of("application.properties");
+	static Properties loadConfig() throws IOException {
+		var file = Path.of("application.local.properties");
+		var env = System.getenv("CONFIG_FILE");
+		if (env != null) {
+			file = Path.of(env);
 		}
+		if (!Files.exists(file)) {
+			file = Path.of("application.properties");
+		}
+		@Cleanup var stream = Files.newInputStream(file);
 
 		var props = new Properties();
-		try (var stream = Files.newInputStream(configFile)) {
-			props.load(stream);
-		}
+		props.load(stream);
+		return props;
+	}
 
+	public static PooledDataSource getDaraSource(Properties props) {
 		var dataSource = new UnpooledDataSource(
 				props.getProperty("DRIVER"), props.getProperty("URL"),
 				props.getProperty("USER"), props.getProperty("PASSWORD")
@@ -89,12 +98,13 @@ final class Utils {
 		return new DefaultSqlSessionFactory(config).openSession();
 	}
 
-	static void importData(PooledDataSource source, SqlSession session) throws Exception {
-		var connection = session.getConnection();
+	static void importData(Properties props, SqlSession session) throws Exception {
+		@Cleanup var connection = session.getConnection();
+
 		var runner = new ScriptRunner(connection);
 		runner.setLogWriter(null);
 
-		var driver = source.getUrl().split(":")[1];
+		var driver = props.getProperty("URL").split(":")[1];
 		if (!driver.equals("postgresql")) {
 			executeScript(runner, "schema-mysql.sql");
 			executeScript(runner, "data.sql");
@@ -103,33 +113,32 @@ final class Utils {
 			executeScript(runner, "data.sql");
 
 			// 插入数据时如果指定了 id，PG 的自增记录不会增加，这一点很不人性化。
-			try (var stat = connection.createStatement()) {
-				stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
-			}
+			@Cleanup var stat = connection.createStatement();
+			stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
 		}
 	}
 
 	/**
 	 * 运行资源目录下的 SQL 脚本文件。
 	 *
-	 * @param connection 数据库连接
-	 * @param url        文件路径（ClassPath）
+	 * @param runner 运行器
+	 * @param url    文件路径（ClassPath）
 	 * @throws Exception 如果出现异常
 	 */
 	public static void executeScript(ScriptRunner runner, String url) throws Exception {
-		var stream = Utils.class.getClassLoader().getResourceAsStream(url);
+		var loader = Utils.class.getClassLoader();
+		var stream = loader.getResourceAsStream(url);
 		if (stream == null) {
 			throw new FileNotFoundException(url);
 		}
-		try (var reader = new InputStreamReader(stream)) {
-			runner.runScript(reader);
-		}
+		@Cleanup var reader = new InputStreamReader(stream);
+		runner.runScript(reader);
 	}
 
 	/**
 	 * 删除 category 和 category_tree 两张表。
 	 */
-	public static void dropTables(Connection connection) {
+	static void dropTables(Connection connection) {
 		try (var statement = connection.createStatement()) {
 			statement.execute("DROP TABLE category");
 			statement.execute("DROP TABLE category_tree");
