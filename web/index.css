@@ -80,12 +80,16 @@
 	background: #f7f7f7;
 }
 
+.info {
+	margin: 8px;
+}
+
 #list-result {
 	flex: 1;
 	overflow: auto;
 }
 
-#error-result{
+#error-result {
 	border-color: #ff7d7d;
 }
 
@@ -96,7 +100,7 @@
 
 #sql {
 	display: block;
-	height: 5.5em;
+	height: 7em;
 	overflow-y: auto;
 	white-space: break-spaces;
 }

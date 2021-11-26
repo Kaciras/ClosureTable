@@ -9,7 +9,7 @@
 
 body {
 	display: grid;
-	grid-gap: 15px;
+	column-gap: 15px;
 	grid-template-columns: 1fr 400px;
 	grid-template-rows: 1fr auto;
 	grid-template-areas: "tree-view console" "metadata console";
@@ -21,10 +21,18 @@ body {
 	font-family: Arial, sans-serif;
 }
 
+svg {
+	display: block;
+}
+
 button {
 	cursor: pointer;
 	font-size: initial;
 	padding: 4px 10px;
+}
+
+pre {
+	margin: 0;
 }
 
 code {
