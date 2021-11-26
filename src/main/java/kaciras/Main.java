@@ -18,11 +18,11 @@ public final class Main {
 	public static void main(String[] args) throws Exception {
 		System.setProperty("file.encoding", "UTF-8");
 
-		var config = Utils.loadConfig();
-		var dataSource = Utils.getDaraSource(config);
-		var tracked = new TrackingDataSource(dataSource);
+		var manager = DBManager.open();
+		manager.importData();
+
+		var tracked = new TrackingDataSource(manager.getDataSource());
 		var session = Utils.createSqlSession(tracked);
-		Utils.importData(config, session);
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
@@ -35,8 +35,7 @@ public final class Main {
 		server.start();
 
 		// 玩完记得把表删了
-		Runnable cleanup = () -> Utils.dropTables(session.getConnection());
-		Runtime.getRuntime().addShutdownHook(new Thread(cleanup));
+		Runtime.getRuntime().addShutdownHook(new Thread(manager::dropTables));
 
 		System.out.println("Demo hosted on http://" + HOST_NAME + ":" + PORT);
 	}

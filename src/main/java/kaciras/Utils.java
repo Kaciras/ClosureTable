@@ -1,10 +1,5 @@
 package kaciras;
 
-import lombok.Cleanup;
-import org.apache.ibatis.datasource.pooled.PooledDataSource;
-import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
-import org.apache.ibatis.jdbc.RuntimeSqlException;
-import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.LocalCacheScope;
@@ -13,47 +8,23 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
 import javax.sql.DataSource;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Properties;
 
 final class Utils {
 
-	private Utils() {}
-
 	/**
-	 * 用于检查Update，Delete等SQL语句是否产生了影响，没产生影响时将抛出异常
-	 *
-	 * @param rows 影响行数
-	 * @throws IllegalArgumentException 如果没有影响任何行
-	 */
-	public static void checkEffective(int rows) {
-		if (rows <= 0) throw new IllegalArgumentException();
-	}
-
-	public static void checkPositive(int value, String valname) {
-		if (value <= 0) throw new IllegalArgumentException("参数" + valname + "必须是正数:" + value);
-	}
-
-	public static void checkNotNegative(int value, String valname) {
-		if (value < 0) throw new IllegalArgumentException("参数" + valname + "不能为负:" + value);
-	}
-
-	/**
-	 * 读取运行目录下的配置文件，根据以下规则：
+	 * 寻找运行目录下的配置文件，根据以下规则：
 	 * 1）如果设置了 CONFIG_FILE 环境变量则读取其指定的文件。
 	 * 2）尝试读取 application.local.properties。
-	 * 3）读取 application.properties。
+	 * 3）如果上面两个都不存在则读取 application.properties。
 	 *
-	 * @return 配置信息
+	 * @return 配置信息文件流
 	 * @throws IOException 如果读取文件失败
 	 */
-	static Properties loadConfig() throws IOException {
+	static InputStream loadConfig() throws IOException {
 		var file = Path.of("application.local.properties");
 		var env = System.getenv("CONFIG_FILE");
 		if (env != null) {
@@ -62,19 +33,7 @@ final class Utils {
 		if (!Files.exists(file)) {
 			file = Path.of("application.properties");
 		}
-		@Cleanup var stream = Files.newInputStream(file);
-
-		var props = new Properties();
-		props.load(stream);
-		return props;
-	}
-
-	public static PooledDataSource getDaraSource(Properties props) {
-		var dataSource = new UnpooledDataSource(
-				props.getProperty("DRIVER"), props.getProperty("URL"),
-				props.getProperty("USER"), props.getProperty("PASSWORD")
-		);
-		return new PooledDataSource(dataSource);
+		return Files.newInputStream(file);
 	}
 
 	public static SqlSession createSqlSession(DataSource dataSource) {
@@ -98,53 +57,21 @@ final class Utils {
 		return new DefaultSqlSessionFactory(config).openSession();
 	}
 
-	static void importData(Properties props, SqlSession session) throws Exception {
-		@Cleanup var connection = session.getConnection();
-
-		var runner = new ScriptRunner(connection);
-		runner.setLogWriter(null);
-
-		var driver = props.getProperty("URL").split(":")[1];
-		if (!driver.equals("postgresql")) {
-			executeScript(runner, "schema-mysql.sql");
-			executeScript(runner, "data.sql");
-		} else {
-			executeScript(runner, "schema-pg.sql");
-			executeScript(runner, "data.sql");
-
-			// 插入数据时如果指定了 id，PG 的自增记录不会增加，这一点很不人性化。
-			@Cleanup var stat = connection.createStatement();
-			stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
-		}
-	}
-
 	/**
-	 * 运行资源目录下的 SQL 脚本文件。
+	 * 用于检查Update，Delete等SQL语句是否产生了影响，没产生影响时将抛出异常
 	 *
-	 * @param runner 运行器
-	 * @param url    文件路径（ClassPath）
-	 * @throws Exception 如果出现异常
+	 * @param rows 影响行数
+	 * @throws IllegalArgumentException 如果没有影响任何行
 	 */
-	public static void executeScript(ScriptRunner runner, String url) throws Exception {
-		var loader = Utils.class.getClassLoader();
-		var stream = loader.getResourceAsStream(url);
-		if (stream == null) {
-			throw new FileNotFoundException(url);
-		}
-		@Cleanup var reader = new InputStreamReader(stream);
-		runner.runScript(reader);
+	public static void checkEffective(int rows) {
+		if (rows <= 0) throw new IllegalArgumentException();
 	}
 
-	/**
-	 * 删除 category 和 category_tree 两张表。
-	 */
-	static void dropTables(Connection connection) {
-		try (var statement = connection.createStatement()) {
-			statement.execute("DROP TABLE category");
-			statement.execute("DROP TABLE category_tree");
-			connection.commit();
-		} catch (SQLException ex) {
-			throw new RuntimeSqlException(ex);
-		}
+	public static void checkPositive(int value, String name) {
+		if (value <= 0) throw new IllegalArgumentException("参数" + name + "必须是正数:" + value);
+	}
+
+	public static void checkNotNegative(int value, String name) {
+		if (value < 0) throw new IllegalArgumentException("参数" + name + "不能为负:" + value);
 	}
 }

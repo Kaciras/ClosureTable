@@ -1,8 +1,9 @@
 package kaciras;
 
-import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.extension.*;
+
+import javax.sql.DataSource;
 
 /**
  * 每个测试都要配置数据库，所以就把这部分逻辑提出来了。
@@ -10,22 +11,26 @@ import org.junit.jupiter.api.extension.*;
 public final class DatabaseTestLifecycle implements
 		BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
-	private PooledDataSource dataSource;
-	private SqlSession session;
-	private Repository repository;
+	private final DBManager dbManager;
 
-	@Override
-	public void beforeAll(ExtensionContext context) throws Exception {
-		var config = Utils.loadConfig();
+	private final DataSource dataSource;
+	private final SqlSession session;
+	private final Repository repository;
 
-		dataSource = Utils.getDaraSource(config);
+	public DatabaseTestLifecycle() throws Exception {
+		dbManager = DBManager.open();
+
+		dataSource = dbManager.getDataSource();
 		session = Utils.createSqlSession(dataSource);
-
-		Utils.importData(config, session);
 
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
 		repository = new Repository(mapper);
+	}
+
+	@Override
+	public void beforeAll(ExtensionContext context) throws Exception {
+		dbManager.importData();
 	}
 
 	@Override
@@ -35,8 +40,7 @@ public final class DatabaseTestLifecycle implements
 
 	@Override
 	public void afterAll(ExtensionContext context) {
-		Utils.dropTables(session.getConnection());
-		session.close();
+		dbManager.dropTables();
 	}
 
 	@Override
