@@ -40,6 +40,7 @@ public final class DatabaseTestLifecycle implements
 
 	@Override
 	public void afterAll(ExtensionContext context) {
+		session.close();
 		dbManager.dropTables();
 	}
 

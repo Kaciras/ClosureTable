@@ -1,5 +1,6 @@
 package kaciras;
 
+import lombok.Cleanup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ final class TrackingDataSourceTest {
 
 	@Test
 	void getExecutedSqls() throws Exception {
-		var stat = connection.prepareStatement("UPDATE category SET name=? WHERE id=?");
+		@Cleanup var stat = connection.prepareStatement("UPDATE category SET name=? WHERE id=?");
 		stat.setString(1, "new");
 		stat.setInt(2, 7);
 		stat.executeUpdate();
@@ -44,7 +45,7 @@ final class TrackingDataSourceTest {
 
 	@Test
 	void reset() throws Exception {
-		var stat = connection.prepareStatement("SELECT name FROM category WHERE id=?");
+		@Cleanup var stat = connection.prepareStatement("SELECT name FROM category WHERE id=?");
 		stat.setInt(1, 7);
 		stat.executeQuery();
 
