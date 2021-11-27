@@ -11,6 +11,16 @@ final class RepositoryTest {
 
 	public Repository repository;
 
+	@Test
+	void getAllForDemo() {
+		var all = repository.getAllForDemo();
+		assertThat(all).hasSize(14);
+
+		var apple = all.get(12);
+		assertThat(apple.getId()).isEqualTo(12);
+		assertThat(apple.getName()).isEqualTo("苹果");
+	}
+
 	/* 分类名为 null 时抛异常 */
 	@Test
 	void addInvalid() {
@@ -36,7 +46,7 @@ final class RepositoryTest {
 		category.setName("Name");
 
 		/* 设置属性后正常添加，并设置对象的id */
-		repository.add(category,  repository.findById(1));
+		repository.add(category, repository.findById(1));
 		assertThat(category.getId()).isGreaterThan(0);
 
 		/* findById 出来的对象与原对象属性相同 */
@@ -61,7 +71,7 @@ final class RepositoryTest {
 	void delete() {
 		repository.delete(1);
 
-		CategoryAssert.assertList(repository.findById(0).getChildren(), 2, 11);
+		CategoryAssert.assertContain(repository.findById(0).getChildren(), 2, 11);
 		CategoryAssert.assertList(repository.findById(7).getPath(), 2, 5, 7);
 	}
 
