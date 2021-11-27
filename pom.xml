@@ -89,6 +89,13 @@
 			<artifactId>mybatis</artifactId>
 			<version>3.5.7</version>
 		</dependency>
+
+		<!-- 为了方便把数据库驱动都包含进来了 -->
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.36.0.3</version>
+		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>

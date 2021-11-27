@@ -32,8 +32,8 @@ public interface CategoryMapper {
 	 * @param id     节点的 ID
 	 * @param parent 父节点的 ID
 	 */
-	@Insert("INSERT INTO category_tree(ancestor, descendant, distance) " +
-			"(SELECT ancestor, #{id}, distance+1 FROM category_tree WHERE descendant=#{parent})")
+	@Insert("INSERT INTO category_tree (ancestor, descendant, distance) " +
+			"SELECT ancestor, #{id}, distance+1 FROM category_tree WHERE descendant=#{parent}")
 	void insertPath(int id, int parent);
 
 	/**
@@ -127,7 +127,8 @@ public interface CategoryMapper {
 	 */
 	@Select("SELECT B.* FROM category_tree AS A " +
 			"JOIN category AS B ON A.ancestor=B.id " +
-			"WHERE descendant=#{id} AND ancestor>0 ORDER BY distance DESC")
+			"WHERE descendant=#{id} AND ancestor>0 " +
+			"ORDER BY distance DESC")
 	List<Category> selectPathToRoot(int id);
 
 	/**

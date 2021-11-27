@@ -44,16 +44,18 @@ public final class DBManager {
 
 		var runner = new ScriptRunner(connection);
 		runner.setLogWriter(null);
+		runner.setEscapeProcessing(false);
 
 		var driver = properties.getProperty("URL").split(":")[1];
 		if (!driver.equals("postgresql")) {
-			executeScript(runner, "schema-mysql.sql");
+			var script = driver.equals("sqlite") ? "schema-sqlite.sql" : "schema-mysql.sql";
+			executeScript(runner, script);
 			executeScript(runner, "data.sql");
 		} else {
 			executeScript(runner, "schema-pg.sql");
 			executeScript(runner, "data.sql");
 
-			// 插入数据时如果指定了 id 自增记录就不会增加，需要手动修复，这一点很不人性化。
+			// PG 如果指定了 id 自增记录就不会增加，需要手动修复，这一点很不人性化。
 			@Cleanup var stat = connection.createStatement();
 			stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
 		}

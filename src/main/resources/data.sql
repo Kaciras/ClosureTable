@@ -1,4 +1,3 @@
-/*!40000 ALTER TABLE category DISABLE KEYS */;
 INSERT INTO category (id, name) VALUES (1, '电子产品');
 INSERT INTO category (id, name) VALUES (2, '电脑配件');
 INSERT INTO category (id, name) VALUES (3, '硬盘');
@@ -12,9 +11,7 @@ INSERT INTO category (id, name) VALUES (10, 'RTX3080');
 INSERT INTO category (id, name) VALUES (11, '水果');
 INSERT INTO category (id, name) VALUES (12, '苹果');
 INSERT INTO category (id, name) VALUES (13, '西瓜');
-/*!40000 ALTER TABLE category ENABLE KEYS */;
 
-/*!40000 ALTER TABLE category_tree DISABLE KEYS */;
 INSERT INTO category_tree (ancestor, descendant, distance) VALUES
   (0, 1, 1);
 INSERT INTO category_tree (ancestor, descendant, distance) VALUES
@@ -121,4 +118,3 @@ INSERT INTO category_tree (ancestor, descendant, distance) VALUES
   (11, 13, 1);
 INSERT INTO category_tree (ancestor, descendant, distance) VALUES
   (13, 13, 0);
-/*!40000 ALTER TABLE category_tree ENABLE KEYS */;
