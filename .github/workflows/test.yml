@@ -3,7 +3,23 @@ name: Test
 on: push
 
 jobs:
-  test:
+  test-sqlite:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: mvn -B test
+
+  test-mariadb:
     runs-on: ubuntu-latest
 
     services:
@@ -27,3 +43,31 @@ jobs:
 
       - name: Test
         run: mvn -B test
+        env:
+          CONFIG_FILE: src/test/resources/mariadb.properties
+
+  test-postgres:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: example
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: mvn -B test
+        env:
+          CONFIG_FILE: src/test/resources/postgres.properties
