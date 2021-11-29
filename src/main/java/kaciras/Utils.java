@@ -18,14 +18,14 @@ final class Utils {
 	/**
 	 * 寻找运行目录下的配置文件，根据以下规则：
 	 * 1）如果设置了 CONFIG_FILE 环境变量则读取其指定的文件。
-	 * 2）尝试读取 application.local.properties。
+	 * 2）尝试读取 local.properties。
 	 * 3）如果上面两个都不存在则读取 application.properties。
 	 *
 	 * @return 配置信息文件流
 	 * @throws IOException 如果读取文件失败
 	 */
 	static InputStream loadConfig() throws IOException {
-		var file = Path.of("application.local.properties");
+		var file = Path.of("local.properties");
 		var env = System.getenv("CONFIG_FILE");
 		if (env != null) {
 			file = Path.of(env);
