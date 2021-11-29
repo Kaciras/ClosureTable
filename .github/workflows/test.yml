@@ -7,17 +7,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - uses: actions/setup-java@v2
         with:
           distribution: zulu
           java-version: 17
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Test
-        run: mvn -B test
+      - run: mvn -B test
 
   test-mariadb:
     runs-on: ubuntu-latest
@@ -32,17 +29,14 @@ jobs:
           - 3306:3306
 
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - uses: actions/setup-java@v2
         with:
           distribution: zulu
           java-version: 17
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Test
-        run: mvn -B test
+      - run: mvn -B test
         env:
           CONFIG_FILE: src/test/resources/mariadb.properties
 
@@ -58,16 +52,13 @@ jobs:
           - 5432:5432
 
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - uses: actions/setup-java@v2
         with:
           distribution: zulu
           java-version: 17
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Test
-        run: mvn -B test
+      - run: mvn -B test
         env:
           CONFIG_FILE: src/test/resources/postgres.properties

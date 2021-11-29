@@ -10,7 +10,7 @@ public interface CategoryMapper {
 	// ======================== 修改相关的方法 ========================
 
 	@Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-	@Insert("INSERT INTO category(name) VALUES (#{name})")
+	@Insert("INSERT INTO category (name) VALUES (#{name})")
 	void insert(Category category);
 
 	@Update("UPDATE category SET name=#{name} WHERE id=#{id}")
@@ -22,7 +22,7 @@ public interface CategoryMapper {
 	 *
 	 * @param id 节点的 ID
 	 */
-	@Insert("INSERT INTO category_tree(ancestor, descendant, distance) VALUES(#{id}, #{id}, 0)")
+	@Insert("INSERT INTO category_tree (ancestor, descendant, distance) VALUES(#{id}, #{id}, 0)")
 	void insertSelfLink(int id);
 
 	/**
