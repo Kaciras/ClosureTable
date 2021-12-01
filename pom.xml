@@ -7,7 +7,7 @@
 
 	<groupId>kaciras</groupId>
 	<artifactId>closure-table</artifactId>
-	<version>2.1.0</version>
+	<version>3.0.0</version>
 
 	<!-- 似乎在 compiler-plugin 中设置 release 会导致 parameters 失效 -->
 	<properties>
