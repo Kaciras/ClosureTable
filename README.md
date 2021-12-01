@@ -2,7 +2,6 @@
 
 [![Test](https://github.com/Kaciras/ClosureTable/actions/workflows/test.yml/badge.svg)](https://github.com/Kaciras/ClosureTable/actions/workflows/test.yml)
 [![GitHub license](https://img.shields.io/github/license/Kaciras/ClosureTable)](https://github.com/Kaciras/ClosureTable/blob/master/LICENSE)
-![Supported database](https://img.shields.io/badge/Mariadb-10.5%2B-success)
 
 基于闭包表的数据库无限级分类示例。
 
@@ -18,18 +17,18 @@
 
 # 运行
 
-![screenshot](https://github.com/Kaciras/ClosureTable/blob/master/demo.png)
+![screenshot](https://github.com/Kaciras/ClosureTable/blob/master/screenshot.png)
 
-本项目带有一个演示网页，能够直观地展示分类结构以及各种操作对应的 SQL，运行前需要修改`application.properties`，配置数据库连接。
-
-然后使用以下命令构建并启动：
+本项目带有一个演示网页，能够直观地展示分类结构以及各种操作对应的 SQL，使用以下命令构建并启动：
 
 ```bash
 mvn package
-java -jar target/closure-table-2.1.0.jar
+java -jar target/closure-table-3.0.0.jar
 ```
 
 访问 [http://localhost:6666](http://localhost:6666) 查看演示页面。
+
+数据库支持 Sqlite、Mariadb 和 PostgreSQL，默认使用 Sqlite 的内存数据库，可以在`application.properties`里修改数据库设置。
 
 * 测试数据和建表脚本位于 `src/main/resources` 下。
 * SQL 见 `CategoryMapper.java`。
