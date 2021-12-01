@@ -40,18 +40,18 @@
 	color: white;
 }
 
-#console > form {
+#forms > form {
 	display: none;
 	background-color: #fafafa;
 	border-radius: var(--radius);
 	padding: 1px 16px;
 }
 
-#console > form.active {
+#forms > form.active {
 	display: block;
 }
 
-#console > form input {
+#forms > form input {
 	margin-left: auto;
 }
 
@@ -81,7 +81,12 @@
 }
 
 .info {
+	display: flex;
 	margin: 8px;
+}
+
+.info > label {
+	margin-left: auto;
 }
 
 #list-result {

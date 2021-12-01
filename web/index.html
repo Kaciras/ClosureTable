@@ -15,91 +15,17 @@
 <body>
 <section id="tree-view">
 	<div id="shell-loading"></div>
-	<!-- SVG will mount here -->
+	<!-- SVG mount here -->
 </section>
 
 <section id="console">
 	<div id="console-head"></div>
 
-	<form id="create">
-		<label class="field">
-			插入到哪个分类下面
-			<input name="parentId" type="number" min="0" value="0">
-		</label>
-		<label class="field">
-			分类名
-			<input name="name" value="新建分类">
-		</label>
-	</form>
-	<form id="update">
-		<label class="field">
-			分类的 ID
-			<input name="id" type="number" min="0" value="1">
-		</label>
-		<label class="field">
-			新的名字
-			<input name="newName" value="新的名字哦">
-		</label>
-	</form>
-	<form id="getLevel">
-		<label class="field">
-			节点的 ID
-			<input name="id" type="number" min="0" value="7">
-		</label>
-	</form>
-	<form id="getPath">
-		<label class="field">
-			上级节点的 ID
-			<input name="ancestor" type="number" min="0" value="0">
-		</label>
-		<label class="field">
-			下级分类的 ID
-			<input name="descendant" type="number" min="0" value="8">
-		</label>
-	</form>
-	<form id="delete">
-		<label class="field">
-			分类的 ID
-			<input name="id" type="number" min="0" value="7">
-		</label>
-		<label class="field">
-			仅单个节点而非整个子树
-			<input name="single" type="checkbox">
-		</label>
-	</form>
-	<form id="move">
-		<label class="field">
-			分类的 ID
-			<input name="id" type="number" min="0" value="2">
-		</label>
-		<label class="field">
-			新的父分类
-			<input name="parent" type="number" min="0" value="7">
-		</label>
-		<label class="field">
-			仅单个节点而非整个子树
-			<input name="single" type="checkbox">
-		</label>
-	</form>
-	<form id="getSubLayer">
-		<label class="field">
-			节点的 ID
-			<input name="id" type="number" min="0" value="7">
-		</label>
-		<label class="field">
-			距离 N
-			<input name="depth" type="number" min="0" value="1">
-		</label>
-	</form>
-	<form id="getTree">
-		<label class="field">
-			节点的 ID
-			<input name="id" type="number" min="0" value="7">
-		</label>
-	</form>
-
-	<div id="actions">
-		<button id="invoke">执行</button>
+	<div id="forms">
+		<!-- Form mount here -->
+		<div id="actions">
+			<button id="invoke">执行</button>
+		</div>
 	</div>
 
 	<div id="list-result" class="result">
@@ -123,6 +49,11 @@
 <section id="metadata">
 	<p class="info">
 		执行用时：<time id="time">N/A</time> ms
+
+		<label>
+			<input id="tree-only" type="checkbox" checked>
+			仅关系表
+		</label>
 	</p>
 	<pre><code id="sql" class="box"></code></pre>
 </section>
