@@ -22,9 +22,8 @@ function refreshInfoSection() {
 	sqls = sqls.map(s => s + ";").join("\n");
 
 	const sqlHTML = Prism.highlight(sqls, Prism.languages.sql, "sql");
-
-	document.getElementById("time").textContent = time;
 	document.getElementById("sql").innerHTML = sqlHTML;
+	document.getElementById("time").textContent = `${time}ms`;
 }
 
 

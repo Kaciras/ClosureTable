@@ -17,3 +17,42 @@
     stroke: #ccc;
     stroke-width: 2px;
 }
+
+/* 图表左上角的加载指示器 */
+#shell-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+#shell-loading::before,
+#shell-loading::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid transparent;
+}
+
+#shell-loading::before {
+    border-top-color: rgba(0, 170, 255, 0.5);
+    animation: circle-spinner 1s infinite;
+}
+
+#shell-loading::after {
+    border-bottom-color: rgba(0, 170, 255, 0.5);
+    animation: circle-spinner 1s infinite alternate;
+}
+
+@keyframes circle-spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

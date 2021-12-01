@@ -1,0 +1,62 @@
+#console {
+	grid-area: console;
+	display: flex;
+	flex-direction: column;
+	border-radius: 5px;
+}
+
+#tab-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(90px, auto));
+	grid-gap: 5px;
+}
+
+.tab-button {
+	display: block;
+	padding: 6px;
+	text-align: center;
+	border-radius: var(--radius);
+	transition: .15s;
+	cursor: pointer;
+}
+
+.tab-button:hover {
+	background: rgba(0, 161, 242, 0.08);
+}
+
+.tab-button.active {
+	background: #0c7ff2;
+	color: white;
+}
+
+#forms {
+	margin: 16px 0;
+	background-color: #fafafa;
+}
+
+#forms > form {
+	display: none;
+	background-color: #fafafa;
+	border-radius: var(--radius);
+	padding: 1px 16px;
+}
+
+#forms > form.active {
+	display: block;
+}
+
+#forms > form input {
+	margin-left: auto;
+}
+
+.field {
+	display: flex;
+	align-items: center;
+	margin: 15px 0;
+}
+
+#actions {
+	display: flex;
+	justify-content: flex-end;
+	margin: 16px;
+}

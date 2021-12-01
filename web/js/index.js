@@ -1,5 +1,5 @@
 import { updateTreeGraph } from "./tree.js";
-import { defineForm, onSubmit, setCurrentTab } from "./input.js";
+import { addForm, onSubmit, setCurrentTab } from "./input.js";
 import { setResult, showErrorResult, showSimpleResult, updateTable } from "./results.js";
 
 const API = "http://localhost:6666/api/";
@@ -33,7 +33,7 @@ function refreshTreeView() {
 	});
 }
 
-defineForm({
+addForm({
 	api: "create",
 	name: "插入",
 	handler: value => {
@@ -52,7 +52,8 @@ defineForm({
 			value: "新建分类"
 		}
 	]
-}, {
+});
+addForm({
 	api: "update",
 	name: "更新",
 	handler: refreshTreeView,
@@ -69,7 +70,8 @@ defineForm({
 			value: "新的名字哦"
 		}
 	]
-}, {
+});
+addForm({
 	api: "delete",
 	name: "删除",
 	handler: refreshTreeView,
@@ -86,7 +88,8 @@ defineForm({
 			type: "checkbox",
 		},
 	]
-}, {
+});
+addForm({
 	api: "move",
 	name: "移动",
 	handler: refreshTreeView,
@@ -109,19 +112,19 @@ defineForm({
 			type: "checkbox",
 		},
 	]
-}, {
+});
+addForm({
 	api: "getLevel",
 	name: "查询级别",
 	handler: showSimpleResult,
-	fields: [
-		{
-			name: "id",
-			label: "节点的 ID",
-			value: "7",
-			type: "number"
-		},
-	]
-}, {
+	fields: [{
+		name: "id",
+		label: "节点的 ID",
+		value: "7",
+		type: "number"
+	}]
+});
+addForm({
 	api: "getPath",
 	name: "查询路径",
 	handler: updateTable,
@@ -139,19 +142,19 @@ defineForm({
 			type: "number"
 		},
 	]
-}, {
+});
+addForm({
 	api: "getTree",
 	name: "查询子树",
 	handler: updateTable,
-	fields: [
-		{
-			name: "id",
-			label: "节点的 ID",
-			value: "7",
-			type: "number"
-		},
-	]
-}, {
+	fields: [{
+		name: "id",
+		label: "节点的 ID",
+		value: "7",
+		type: "number"
+	}]
+});
+addForm({
 	api: "getSubLayer",
 	name: "查询子层",
 	handler: updateTable,
@@ -170,7 +173,6 @@ defineForm({
 		},
 	]
 });
-
 
 refreshTreeView();
 setCurrentTab("getPath");

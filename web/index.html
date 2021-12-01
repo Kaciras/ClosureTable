@@ -6,6 +6,7 @@
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 	<link rel="stylesheet" href="/css/global.css">
 	<link rel="stylesheet" href="/css/tree.css">
+	<link rel="stylesheet" href="/css/form.css">
 	<link rel="stylesheet" href="/css/index.css">
 	<link rel="stylesheet" href="/css/prism.css">
 	<script src="/vendor/d3.min.js" defer></script>
@@ -19,7 +20,7 @@
 </section>
 
 <section id="console">
-	<div id="console-head"></div>
+	<div id="tab-list"></div>
 
 	<div id="forms">
 		<!-- Form mount here -->
@@ -48,7 +49,7 @@
 <!-- 左下的通用信息栏，显示执行时间和SQL -->
 <section id="metadata">
 	<p class="info">
-		执行用时：<time id="time">N/A</time> ms
+		执行用时：<time id="time">N/A</time>
 
 		<label>
 			<input id="tree-only" type="checkbox" checked>
