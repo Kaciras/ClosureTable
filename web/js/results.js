@@ -9,14 +9,12 @@ export function setResult(value) {
 }
 
 /**
- * 刷新左下方的执行时间和 SQL 等信息。
- *
- * @param body API 返回的结果（ResultView）
+ * 刷新左下方的执行时间和 SQL 等信息，在结果和选项改变后都要调用。
  */
 function refreshInfoSection() {
 	let { sqls, time } = result;
 
-	if(filterEl.checked) {
+	if (filterEl.checked) {
 		sqls = sqls.filter(s => s.includes("category_tree"));
 	}
 	sqls = sqls.map(s => s + ";").join("\n");
@@ -26,6 +24,7 @@ function refreshInfoSection() {
 	document.getElementById("time").textContent = `${time}ms`;
 }
 
+filterEl.oninput = refreshInfoSection;
 
 function switchResultPanel(id) {
 	currentResult.style.display = "none";
@@ -72,5 +71,3 @@ export function updateTable(list) {
 
 	switchResultPanel("list-result");
 }
-
-filterEl.oninput = refreshInfoSection;

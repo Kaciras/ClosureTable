@@ -1,9 +1,10 @@
-let svg;
-
 const container = document.getElementById("tree-view");
+
+let svg;
 
 /**
  * 更新树状图，其实就是删了原来的并重建一个。
+ * 不过这样做有个缺点就是移动和缩放会还原。
  *
  * @param list 分类列表
  * @see https://github.com/xswei/d3-hierarchy/blob/master/README.md
@@ -44,7 +45,8 @@ export function updateTreeGraph(list) {
 
 	const node = g.selectAll(".node")
 		.data(nodes.descendants())
-		.enter().append("g")
+		.enter()
+		.append("g")
 		.attr("class", d => "node " + (d.children ? "internal" : "leaf"))
 		.attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
@@ -60,6 +62,6 @@ export function updateTreeGraph(list) {
 		.attr("class", "name")
 		.attr("dy", ".35em")
 		.attr("y", d => d.children ? -25 : 25)
-		.style("text-anchor", "middle")
-		.text(d => d.data.name);
+		.text(d => d.data.name)
+		.style("text-anchor", "middle");
 }

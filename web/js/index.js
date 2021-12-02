@@ -1,6 +1,6 @@
 import { updateTreeGraph } from "./tree.js";
-import { addForm, onSubmit, setCurrentTab } from "./input.js";
 import { setResult, showErrorResult, showSimpleResult, updateTable } from "./results.js";
+import { addForm, onSubmit, setCurrentTab } from "./forms.js";
 
 const API = "http://localhost:6666/api/";
 
@@ -44,6 +44,7 @@ addForm({
 		{
 			name: "parentId",
 			label: "插入到哪个分类下面",
+			value: "1",
 			type: "number",
 		},
 		{
@@ -174,9 +175,6 @@ addForm({
 	]
 });
 
-refreshTreeView();
-setCurrentTab("getPath");
-
 onSubmit(async (def, args) => {
 	const { api, handler } = def;
 	const { status, body } = await invokeAPI(api, args);
@@ -188,3 +186,8 @@ onSubmit(async (def, args) => {
 		showErrorResult(body);
 	}
 });
+
+refreshTreeView();
+
+// 默认没有选中任何选项卡，所以要设置一下。
+setCurrentTab("getPath");

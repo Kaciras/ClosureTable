@@ -1,19 +1,33 @@
-const button = document.getElementById("invoke");
+const tabList = document.getElementById("tab-list");
+const formPanel = document.getElementById("forms");
+const buttonGroup = document.getElementById("actions");
 
 const tabMap = {};
 let methodName;
 
 export function setCurrentTab(name) {
 	const { button, panel } = tabMap[name];
+	const prev = tabMap[methodName];
+
 	methodName = name;
 	panel.classList.add("active");
 	button.classList.add("active");
+
+	if (prev) {
+		prev.button.classList.remove("active");
+		prev.panel.classList.remove("active");
+	}
 }
 
+/**
+ * 注册表单处理函数，在点击执行按钮时调用。
+ * 处理函数的两个参数分别是当前面板，以及当前表单的数据。
+ *
+ * @param handler 处理函数
+ */
 export function onSubmit(handler) {
-	button.onclick = () => {
+	document.getElementById("invoke").onclick = () => {
 		const { def, panel } = tabMap[methodName];
-
 		const data = new FormData(panel);
 
 		panel.querySelectorAll("input[type=checkbox]")
@@ -23,7 +37,8 @@ export function onSubmit(handler) {
 	};
 }
 
-// 虽然纯 CSS 也能做 TabPanel，但比 JS 麻烦所以不用
+// 虽然纯 CSS 也能做 TabPanel，但比 JS 还麻烦所以不用。
+
 export function addForm(def) {
 	const { api, name, fields } = def;
 
@@ -49,17 +64,10 @@ export function addForm(def) {
 	}
 
 	radio.addEventListener("change", () => {
-		const t = tabMap[methodName];
-		methodName = api;
-
-		t.button.classList.remove("active");
-		t.panel.classList.remove("active");
-
-		panel.classList.add("active");
-		button.classList.add("active");
+		setCurrentTab(api);
 	});
 
 	tabMap[api] = { button, panel, def };
-	document.getElementById("forms").insertBefore(panel, document.getElementById("actions"));
-	document.getElementById("tab-list").append(button);
+	tabList.append(button);
+	formPanel.insertBefore(panel, buttonGroup);
 }
