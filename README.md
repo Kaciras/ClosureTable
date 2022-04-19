@@ -19,7 +19,9 @@
 
 ![screenshot](https://github.com/Kaciras/ClosureTable/blob/master/screenshot.png)
 
-本项目带有一个演示网页，能够直观地展示分类结构以及各种操作对应的 SQL，使用以下命令构建并启动：
+本项目带有一个演示网页，能够直观地展示分类结构以及各种操作对应的 SQL，运行本项目要求 JAVA >= 18。
+
+构建并启动：
 
 ```bash
 mvn package

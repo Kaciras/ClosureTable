@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -23,7 +24,7 @@ public final class DBManager {
 	private final Properties properties;
 	private final DataSource dataSource;
 
-	public static DBManager open() throws Exception {
+	public static DBManager open() throws IOException {
 		var properties = new Properties();
 		@Cleanup var stream = Utils.loadConfig();
 		properties.load(stream);
@@ -39,7 +40,7 @@ public final class DBManager {
 	}
 
 	@SuppressWarnings("SqlResolve")
-	void importData() throws Exception {
+	void importData() throws IOException, SQLException {
 		@Cleanup var connection = dataSource.getConnection();
 
 		var runner = new ScriptRunner(connection);

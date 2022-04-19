@@ -31,26 +31,29 @@ public final class Main {
 		};
 	}
 
-	public static void main(String[] args) throws Exception {
-		System.setProperty("file.encoding", "UTF-8");
-
+	public static void main(String... args) throws Exception {
+		// 连接数据库，并导入演示数据。
 		var manager = DBManager.open();
 		manager.importData();
 
-		// 玩完记得把表删了
+		// 玩完记得把表删了。
 		Runtime.getRuntime().addShutdownHook(new Thread(manager::dropTables));
 
+		// 创建 Mybatis 的 SqlSession
 		var tracked = new TrackingDataSource(manager.getDataSource());
 		var session = Utils.createSqlSession(tracked);
 
+		// 获取 SqlMapper，创建仓库和控制器对象。
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
 		var controller = new Controller(new Repository(mapper));
-		var api = new HttpAdapter(tracked, session, controller);
 
+		// 创建演示用的 HTTP 服务器，并注册 API 请求处理器。
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
+		var api = new HttpAdapter(tracked, session, controller);
 		server.createContext("/api/", wrapHandler(api));
 
+		// 让 HTTP 服务器处理 web 目录下的静态文件。
 		var wwwRoot = Path.of("web").toAbsolutePath();
 		server.createContext("/", SimpleFileServer.createFileHandler(wwwRoot));
 

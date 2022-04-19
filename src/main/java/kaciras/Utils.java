@@ -16,7 +16,7 @@ import java.nio.file.Path;
 final class Utils {
 
 	/**
-	 * 寻找运行目录下的配置文件，根据以下规则：
+	 * 寻找运行目录下的配置文件：
 	 * 1）如果设置了 CONFIG_FILE 环境变量则读取其指定的文件。
 	 * 2）尝试读取 local.properties。
 	 * 3）如果上面两个都不存在则读取 application.properties。
@@ -68,10 +68,10 @@ final class Utils {
 	}
 
 	static void checkPositive(int value, String name) {
-		if (value <= 0) throw new IllegalArgumentException("参数" + name + "必须是正数:" + value);
+		if (value <= 0) throw new IllegalArgumentException("参数 " + name + " 必须是正数:" + value);
 	}
 
 	static void checkNotNegative(int value, String name) {
-		if (value < 0) throw new IllegalArgumentException("参数" + name + "不能为负:" + value);
+		if (value < 0) throw new IllegalArgumentException("参数 " + name + " 不能为负:" + value);
 	}
 }
