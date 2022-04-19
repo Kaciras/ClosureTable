@@ -3,7 +3,7 @@ name: Test
 on: push
 
 jobs:
-  test-sqlite:
+  sqlite:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,7 @@ jobs:
 
       - run: mvn -B test
 
-  test-mariadb:
+  mariadb:
     runs-on: ubuntu-latest
 
     services:
@@ -40,7 +40,7 @@ jobs:
         env:
           CONFIG_FILE: src/test/resources/mariadb.properties
 
-  test-postgres:
+  postgres:
     runs-on: ubuntu-latest
 
     services:
