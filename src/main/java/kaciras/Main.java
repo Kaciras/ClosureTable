@@ -50,7 +50,7 @@ public final class Main {
 
 		// 创建演示用的 HTTP 服务器，并注册 API 请求处理器。
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
-		var api = new HttpAdapter(tracked, session, controller);
+		var api = new Dispatcher(tracked, session, controller);
 		server.createContext("/api/", wrapHandler(api));
 
 		// 让 HTTP 服务器处理 web 目录下的静态文件。

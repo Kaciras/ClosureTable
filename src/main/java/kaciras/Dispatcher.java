@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * 一个简单的 HTTP 控制器绑定实现。
  */
-public final class HttpAdapter implements UncheckedHttpHandler {
+public final class Dispatcher implements UncheckedHttpHandler {
 
 	@AllArgsConstructor
 	private static final class ResultView {
@@ -39,7 +39,7 @@ public final class HttpAdapter implements UncheckedHttpHandler {
 	private final ObjectMapper objectMapper;
 	private final Map<String, Method> methodTable;
 
-	public HttpAdapter(TrackingDataSource dataSource, SqlSession session, Controller controller) {
+	public Dispatcher(TrackingDataSource dataSource, SqlSession session, Controller controller) {
 		this.dataSource = dataSource;
 		this.session = session;
 		this.controller = controller;
