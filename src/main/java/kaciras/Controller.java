@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-// 闭包表支持的操作很多，这里只选了一些主要的进行演示。
+/**
+ * 控制器类，包含演示页面所使用的 API。
+ *
+ * 闭包表支持的操作很多，这里只选了一些有代表性的进行演示。
+ */
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
 public final class Controller {

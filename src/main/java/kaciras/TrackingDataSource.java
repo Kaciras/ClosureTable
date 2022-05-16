@@ -16,16 +16,15 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * 通过代理记录创建的数据库连接，接着用同样的方法记录所有创建的 Statement 对象。
- * 最后用 Statement 的参数还原执行的 SQL 以显示在演示页面里。
+ * 为了拿到 SQL 语句，需要拦截 Statement.execute() 方法，
+ * 根据调用链，得做 DataSource -> Connection -> Statement 三层包装，真他妈麻烦。
  *
- * <h3>吐槽</h3>
- * 就为了获取 SQL 搞了个三层代理，DataSource -> Connection -> Statement，真他妈麻烦。
+ * 该类是第一层，包装 DataSource 拦截 getConnection()
  */
 @RequiredArgsConstructor
 public final class TrackingDataSource implements DataSource {
 
-	// 因为演示中不存在并发，就没有加锁。
+	// 因为演示中不存在并发，就没有用加锁的 List。
 	private final List<String> records = new ArrayList<>();
 
 	private final DataSource dataSource;
@@ -35,9 +34,7 @@ public final class TrackingDataSource implements DataSource {
 	}
 
 	/**
-	 * 获取所有记录的 SQL 语句，已对参数化查询进行处理，结果接近真实的 SQL。
-	 *
-	 * @return SQL 语句数组
+	 * 获取所有执行过的 SQL 语句，参数已经填充好了。
 	 */
 	public String[] getExecutedSqls() {
 		return records.toArray(String[]::new);
@@ -54,17 +51,22 @@ public final class TrackingDataSource implements DataSource {
 
 	@Override
 	public Connection getConnection() throws SQLException {
-		return createProxy(Connection.class, new TrackHandler(dataSource.getConnection()));
+		return createProxy(Connection.class, new ConnectionHandler(dataSource.getConnection()));
 	}
 
 	@Override
 	public Connection getConnection(String username, String password) throws SQLException {
 		var inner = dataSource.getConnection(username, password);
-		return createProxy(Connection.class, new TrackHandler(inner));
+		return createProxy(Connection.class, new ConnectionHandler(inner));
 	}
 
+	/**
+	 * 第二层，代理 Connection 对象，拦截 prepareStatement() 方法，返回代理后的 Statement。
+	 *
+	 * @see ArgRecordHandler
+	 */
 	@RequiredArgsConstructor
-	private final class TrackHandler implements InvocationHandler {
+	private final class ConnectionHandler implements InvocationHandler {
 
 		private final Connection connection;
 

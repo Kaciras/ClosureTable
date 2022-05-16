@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 /**
- * 跟踪 PreparedStatement 设置的参数，以及执行 execute* 方法时记录 SQL。
+ * 获取 SQL 的第三层包装，代理 PreparedStatement，记录所有执行过的 SQL 语句。
  */
 final class ArgRecordHandler implements InvocationHandler {
 

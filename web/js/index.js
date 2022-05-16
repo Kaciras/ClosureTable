@@ -6,7 +6,7 @@ const API = "http://localhost:6666/api/";
 
 /**
  * 调用后端控制器（Controller.java）里的方法，
- * HttpAdapter.java 用于接收请求，并转换为方法调用。
+ * Dispatcher.java 用于接收请求，并转换为方法调用。
  *
  * @param name 方法名
  * @param args 方法参数

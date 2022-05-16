@@ -16,9 +16,6 @@ public final class Main {
 	/**
 	 * 包装一个 HttpHandler，增加异常处理和自动关闭 HttpExchange 功能，
 	 * 同时允许参数抛出更宽泛的异常。
-	 *
-	 * @param handler 被包装的 HttpHandler
-	 * @return 包装后的 HttpHandler
 	 */
 	private static HttpHandler wrapHandler(UncheckedHttpHandler handler) {
 		return (HttpExchange exchange) -> {
@@ -48,7 +45,7 @@ public final class Main {
 		Category.mapper = mapper;
 		var controller = new Controller(new Repository(mapper));
 
-		// 创建演示用的 HTTP 服务器，并注册 API 请求处理器。
+		// 创建 HTTP 服务器，并注册 API 请求处理器。
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);
 		var api = new Dispatcher(tracked, session, controller);
 		server.createContext("/api/", wrapHandler(api));

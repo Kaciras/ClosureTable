@@ -16,10 +16,10 @@ import java.nio.file.Path;
 final class Utils {
 
 	/**
-	 * 寻找运行目录下的配置文件：
+	 * 寻找运行目录下的配置文件，按照以下优先顺序：
 	 * 1）如果设置了 CONFIG_FILE 环境变量则读取其指定的文件。
 	 * 2）尝试读取 local.properties。
-	 * 3）如果上面两个都不存在则读取 application.properties。
+	 * 3）尝试读取 application.properties。
 	 *
 	 * @return 配置信息文件流
 	 * @throws IOException 如果读取文件失败
@@ -46,7 +46,7 @@ final class Utils {
 		config.setEnvironment(environment);
 
 		/*
-		 * 禁用会话级缓存，让每次执行都查询数据库，解决无法获取 Statement 的问题。
+		 * 禁用会话级缓存，让每次执行都查询数据库，以便获取 SQL。
 		 *
 		 * 【跟 Spring 的区别】
 		 * mybatis-spring 不需要这么设置，因为它有个自定义的 SqlSessionTemplate 代理了 Session 对象，
