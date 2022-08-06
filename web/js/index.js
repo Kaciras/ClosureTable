@@ -2,7 +2,7 @@ import { updateTreeGraph } from "./tree.js";
 import { setResult, showErrorResult, showSimpleResult, updateTable } from "./results.js";
 import { addForm, onSubmit, setCurrentTab } from "./forms.js";
 
-const API = "http://localhost:6666/api/";
+const API = "/api/";
 
 /**
  * 调用后端控制器（Controller.java）里的方法，

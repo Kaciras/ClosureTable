@@ -11,7 +11,7 @@ import java.nio.file.Path;
 public final class Main {
 
 	private static final String HOST_NAME = "localhost";
-	private static final int PORT = 6666;
+	private static final int PORT = 7777;
 
 	/**
 	 * 包装一个 HttpHandler，增加异常处理和自动关闭 HttpExchange 功能，

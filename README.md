@@ -28,7 +28,7 @@ mvn package
 java -jar target/closure-table-3.0.0.jar
 ```
 
-访问 [http://localhost:6666](http://localhost:6666) 查看演示页面。
+访问 [http://localhost:7777](http://localhost:7777) 查看演示页面。
 
 数据库支持 Sqlite、Mariadb 和 PostgreSQL，默认使用 Sqlite 的内存数据库，可以在`application.properties`里修改数据库设置。
 
