@@ -50,7 +50,7 @@ export function updateTreeGraph(list) {
 		.attr("class", d => "node " + (d.children ? "internal" : "leaf"))
 		.attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-	node.append("circle").attr("r", 14);
+	node.append("circle").attr("r", 17);
 
 	node.append("text")
 		.attr("class", "id")
@@ -61,7 +61,7 @@ export function updateTreeGraph(list) {
 	node.append("text")
 		.attr("class", "name")
 		.attr("dy", ".35em")
-		.attr("y", d => d.children ? -25 : 25)
+		.attr("y", d => d.children ? -28 : 28)
 		.text(d => d.data.name)
 		.style("text-anchor", "middle");
 }

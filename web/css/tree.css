@@ -1,11 +1,10 @@
 .node circle {
-    fill: white;
-    stroke: black;
-    stroke-width: 3px;
+    fill: #333;
 }
 
 .id {
-    font: 12px sans-serif;
+    fill: white;
+    font: 14px sans-serif;
 }
 
 .name {
