@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: zulu
-          java-version: 18
+          java-version: 19
 
       - uses: actions/checkout@v3
 
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: zulu
-          java-version: 18
+          java-version: 19
 
       - uses: actions/checkout@v3
 
@@ -45,7 +45,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: example
         ports:
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: zulu
-          java-version: 18
+          java-version: 19
 
       - uses: actions/checkout@v3
 
