@@ -1,19 +1,32 @@
 package kaciras;
 
+import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
  * 控制器类，包含演示页面所使用的 API。
- *
+ * <p>
  * 闭包表支持的操作很多，这里只选了一些有代表性的进行演示。
  */
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
 public final class Controller {
 
+	private final DataSource dataSource;
 	private final Repository repository;
+
+	public String getDatabaseName() throws SQLException {
+		try (var connection = dataSource.getConnection()) {
+			var meta = connection.getMetaData();
+			var name = meta.getDatabaseProductName();
+			var version = meta.getDatabaseProductVersion();
+			return name + " - " + version;
+		}
+	}
 
 	public List<ListQueryVO> getAll() {
 		return repository.getAllForDemo();
@@ -38,7 +51,7 @@ public final class Controller {
 
 	public void move(int id, int parent, boolean single) {
 		var category = repository.findById(id);
-		var newParent =  repository.findById(parent);
+		var newParent = repository.findById(parent);
 
 		if (single) {
 			category.moveTo(newParent);

@@ -191,3 +191,6 @@ refreshTreeView();
 
 // 默认没有选中任何选项卡，所以要设置一下。
 setCurrentTab("getPath");
+
+const { body } = await invokeAPI("getDatabaseName");
+document.getElementById("dbname").textContent = body.data;

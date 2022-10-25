@@ -43,7 +43,7 @@ public final class Main {
 		// 获取 SqlMapper，创建仓库和控制器对象。
 		var mapper = session.getMapper(CategoryMapper.class);
 		Category.mapper = mapper;
-		var controller = new Controller(new Repository(mapper));
+		var controller = new Controller(tracked, new Repository(mapper));
 
 		// 创建 HTTP 服务器，并注册 API 请求处理器。
 		var server = HttpServer.create(new InetSocketAddress(HOST_NAME, PORT), 0);

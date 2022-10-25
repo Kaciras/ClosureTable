@@ -48,14 +48,18 @@
 
 <!-- 左下的通用信息栏，显示执行时间和SQL -->
 <section id="metadata">
-	<p class="info">
-		执行用时：<time id="time">N/A</time>
+	<div class="info">
+		<span id="dbname"></span>
+
+		<span>
+			执行用时：<time id="time">N/A</time>
+		</span>
 
 		<label>
 			<input id="tree-only" type="checkbox" checked>
 			仅关系表
 		</label>
-	</p>
+	</div>
 	<pre><code id="sql" class="box"></code></pre>
 </section>
 </body>

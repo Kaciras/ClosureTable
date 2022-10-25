@@ -21,8 +21,13 @@
 
 .info {
 	display: flex;
+	gap: 16px;
 	align-items: center;
-	margin: 8px;
+	margin: 8px 0;
+}
+
+#dbname{
+    color: #ef0086;
 }
 
 .info > label {
