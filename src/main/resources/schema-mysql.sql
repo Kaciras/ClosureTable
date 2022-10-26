@@ -22,9 +22,7 @@ CREATE TABLE IF NOT EXISTS category_tree
 (
     ancestor   BIGINT unsigned    NOT NULL,
     descendant BIGINT unsigned    NOT NULL,
-    distance   tinyint(3) unsigned NOT NULL,
-    PRIMARY KEY (descendant, distance, ancestor),
-    INDEX index_0 (ancestor, distance)
+    distance   tinyint(3) unsigned NOT NULL
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 

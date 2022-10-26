@@ -16,44 +16,50 @@ public final class Benchmark {
 
 	public static void run() throws Exception {
 		var manager = DBManager.open();
-		manager.importData(Benchmark::importCT);
 
-//		@Cleanup var conn = manager.getDataSource().getConnection();
-//		var stat = conn.createStatement();
-//
-//		var start = System.currentTimeMillis();
-//		for (int i = 0; i < 10_000; i++) {
-//			stat.executeQuery("SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor = 130100000000");
-//		}
-//		var end = System.currentTimeMillis();
-//		System.out.println("闭包表用时(ms): " + (end - start));
-//
-//		var start2 = System.currentTimeMillis();
-//		for (int i = 0; i < 10_000; i++) {
-//			stat.executeQuery("""
-//
-//			""");
-//		}
-//		var end2 = System.currentTimeMillis();
-//		System.out.println("邻接表用时(ms): " + (end2 - start2));
+		// 建表和导入数据
+//		manager.importData(Benchmark::importCT);
+
+		System.out.println("开始测试性能");
+		@Cleanup var conn = manager.getDataSource().getConnection();
+
+		bench(conn, "邻接表用时(ms): ", 100, """
+						WITH RECURSIVE temp(p, n) AS (
+						     SELECT id,`name` FROM adjacent WHERE id=130100000000
+						     UNION
+						     SELECT id,`name` FROM adjacent, temp
+						     WHERE adjacent.parent=temp.p
+						)
+						SELECT * FROM temp;
+				""");
+		bench(conn, "闭包表用时(ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
+
+	}
+
+	private static void bench(Connection conn, String name, int times, String sql) throws Exception {
+		@Cleanup var stat = conn.createStatement();
+
+		var start = System.currentTimeMillis();
+		for (int i = 0; i < times; i++) {
+			stat.execute(sql);
+		}
+		var end = System.currentTimeMillis();
+
+		var time = (end - start) / (double) times;
+		System.out.printf("%s: %.2f%n", name, time);
 	}
 
 	private static void importCT(ScriptRunner __, Connection connection) throws Exception {
 		System.out.println("正在导入数据...");
 
 		connection.createStatement().execute("""
-				CREATE TABLE adjacent
-				(
-				    id     BIGINT     NOT NULL,
-				    parent BIGINT     NOT NULL,
-				    name   TINYTEXT   NOT NULL,
-				    PRIMARY KEY (parent, id)
-				);
-		""");
-
-		connection.createStatement().execute("""
-				CREATE INDEX index_aj ON adjacent (id);
-		""");
+						CREATE TABLE adjacent
+						(
+						    id     BIGINT     NOT NULL,
+						    parent BIGINT     NOT NULL,
+						    name   TINYTEXT   NOT NULL
+						);
+				""");
 
 		var stat = connection.prepareStatement("INSERT INTO category (id, name) VALUES (?,?)");
 		var stat2 = connection.prepareStatement("INSERT INTO category_tree (ancestor, descendant, distance) VALUES (?,?,?)");
@@ -93,5 +99,14 @@ public final class Benchmark {
 				stat2.executeBatch();
 			}
 		}
+
+		System.out.println("正在优化索引...");
+
+		connection.createStatement().execute("""
+						ALTER TABLE adjacent ADD PRIMARY KEY (parent, id)
+				""");
+		connection.createStatement().execute("""
+						CREATE INDEX index_aj ON adjacent (id)
+				""");
 	}
 }

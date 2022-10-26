@@ -132,6 +132,10 @@ public abstract class DBManager {
 		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
 			super.executeScript(runner, "schema-mysql.sql");
 			operation.run(runner, connection);
+
+			@Cleanup var stat = connection.createStatement();
+			stat.execute("ALTER TABLE category_tree ADD PRIMARY KEY (descendant, distance, ancestor)");
+			stat.execute("CREATE INDEX index_0 ON category_tree (ancestor, distance)");
 		}
 
 		@Override
