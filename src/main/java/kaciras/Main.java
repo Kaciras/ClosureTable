@@ -33,12 +33,15 @@ public final class Main {
 		var manager = DBManager.open();
 		manager.importData();
 
-		// 玩完记得把表删了。
-		Runtime.getRuntime().addShutdownHook(new Thread(manager::dropTables));
-
 		// 创建 Mybatis 的 SqlSession
 		var tracked = new TrackingDataSource(manager.getDataSource());
 		var session = Utils.createSqlSession(tracked);
+
+		// 玩完记得把表删了。
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			session.close();
+			manager.dropTables();
+		}));
 
 		// 获取 SqlMapper，创建仓库和控制器对象。
 		var mapper = session.getMapper(CategoryMapper.class);
