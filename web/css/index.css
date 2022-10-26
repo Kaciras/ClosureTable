@@ -1,3 +1,8 @@
+@import "global.css";
+@import "form.css";
+@import "tree.css";
+@import "prism.css";
+
 /* 用于隐藏不需要的控件 */
 .hide {
 	display: none;
@@ -26,8 +31,8 @@
 	margin: 8px 0;
 }
 
-#dbname{
-    color: #ef0086;
+#dbname {
+	color: #ef0086;
 }
 
 .info > label {

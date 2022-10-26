@@ -127,7 +127,7 @@ public interface CategoryMapper {
 	 */
 	@Select("SELECT B.* FROM category_tree AS A " +
 			"JOIN category AS B ON A.ancestor=B.id " +
-			"WHERE descendant=#{id} AND ancestor>0 " +
+			"WHERE descendant=#{id} AND ancestor > 0 " +
 			"ORDER BY distance DESC")
 	List<Category> selectPathToRoot(int id);
 
@@ -141,7 +141,7 @@ public interface CategoryMapper {
 	@Select("SELECT B.* FROM category_tree AS A " +
 			"JOIN category AS B ON A.ancestor=B.id " +
 			"WHERE descendant=#{id} AND " +
-			"distance<(SELECT distance FROM category_tree WHERE descendant=#{id} AND ancestor=#{ancestor}) " +
+			"distance < (SELECT distance FROM category_tree WHERE descendant=#{id} AND ancestor=#{ancestor}) " +
 			"ORDER BY distance DESC")
 	List<Category> selectPathToAncestor(int id, int ancestor);
 

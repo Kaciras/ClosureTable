@@ -17,8 +17,9 @@ body {
 	height: 100vh;
 	margin: 0;
 	padding: 10px;
+	line-height: 1.4;
 
-	font-family: Arial, sans-serif;
+	font-family: sans-serif;
 }
 
 svg {
@@ -36,7 +37,7 @@ pre {
 }
 
 code {
-	font-family: monospace;
+	font-family: Monaco, Liberation Mono, DejaVu Sans Mono, Consolas, Courier New, monospace;
 	line-height: 1.4;
 }
 
@@ -44,22 +45,15 @@ table {
 	border-collapse: collapse;
 	width: 100%;
 	border: solid 1px #cfcfcf;
-	background-color: white;
 }
 
 th, td {
-	padding: .75rem;
-	vertical-align: top;
-	border-bottom: 1px solid #cfcfcf;
+	padding: .5rem 1rem;
+	border: 1px solid #ccc;
 }
 
 thead th {
 	vertical-align: bottom;
-	border-bottom: 2px solid #cfcfcf;
-}
-
-tbody + tbody {
-	border-top: 2px solid #cfcfcf;
 }
 
 tbody > tr:hover {
