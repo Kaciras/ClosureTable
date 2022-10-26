@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS category_tree;
 -- 分类属性表，保存了分类的ID和名称，你可以在这个表中添加更多的属性
 CREATE TABLE IF NOT EXISTS category
 (
-    id       int(10) unsigned NOT NULL AUTO_INCREMENT,
+    id       BIGINT unsigned NOT NULL AUTO_INCREMENT,
     name     tinytext         NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS category
 -- 分类树表，存储了分类之间的关系
 CREATE TABLE IF NOT EXISTS category_tree
 (
-    ancestor   int(10) unsigned    NOT NULL,
-    descendant int(10) unsigned    NOT NULL,
+    ancestor   BIGINT unsigned    NOT NULL,
+    descendant BIGINT unsigned    NOT NULL,
     distance   tinyint(3) unsigned NOT NULL,
     PRIMARY KEY (descendant, distance, ancestor),
     INDEX index_0 (ancestor, distance)

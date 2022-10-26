@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -19,7 +20,7 @@ import java.util.Properties;
  */
 @RequiredArgsConstructor
 @Getter
-public final class DBManager {
+public abstract class DBManager {
 
 	private final Properties properties;
 	private final DataSource dataSource;
@@ -36,31 +37,38 @@ public final class DBManager {
 				properties.getProperty("PASSWORD")
 		);
 
-		return new DBManager(properties, dataSource);
+		var driver = properties.getProperty("URL").split(":")[1];
+		return switch (driver) {
+			case "mariadb" -> new MysqlManager(properties, dataSource);
+			case "sqlite" -> new SqliteManager(properties, dataSource);
+			case "postgresql" -> new PostgresManager(properties, dataSource);
+			default -> throw new IOException(driver + " is not supported");
+		};
 	}
 
 	@SuppressWarnings("SqlResolve")
-	void importData() throws IOException, SQLException {
+	void importDemoData() throws Exception {
+		this.importData((r, c) -> executeScript(r, "data.sql"));
+	}
+
+	void importData(SQLOperation operation) throws Exception {
 		@Cleanup var connection = dataSource.getConnection();
 
 		var runner = new ScriptRunner(connection);
 		runner.setLogWriter(null);
 		runner.setEscapeProcessing(false);
 
-		var driver = properties.getProperty("URL").split(":")[1];
-		if (!driver.equals("postgresql")) {
-			var script = driver.equals("sqlite") ? "schema-sqlite.sql" : "schema-mysql.sql";
-			executeScript(runner, script);
-			executeScript(runner, "data.sql");
-		} else {
-			executeScript(runner, "schema-pg.sql");
-			executeScript(runner, "data.sql");
-
-			// PG 如果指定了 id 自增记录就不会增加，需要手动修复，这一点很不人性化。
-			@Cleanup var stat = connection.createStatement();
-			stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
-		}
+		connection.setAutoCommit(false);
+		this.importData(runner, connection, operation);
+		connection.commit();
 	}
+
+	public abstract void importData(
+			ScriptRunner runner,
+			Connection connection,
+			SQLOperation operation) throws Exception;
+
+	abstract int getDBSize() throws SQLException;
 
 	/**
 	 * 运行资源目录下的 SQL 脚本文件。
@@ -89,5 +97,71 @@ public final class DBManager {
 
 		statement.execute("DROP TABLE category");
 		statement.execute("DROP TABLE category_tree");
+	}
+
+	private static final class SqliteManager extends DBManager {
+
+		public SqliteManager(Properties properties, DataSource dataSource) {
+			super(properties, dataSource);
+		}
+
+		@Override
+		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
+			super.executeScript(runner, "schema-sqlite.sql");
+			operation.run(runner, connection);
+		}
+
+		@Override
+		int getDBSize() throws SQLException {
+			@Cleanup var connection = super.dataSource.getConnection();
+			var stat = connection.createStatement();
+			var resultSet = stat.executeQuery(
+					"SELECT (page_count - freelist_count) * page_size " +
+					"FROM pragma_page_count(), pragma_freelist_count(), pragma_page_size()");
+			return resultSet.getInt(1);
+		}
+	}
+
+	private static final class MysqlManager extends DBManager {
+
+		public MysqlManager(Properties properties, DataSource dataSource) {
+			super(properties, dataSource);
+		}
+
+		@Override
+		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
+			super.executeScript(runner, "schema-mysql.sql");
+			operation.run(runner, connection);
+		}
+
+		@Override
+		int getDBSize() throws SQLException {
+			@Cleanup var connection = super.dataSource.getConnection();
+			var stat = connection.createStatement();
+			var resultSet = stat.executeQuery("SELECT SUM(data_length + index_length) FROM information_schema.tables WHERE TABLE_SCHEMA='test'");
+			return resultSet.getInt(1);
+		}
+	}
+
+	private static final class PostgresManager extends DBManager {
+
+		public PostgresManager(Properties properties, DataSource dataSource) {
+			super(properties, dataSource);
+		}
+
+		@Override
+		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
+			super.executeScript(runner, "schema-pg.sql");
+			operation.run(runner, connection);
+
+			// PG 如果指定了 id 自增记录就不会增加，需要手动修复，这一点很不人性化。
+			@Cleanup var stat = connection.createStatement();
+			stat.execute("SELECT setval('category_id_seq', (SELECT MAX(id) FROM category)+1)");
+		}
+
+		@Override
+		int getDBSize() throws SQLException {
+			return 0;
+		}
 	}
 }
