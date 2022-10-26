@@ -31,7 +31,7 @@ public final class Main {
 	public static void main(String... args) throws Exception {
 		// 连接数据库，并导入演示数据。
 		var manager = DBManager.open();
-		manager.importData();
+		manager.importDemoData();
 
 		// 创建 Mybatis 的 SqlSession
 		var tracked = new TrackingDataSource(manager.getDataSource());

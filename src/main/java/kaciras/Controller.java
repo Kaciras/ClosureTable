@@ -22,9 +22,9 @@ public final class Controller {
 	public String getDatabaseName() throws SQLException {
 		try (var connection = dataSource.getConnection()) {
 			var meta = connection.getMetaData();
-			var name = meta.getDatabaseProductName();
 			var version = meta.getDatabaseProductVersion();
-			return name + " - " + version;
+			var name = meta.getDatabaseProductName();
+			return name + " - " + version.split("-", 2)[0];
 		}
 	}
 
