@@ -1,6 +1,5 @@
 package kaciras;
 
-import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 
 import javax.sql.DataSource;

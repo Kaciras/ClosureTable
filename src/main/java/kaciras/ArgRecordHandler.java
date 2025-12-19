@@ -23,7 +23,6 @@ final class ArgRecordHandler implements InvocationHandler {
 		this.template = sql.replace("?", "%s");
 	}
 
-	@SuppressWarnings("EnhancedSwitchMigration")
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getName().startsWith("execute")) {

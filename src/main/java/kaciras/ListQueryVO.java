@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-final class ListQueryVO {
+public final class ListQueryVO {
 	private int id;
 	private Integer parentId;
 	private String name;

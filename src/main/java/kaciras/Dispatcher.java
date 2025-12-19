@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 
 /**
  * 一个简单的控制器绑定实现，将 HTTP 请求转为对控制器方法的调用。
- *
+ * <p>
  * 请求使用 POST 方法，路径 为 /api/[方法名]，其中[方法名]是 Controller 类中方法的名字；
  * 参数以 JSON 数组的形式序列化，作为请求体；响应也使用 JSON。
- *
+ * <p>
  * 例如：POST /api/update [1, "new name"]
  * 会调用 Controller.update 方法，参数分别为 1 和 "new name"。
  */

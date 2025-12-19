@@ -83,8 +83,9 @@ public abstract class DBManager {
 		if (stream == null) {
 			throw new FileNotFoundException(url);
 		}
-		@Cleanup var reader = new InputStreamReader(stream);
-		runner.runScript(reader);
+		try(var reader = new InputStreamReader(stream)) {
+			runner.runScript(reader);
+		}
 	}
 
 	/**
@@ -107,7 +108,7 @@ public abstract class DBManager {
 
 		@Override
 		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
-			super.executeScript(runner, "schema-sqlite.sql");
+			super.executeScript(runner, "sqlite/schema.sql");
 			operation.run(runner, connection);
 		}
 
@@ -130,7 +131,7 @@ public abstract class DBManager {
 
 		@Override
 		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
-			super.executeScript(runner, "schema-mysql.sql");
+			super.executeScript(runner, "mysql/schema.sql");
 			operation.run(runner, connection);
 
 			@Cleanup var stat = connection.createStatement();
@@ -155,7 +156,7 @@ public abstract class DBManager {
 
 		@Override
 		public void importData(ScriptRunner runner, Connection connection, SQLOperation operation) throws Exception {
-			super.executeScript(runner, "schema-pg.sql");
+			super.executeScript(runner, "postgres/schema.sql");
 			operation.run(runner, connection);
 
 			// PG 如果指定了 id 自增记录就不会增加，需要手动修复，这一点很不人性化。

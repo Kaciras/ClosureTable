@@ -28,7 +28,7 @@ public final class Main {
 		};
 	}
 
-	public static void main(String... args) throws Exception {
+	private static void runDemo() throws Exception {
 		// 连接数据库，并导入演示数据。
 		var manager = DBManager.open();
 		manager.importDemoData();
@@ -59,5 +59,19 @@ public final class Main {
 
 		server.start();
 		System.out.println("Demo hosted on http://" + HOST_NAME + ":" + PORT);
+	}
+
+	private static void runBenchmark() throws Exception {
+
+	}
+
+	public static void main(String... args) throws Exception {
+		if (args.length == 0) {
+			runDemo();
+		} else if (args[0].equals("benchmark")) {
+			runBenchmark();
+		} else {
+			System.err.println("Unknown command: " + args[0]);
+		}
 	}
 }
