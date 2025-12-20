@@ -30,7 +30,7 @@ public final class DatabaseTestLifecycle implements
 
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
-		dbManager.importDemoData();
+		dbManager.importClosureTable();
 	}
 
 	@Override

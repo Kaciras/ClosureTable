@@ -15,7 +15,9 @@ CREATE TABLE category_tree (
     PRIMARY KEY (descendant, distance, ancestor)
 );
 
-CREATE INDEX index_0 ON category_tree (ancestor, distance);
-
 INSERT INTO category_tree (ancestor, descendant, distance) VALUES (0, 0, 0);
 INSERT INTO category (id, name) VALUES (0, 'root');
+
+-------- 下面的部分，在导入初始数据后执行 --------
+
+CREATE INDEX index_0 ON category_tree (ancestor, distance);

@@ -29,9 +29,11 @@ public final class Main {
 	}
 
 	private static void runDemo() throws Exception {
-		// 连接数据库，并导入演示数据。
+		// 读取配置文件，连接数据库。
 		var manager = DBManager.open();
-		manager.importDemoData();
+
+		// 建表，并导入演示数据。
+		manager.importClosureTable();
 
 		// 创建 Mybatis 的 SqlSession
 		var tracked = new TrackingDataSource(manager.getDataSource());
@@ -61,15 +63,11 @@ public final class Main {
 		System.out.println("Demo hosted on http://" + HOST_NAME + ":" + PORT);
 	}
 
-	private static void runBenchmark() throws Exception {
-
-	}
-
 	public static void main(String... args) throws Exception {
 		if (args.length == 0) {
 			runDemo();
 		} else if (args[0].equals("benchmark")) {
-			runBenchmark();
+			Benchmark.run();
 		} else {
 			System.err.println("Unknown command: " + args[0]);
 		}
