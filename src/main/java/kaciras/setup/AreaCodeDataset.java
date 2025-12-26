@@ -11,7 +11,7 @@ import java.util.Iterator;
 public class AreaCodeDataset implements Iterator<DataRow>, AutoCloseable {
 
 	// 代码总共 12 位，省 2 位，市 2 位，县 2 位，镇 3 位，村街道 3 位。
-	private static final long[] MASKS = {1, 1000, 1000000, 100000000, 10000000000L};
+	private static final long[] SHIFTS = {1, 1000, 1000000, 100000000, 10000000000L};
 
 	private final BufferedReader reader;
 	private String line;
@@ -64,7 +64,7 @@ public class AreaCodeDataset implements Iterator<DataRow>, AutoCloseable {
 			var ids = new long[Integer.parseInt(columns[2])];
 			var code = getId();
 			for (int i = 0; i < ids.length; i++) {
-				var shift = MASKS[5 - ids.length + i];
+				var shift = SHIFTS[5 - ids.length + i];
 				ids[i] = code / shift * shift;
 			}
 			return ids;

@@ -15,9 +15,9 @@
 
 > [!WARNING]
 >
-> 闭包表在现代数据库中的性能不一定优于邻接表，实际使用前请自行做性能测试，本项目也带有一个[示例]()。
+> 闭包表在现代数据库中的性能不一定优于邻接表，实际使用前请自行做性能测试，本项目也带有一个[示例](#性能测试)。
 
-# 运行
+## 运行演示
 
 ![screenshot](https://github.com/Kaciras/ClosureTable/blob/master/screenshot.png)
 
@@ -27,7 +27,7 @@
 
 ```bash
 mvn package
-java -jar target/closure-table-3.0.0.jar
+java -jar target/closure-table-4.0.0.jar
 ```
 
 访问 [http://localhost:7777](http://localhost:7777) 查看演示页面。
@@ -38,8 +38,10 @@ java -jar target/closure-table-3.0.0.jar
 * SQL 见 `CategoryMapper.java`。
 * 完整的 API 见 `Repository.java` 和 `Category.java`。
 
-本项目带有一个简单地性能测试，对比闭包表和邻接表的性能，通过以下命令运行:
+## 性能测试
+
+本项目带有一个简单的性能测试，对比闭包表和邻接表的性能，通过以下命令运行:
 
 ```bash
-java -jar target/closure-table-3.0.0.jar benchmark
+java -jar target/closure-table-4.0.0.jar benchmark
 ```

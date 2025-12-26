@@ -24,23 +24,22 @@ public final class Benchmark {
 			}
 		}
 
-		Runtime.getRuntime().addShutdownHook(new Thread(manager::dropTables));
-
-		System.out.println("开始测试性能");
+		System.out.println("导入完成，开始测试性能……");
 		@Cleanup var conn = manager.getDataSource().getConnection();
 
 		bench(conn, "邻接表用时(ms): ", 1000, """
-						WITH RECURSIVE temp(p, n) AS (
-						     SELECT id,`name` FROM adjacent WHERE id=130100000000
-						     UNION
-						     SELECT id,`name` FROM adjacent, temp
-						     WHERE adjacent.parent=temp.p
-						)
-						SELECT * FROM temp;
+					WITH RECURSIVE temp(p, n) AS (
+					     SELECT id,`name` FROM adjacent WHERE id=130100000000
+					     UNION
+					     SELECT id,`name` FROM adjacent, temp
+					     WHERE adjacent.parent=temp.p
+					)
+					SELECT * FROM temp;
 				""");
 		bench(conn, "闭包表用时(ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
-	}
 
+		System.out.println("\n测试结束，表和数据未删除。");
+	}
 
 	private static void bench(Connection conn, String name, int times, String sql) throws Exception {
 		@Cleanup var stat = conn.createStatement();
