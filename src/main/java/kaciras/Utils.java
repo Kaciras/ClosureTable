@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-final class Utils {
+public final class Utils {
 
 	/**
 	 * 寻找运行目录下的配置文件，按照以下优先顺序：
@@ -24,7 +24,7 @@ final class Utils {
 	 * @return 配置信息文件流
 	 * @throws IOException 如果读取文件失败
 	 */
-	static InputStream loadConfig() throws IOException {
+	public static InputStream loadConfig() throws IOException {
 		var file = Path.of("local.properties");
 		var env = System.getenv("CONFIG_FILE");
 		if (env != null) {

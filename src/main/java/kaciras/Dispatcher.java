@@ -93,7 +93,7 @@ public final class Dispatcher implements UncheckedHttpHandler {
 			var data = method.invoke(controller, args);
 			session.commit();
 			var time = System.currentTimeMillis() - start;
-			var sqls = dataSource.getExecutedSqls();
+			var sqls = dataSource.getExecutedSql();
 			respond(exchange, 200, new ResultView(sqls, time, data));
 		} catch (InvocationTargetException ex) {
 			var cause = ex.getCause();

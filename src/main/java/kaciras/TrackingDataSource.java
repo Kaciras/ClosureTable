@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * 为了拿到 SQL 语句，需要拦截 Statement.execute() 方法，
  * 根据调用链，得做 DataSource -> Connection -> Statement 三层包装，真他妈麻烦。
- *
+ * <p>
  * 该类是第一层，包装 DataSource 拦截 getConnection()
  */
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public final class TrackingDataSource implements DataSource {
 	/**
 	 * 获取所有执行过的 SQL 语句，参数已经填充好了。
 	 */
-	public String[] getExecutedSqls() {
+	public String[] getExecutedSql() {
 		return records.toArray(String[]::new);
 	}
 

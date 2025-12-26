@@ -1,5 +1,7 @@
 package kaciras;
 
+import kaciras.setup.DBManager;
+import kaciras.setup.SimpleDataset;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.extension.*;
 
@@ -30,7 +32,13 @@ public final class DatabaseTestLifecycle implements
 
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
-		dbManager.importClosureTable();
+		try (var importer = dbManager.createTable("closure.sql")) {
+			try (var ds = new SimpleDataset()) {
+				while (ds.hasNext()) {
+					importer.importData(ds.next());
+				}
+			}
+		}
 	}
 
 	@Override

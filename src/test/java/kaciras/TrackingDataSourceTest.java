@@ -32,13 +32,13 @@ final class TrackingDataSourceTest {
 	}
 
 	@Test
-	void getExecutedSqls() throws Exception {
+	void getExecutedSql() throws Exception {
 		@Cleanup var stat = connection.prepareStatement("UPDATE category SET name=? WHERE id=?");
 		stat.setString(1, "new");
 		stat.setInt(2, 7);
 		stat.executeUpdate();
 
-		var sqls = tracked.getExecutedSqls();
+		var sqls = tracked.getExecutedSql();
 		assertThat(sqls).hasSize(1);
 		assertThat(sqls[0]).isEqualTo("UPDATE category SET name='new' WHERE id=7");
 	}
@@ -51,10 +51,10 @@ final class TrackingDataSourceTest {
 
 		tracked.reset();
 
-		assertThat(tracked.getExecutedSqls()).isEmpty();
+		assertThat(tracked.getExecutedSql()).isEmpty();
 
 		stat.setInt(1, 7);
 		stat.executeQuery();
-		assertThat(tracked.getExecutedSqls()).hasSize(1);
+		assertThat(tracked.getExecutedSql()).hasSize(1);
 	}
 }

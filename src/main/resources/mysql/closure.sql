@@ -1,3 +1,5 @@
+/*!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;
+
 -- 删除上次运行时遗留的表和数据
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS category_tree;

@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
+import kaciras.setup.DBManager;
+import kaciras.setup.SimpleDataset;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
@@ -14,8 +16,7 @@ public final class Main {
 	private static final int PORT = 7777;
 
 	/**
-	 * 包装一个 HttpHandler，增加异常处理和自动关闭 HttpExchange 功能，
-	 * 同时允许参数抛出更宽泛的异常。
+	 * 包装一个 HttpHandler，增加异常处理和自动关闭功能，同时允许更宽泛的异常。
 	 */
 	private static HttpHandler wrapHandler(UncheckedHttpHandler handler) {
 		return (HttpExchange exchange) -> {
@@ -33,7 +34,13 @@ public final class Main {
 		var manager = DBManager.open();
 
 		// 建表，并导入演示数据。
-		manager.importClosureTable();
+		try (var importer = manager.createTable("closure.sql")) {
+			try (var ds = new SimpleDataset()) {
+				while (ds.hasNext()) {
+					importer.importData(ds.next());
+				}
+			}
+		}
 
 		// 创建 Mybatis 的 SqlSession
 		var tracked = new TrackingDataSource(manager.getDataSource());
