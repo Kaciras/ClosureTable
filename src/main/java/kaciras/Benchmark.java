@@ -13,6 +13,28 @@ public final class Benchmark {
 		var manager = DBManager.open();
 		var connection = manager.getConnection();
 
+		if (!manager.tableExists("adjacent")) {
+			initialize(manager);
+		} else {
+			System.out.println("检测到相关表已经存在，使用现有的数据");
+		}
+
+		System.out.println("查询所有下级节点。");
+		bench(connection, "邻接表用时(ms): ", 1000, """
+					WITH RECURSIVE temp(p, n) AS (
+					     SELECT id,`name` FROM adjacent WHERE id=130100000000
+					     UNION
+					     SELECT id,`name` FROM adjacent, temp
+					     WHERE adjacent.parent=temp.p
+					)
+					SELECT * FROM temp;
+				""");
+		bench(connection, "闭包表用时 (ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
+
+		System.out.println("\n测试结束，表和数据未删除。");
+	}
+
+	static void initialize(DBManager manager) throws Exception {
 		try (
 				var adjacent = manager.createTable("adjacent.sql");
 				var closure = manager.createTable("closure.sql");
@@ -26,20 +48,6 @@ public final class Benchmark {
 				adjacent.importData(entry);
 			}
 		}
-
-		System.out.println("查询所有下级节点。");
-		bench(connection, "邻接表用时(ms): ", 1000, """
-					WITH RECURSIVE temp(p, n) AS (
-					     SELECT id,`name` FROM adjacent WHERE id=130100000000
-					     UNION
-					     SELECT id,`name` FROM adjacent, temp
-					     WHERE adjacent.parent=temp.p
-					)
-					SELECT * FROM temp;
-				""");
-		bench(connection, "闭包表用时(ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
-
-		System.out.println("\n测试结束，表和数据未删除。");
 	}
 
 	private static void bench(Connection conn, String name, int times, String sql) throws Exception {

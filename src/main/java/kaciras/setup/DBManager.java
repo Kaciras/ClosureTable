@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -55,6 +56,15 @@ public final class DBManager {
 			return new DataImporter.Adjacent(connection, path);
 		} else {
 			return new DataImporter.Closure(connection, path);
+		}
+	}
+
+	public boolean tableExists(String table) {
+		try (var statement = connection.createStatement()) {
+			statement.execute("SELECT 1 FROM " + table);
+			return true;
+		} catch (SQLException e) {
+			return false;
 		}
 	}
 
