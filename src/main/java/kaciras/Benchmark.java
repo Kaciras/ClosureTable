@@ -27,6 +27,7 @@ public final class Benchmark {
 			}
 		}
 
+		System.out.println("查询所有下级节点。");
 		bench(connection, "邻接表用时(ms): ", 1000, """
 					WITH RECURSIVE temp(p, n) AS (
 					     SELECT id,`name` FROM adjacent WHERE id=130100000000
