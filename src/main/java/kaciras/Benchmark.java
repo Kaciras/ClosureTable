@@ -3,6 +3,7 @@ package kaciras;
 import kaciras.setup.AreaCodeDataset;
 import kaciras.setup.DBManager;
 import lombok.Cleanup;
+import me.tongfei.progressbar.ProgressBar;
 
 import java.sql.Connection;
 
@@ -11,20 +12,20 @@ public final class Benchmark {
 	public static void run() throws Exception {
 		var manager = DBManager.open();
 
-		// 建表和导入数据
 		try (
-				var closure = manager.createTable("closure.sql");
 				var adjacent = manager.createTable("adjacent.sql");
-				var ds = new AreaCodeDataset()
+				var closure = manager.createTable("closure.sql");
+				var ds = new AreaCodeDataset();
+				var pb = new ProgressBar("Imported", ds.getTotal())
 		) {
 			while (ds.hasNext()) {
 				var entry = ds.next();
+				pb.stepTo(ds.getProgress());
 				closure.importData(entry);
 				adjacent.importData(entry);
 			}
 		}
 
-		System.out.println("导入完成，开始测试性能……");
 		@Cleanup var conn = manager.getDataSource().getConnection();
 
 		bench(conn, "邻接表用时(ms): ", 1000, """

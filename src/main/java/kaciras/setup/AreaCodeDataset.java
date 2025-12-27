@@ -1,11 +1,14 @@
 package kaciras.setup;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
+import org.apache.commons.io.input.BoundedInputStream;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class AreaCodeDataset implements Iterator<DataRow>, AutoCloseable {
@@ -13,15 +16,24 @@ public class AreaCodeDataset implements Iterator<DataRow>, AutoCloseable {
 	// 代码总共 12 位，省 2 位，市 2 位，县 2 位，镇 3 位，村街道 3 位。
 	private static final long[] SHIFTS = {1, 1000, 1000000, 100000000, 10000000000L};
 
+	@Getter
+	private final long total;
+
+	private final BoundedInputStream stream;
 	private final BufferedReader reader;
+
 	private String line;
 
-	public AreaCodeDataset() throws IOException {
+	public AreaCodeDataset() throws Exception {
 		var loader = AreaCodeDataset.class.getClassLoader();
-		var stream = loader.getResourceAsStream("area_code_2022.csv");
-		if (stream == null) {
+		var uri = loader.getResource("area_code_2022.csv");
+		if (uri == null) {
 			throw new FileNotFoundException("area_code_2022.csv");
 		}
+
+		var path = Paths.get(uri.toURI());
+		stream = BoundedInputStream.builder().setPath(path).get();
+		total = Files.size(path);
 		reader = new BufferedReader(new InputStreamReader(stream));
 	}
 
@@ -34,6 +46,10 @@ public class AreaCodeDataset implements Iterator<DataRow>, AutoCloseable {
 	@Override
 	public DataRow next() {
 		return new AreaCodeRow(line);
+	}
+
+	public long getProgress() {
+		return stream.getCount();
 	}
 
 	@Override

@@ -63,10 +63,7 @@ public final class DBManager {
 	 */
 	private String[] loadSchemaFile(String name) throws IOException {
 		var loader = Utils.class.getClassLoader();
-
-		var path = this.getClass().getSimpleName();
-		path = path.substring(0, path.length() - "Manager".length());
-		path = path.toLowerCase() + "/" + name;
+		var path = dialect + "/" + name;
 
 		try (var stream = loader.getResourceAsStream(path)) {
 			if (stream == null) {

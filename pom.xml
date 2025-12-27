@@ -87,11 +87,6 @@
 			<version>1.18.42</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>3.5.19</version>
-		</dependency>
 
 		<!-- 为了方便把数据库驱动都包含进来了 -->
 		<dependency>
@@ -102,7 +97,7 @@
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>3.5.6</version>
+			<version>3.5.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -110,6 +105,21 @@
 			<version>42.7.8</version>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.21.0</version>
+		</dependency>
+		<dependency>
+			<groupId>me.tongfei</groupId>
+			<artifactId>progressbar</artifactId>
+			<version>0.10.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.5.19</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
