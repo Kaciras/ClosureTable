@@ -1,5 +1,6 @@
 package kaciras;
 
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.LocalCacheScope;
@@ -10,8 +11,10 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 
 public final class Utils {
 
@@ -73,5 +76,12 @@ public final class Utils {
 
 	static void checkNotNegative(int value, String name) {
 		if (value < 0) throw new IllegalArgumentException("参数 " + name + " 不能为负:" + value);
+	}
+
+	public static void executeScript(Connection c, String sqlScript) {
+		var runner = new ScriptRunner(c);
+		runner.setLogWriter(null);
+		runner.setEscapeProcessing(false);
+		runner.runScript(new StringReader(sqlScript));
 	}
 }

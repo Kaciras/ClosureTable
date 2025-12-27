@@ -11,12 +11,13 @@ public final class Benchmark {
 
 	public static void run() throws Exception {
 		var manager = DBManager.open();
+		var connection = manager.getConnection();
 
 		try (
 				var adjacent = manager.createTable("adjacent.sql");
 				var closure = manager.createTable("closure.sql");
 				var ds = new AreaCodeDataset();
-				var pb = new ProgressBar("Imported", ds.getTotal())
+				var pb = new ProgressBar("导入数据", ds.getTotal())
 		) {
 			while (ds.hasNext()) {
 				var entry = ds.next();
@@ -26,9 +27,7 @@ public final class Benchmark {
 			}
 		}
 
-		@Cleanup var conn = manager.getDataSource().getConnection();
-
-		bench(conn, "邻接表用时(ms): ", 1000, """
+		bench(connection, "邻接表用时(ms): ", 1000, """
 					WITH RECURSIVE temp(p, n) AS (
 					     SELECT id,`name` FROM adjacent WHERE id=130100000000
 					     UNION
@@ -37,7 +36,7 @@ public final class Benchmark {
 					)
 					SELECT * FROM temp;
 				""");
-		bench(conn, "闭包表用时(ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
+		bench(connection, "闭包表用时(ms): ", 1000, "SELECT id,name FROM category JOIN category_tree ON id=descendant WHERE ancestor=130100000000");
 
 		System.out.println("\n测试结束，表和数据未删除。");
 	}

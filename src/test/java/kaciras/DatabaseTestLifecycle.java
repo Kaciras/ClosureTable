@@ -5,34 +5,28 @@ import kaciras.setup.SimpleDataset;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.extension.*;
 
-import javax.sql.DataSource;
-
 /**
  * 每个测试都要配置数据库，所以就把这部分逻辑提出来了。
  */
 public final class DatabaseTestLifecycle implements
 		BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
-	private final DBManager dbManager;
+	private final DBManager manager;
 
-	private final DataSource dataSource;
 	private final SqlSession session;
 	private final Repository repository;
 
 	public DatabaseTestLifecycle() throws Exception {
-		dbManager = DBManager.open();
-
-		dataSource = dbManager.getDataSource();
-		session = Utils.createSqlSession(dataSource);
+		manager = DBManager.open();
+		session = Utils.createSqlSession(new TrackingDataSource(manager.getConnection()));
 
 		var mapper = session.getMapper(CategoryMapper.class);
-		Category.mapper = mapper;
-		repository = new Repository(mapper);
+		repository = new Repository(Category.mapper = mapper);
 	}
 
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
-		try (var importer = dbManager.createTable("closure.sql")) {
+		try (var importer = manager.createTable("closure.sql")) {
 			try (var ds = new SimpleDataset()) {
 				while (ds.hasNext()) {
 					importer.importData(ds.next());
@@ -48,15 +42,14 @@ public final class DatabaseTestLifecycle implements
 
 	@Override
 	public void afterAll(ExtensionContext context) {
-		session.close();
-		dbManager.dropTables();
+		manager.dropTables();
 	}
 
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
 		var instance = context.getRequiredTestInstance();
 		inject(instance, "session", session);
-		inject(instance, "dataSource", dataSource);
+		inject(instance, "manager", manager);
 		inject(instance, "repository", repository);
 	}
 

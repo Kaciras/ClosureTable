@@ -1,25 +1,24 @@
 package kaciras.setup;
 
+import kaciras.Utils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public abstract class DataImporter implements AutoCloseable {
 
-	private final DBManager manager;
 	private final Connection connection;
 	private final String postScript;
 
-	DataImporter(DBManager manager, Connection connection, String postScript) {
-		this.manager = manager;
+	DataImporter(Connection connection, String postScript) {
 		this.connection = connection;
 		this.postScript = postScript;
 	}
 
 	@Override
-	public void close() throws Exception {
-		manager.executeScript(connection, postScript);
-		connection.close();
+	public void close() {
+		Utils.executeScript(connection, postScript);
 	}
 
 	public abstract void importData(DataRow items) throws SQLException;
@@ -29,8 +28,8 @@ public abstract class DataImporter implements AutoCloseable {
 		private final PreparedStatement attr;
 		private final PreparedStatement tree;
 
-		public Closure(DBManager manager, Connection connection, String postScript) throws SQLException {
-			super(manager, connection, postScript);
+		public Closure(Connection connection, String postScript) throws SQLException {
+			super(connection, postScript);
 			attr = connection.prepareStatement("INSERT INTO category (id, name) VALUES (?,?)");
 			tree = connection.prepareStatement("INSERT INTO category_tree (ancestor, descendant, distance) VALUES (?,?,?)");
 		}
@@ -62,8 +61,8 @@ public abstract class DataImporter implements AutoCloseable {
 
 		private final PreparedStatement stat;
 
-		public Adjacent(DBManager manager, Connection connection, String postScript) throws SQLException {
-			super(manager, connection, postScript);
+		public Adjacent(Connection connection, String postScript) throws SQLException {
+			super(connection, postScript);
 			stat = connection.prepareStatement("INSERT INTO adjacent (id, parent, name) VALUES (?,?,?)");
 		}
 

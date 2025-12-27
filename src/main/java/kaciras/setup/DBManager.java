@@ -5,15 +5,12 @@ import lombok.Cleanup;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.ibatis.datasource.pooled.PooledDataSource;
-import org.apache.ibatis.jdbc.ScriptRunner;
 
-import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Properties;
 
 /**
@@ -27,16 +24,19 @@ public final class DBManager {
 
 	private final String dialect;
 	private final Properties properties;
-	private final DataSource dataSource;
 
-	public static DBManager open() throws IOException {
+	/**
+	 * 本项目仅需要单个连接，而且内存数据库也必须这样做，所以直接在此保持一个，无需关闭。
+	 */
+	private final Connection connection;
+
+	public static DBManager open() throws Exception {
 		var properties = new Properties();
 		try (var stream = Utils.loadConfig()) {
 			properties.load(stream);
 		}
 
-		var dataSource = new PooledDataSource(
-				properties.getProperty("DRIVER"),
+		var connection = DriverManager.getConnection(
 				properties.getProperty("URL"),
 				properties.getProperty("USER"),
 				properties.getProperty("PASSWORD")
@@ -50,7 +50,7 @@ public final class DBManager {
 			default -> throw new IOException(driver + " is not supported");
 		};
 
-		return new DBManager(dialect, properties, dataSource);
+		return new DBManager(dialect, properties, connection);
 	}
 
 	/**
@@ -73,29 +73,19 @@ public final class DBManager {
 		}
 	}
 
-	void executeScript(Connection connection, String sqlScript) {
-		var runner = new ScriptRunner(connection);
-		runner.setLogWriter(null);
-		runner.setEscapeProcessing(false);
-		runner.runScript(new StringReader(sqlScript));
-	}
-
 	public DataImporter createTable(String sqlName) throws Exception {
-		var connection = getDataSource().getConnection();
-		connection.setAutoCommit(false);
 		var scripts = loadSchemaFile(sqlName);
-		executeScript(connection, scripts[0]);
+		Utils.executeScript(connection, scripts[0]);
 
 		if (sqlName.equals("adjacent.sql")) {
-			return new DataImporter.Adjacent(this, connection, scripts[1]);
+			return new DataImporter.Adjacent(connection, scripts[1]);
 		} else {
-			return new DataImporter.Closure(this, connection, scripts[1]);
+			return new DataImporter.Closure(connection, scripts[1]);
 		}
 	}
 
 	@SneakyThrows
 	public void dropTables() {
-		@Cleanup var connection = dataSource.getConnection();
 		@Cleanup var statement = connection.createStatement();
 
 		statement.execute("DROP TABLE IF EXISTS category");
