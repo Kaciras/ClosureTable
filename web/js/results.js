@@ -37,12 +37,12 @@ export function showSimpleResult(text) {
 	currentResult.textContent = text;
 }
 
-export function showErrorResult() {
+export function showErrorResult(ex) {
 	const title = document.createElement("p");
-	title.textContent = "执行失败，错误：" + result.type;
+	title.textContent = "执行失败，错误：" + ex.type;
 
 	const message = document.createElement("p");
-	message.textContent = result.message;
+	message.textContent = ex.message;
 
 	switchResultPanel("error-result");
 	currentResult.innerHTML = "";

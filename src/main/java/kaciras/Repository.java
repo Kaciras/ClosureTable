@@ -46,6 +46,9 @@ public class Repository {
 	 * @param category 分类实体对象
 	 */
 	public void add(Category category, Category parent) {
+		if (parent == null) {
+			throw new IllegalArgumentException("parent not exists");
+		}
 		try {
 			mapper.insert(category);
 			mapper.insertPath(category.getId(), parent.getId());
