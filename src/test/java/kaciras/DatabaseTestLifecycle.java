@@ -5,8 +5,11 @@ import kaciras.setup.SimpleDataset;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.extension.*;
 
+import java.sql.SQLException;
+
 /**
- * 每个测试都要配置数据库，所以就把这部分逻辑提出来了。
+ * 每个测试都要配置数据库，所以就把这部分逻辑提出来了，注意 ExtendWith 是 class 级范围，
+ * 所以还是会运行多次，需要在 afterAll 里关连接。
  */
 public final class DatabaseTestLifecycle implements
 		BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
@@ -41,8 +44,9 @@ public final class DatabaseTestLifecycle implements
 	}
 
 	@Override
-	public void afterAll(ExtensionContext context) {
+	public void afterAll(ExtensionContext context) throws SQLException {
 		manager.dropTables();
+		manager.getConnection().close();
 	}
 
 	@Override

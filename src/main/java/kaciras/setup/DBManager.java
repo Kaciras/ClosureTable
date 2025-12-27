@@ -23,7 +23,7 @@ public final class DBManager {
 	private final Properties properties;
 
 	/**
-	 * 本项目仅需要单个连接，而且内存数据库也必须这样做，所以直接在此保持一个，无需关闭。
+	 * 本项目仅需要单个连接，而且内存数据库也必须这样做，所以直接在此保持一个。
 	 */
 	private final Connection connection;
 

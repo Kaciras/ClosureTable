@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS adjacent;
+
 CREATE TABLE adjacent
 (
     id     BIGINT NOT NULL,
